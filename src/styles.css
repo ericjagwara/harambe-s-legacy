@@ -150,3 +150,98 @@
     oklch(0.28 0.07 158 / 0.25) 100%
   );
 }
+
+/* Decorative patterns so no surface is a flat block of colour */
+@utility pattern-kente {
+  background-image: repeating-linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--gold) 22%, transparent) 0px,
+      color-mix(in oklab, var(--gold) 22%, transparent) 2px,
+      transparent 2px,
+      transparent 14px
+    ),
+    repeating-linear-gradient(
+      45deg,
+      color-mix(in oklab, var(--ember) 14%, transparent) 0px,
+      color-mix(in oklab, var(--ember) 14%, transparent) 2px,
+      transparent 2px,
+      transparent 22px
+    );
+}
+
+@utility pattern-dots {
+  background-image: radial-gradient(
+    color-mix(in oklab, var(--primary) 18%, transparent) 1.5px,
+    transparent 1.6px
+  );
+  background-size: 16px 16px;
+}
+
+@utility pattern-grid {
+  background-image: linear-gradient(
+      color-mix(in oklab, var(--primary) 10%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, color-mix(in oklab, var(--primary) 10%, transparent) 1px, transparent 1px);
+  background-size: 42px 42px;
+}
+
+@utility pattern-stripes {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    color-mix(in oklab, var(--gold) 20%, transparent) 0px,
+    color-mix(in oklab, var(--gold) 20%, transparent) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+}
+
+@utility chevron-rule {
+  height: 10px;
+  background-image: repeating-linear-gradient(
+    -60deg,
+    var(--gold) 0px,
+    var(--gold) 12px,
+    var(--primary) 12px,
+    var(--primary) 24px,
+    var(--ember) 24px,
+    var(--ember) 36px
+  );
+}
+
+@utility marquee-track {
+  animation: marquee 28s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@utility float-slow {
+  animation: floaty 6s ease-in-out infinite;
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@utility lift-card {
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 44px -22px oklch(0.32 0.08 155 / 0.55);
+  }
+}
