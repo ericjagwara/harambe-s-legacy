@@ -18,7 +18,7 @@ export const EVENT = {
 };
 
 export const CAMPUSES = [
-  { name: "Makerere University", distance: "Finish line host — 3 km loop" },
+  { name: "Makerere University", distance: "Finish line host - 3 km loop" },
   { name: "Kyambogo University", distance: "9.4 km to finish" },
   { name: "Uganda Christian University, Mukono", distance: "21 km relay leg" },
   { name: "Kampala International University", distance: "7.8 km to finish" },
@@ -57,7 +57,7 @@ export const TICKETS = [
     id: "virtual",
     title: "Virtual donor (non-running)",
     price: 0,
-    verification: "None — give any amount",
+    verification: "None - give any amount",
     start: "Remote participation",
   },
 ] as const;
@@ -81,11 +81,11 @@ export const BOOTHS = [
 
 export const DONORS = [
   { name: "Stanbic Business Incubator", amount: 15_000_000, type: "Corporate pledge" },
-  { name: "Anonymous", amount: 8_000_000, type: "Exhibition booth — Gold" },
+  { name: "Anonymous", amount: 8_000_000, type: "Exhibition booth - Gold" },
   { name: "Innovation Village", amount: 6_500_000, type: "Corporate pledge" },
   { name: "Rita N.", amount: 1_200_000, type: "Individual donation" },
   { name: "Anonymous", amount: 900_000, type: "Individual donation" },
-  { name: "Kampala Angel Network", amount: 4_500_000, type: "Exhibition booth — Silver" },
+  { name: "Kampala Angel Network", amount: 4_500_000, type: "Exhibition booth - Silver" },
   { name: "Joel K.", amount: 300_000, type: "Individual donation" },
 ];
 

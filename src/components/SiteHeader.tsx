@@ -23,7 +23,7 @@ export function SiteHeader() {
         <Link to="/" className="shrink-0">
           <img
             src={logo.url}
-            alt="Startup Harambe — Run by SFV"
+            alt="Startup Harambe - Run by SFV"
             className="h-9 w-auto md:h-11"
             width={220}
             height={72}

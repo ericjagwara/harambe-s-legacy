@@ -29,7 +29,7 @@ export const Route = createFileRoute("/partners-kits")({
         content:
           "Sponsorship roles, running kit contents, ticket pricing and Gold/Silver/Bronze exhibition booth packages with the early-stage startup discount.",
       },
-      { property: "og:title", content: "Partners & Kits — Startups Harambe Run" },
+      { property: "og:title", content: "Partners & Kits - Startups Harambe Run" },
       {
         property: "og:description",
         content: "Become a partner, sponsor the run, or book exhibition space at the finish line.",
@@ -115,7 +115,7 @@ function PartnersKits() {
               className="grid gap-4"
               onSubmit={(e) => {
                 e.preventDefault();
-                toast.success("Sponsorship interest received — the team will contact you.");
+                toast.success("Sponsorship interest received - the team will contact you.");
               }}
             >
               <div className="grid gap-2">
@@ -171,7 +171,7 @@ function PartnersKits() {
                   <SelectContent>
                     {BOOTHS.map((b) => (
                       <SelectItem key={b.name} value={b.name}>
-                        {b.name} — {b.size} · {ugx(b.price)}
+                        {b.name} - {b.size} · {ugx(b.price)}
                       </SelectItem>
                     ))}
                   </SelectContent>

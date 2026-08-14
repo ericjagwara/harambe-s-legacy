@@ -27,9 +27,9 @@ export const Route = createFileRoute("/register")({
       {
         name: "description",
         content:
-          "Register as a student runner (UGX 30,000), a general public runner (UGX 50,000) or a virtual donor, choose your starting point and pay — plus volunteer and referral sign-ups.",
+          "Register as a student runner (UGX 30,000), a general public runner (UGX 50,000) or a virtual donor, choose your starting point and pay - plus volunteer and referral sign-ups.",
       },
-      { property: "og:title", content: "Registration — Startups Harambe Run" },
+      { property: "og:title", content: "Registration - Startups Harambe Run" },
       {
         property: "og:description",
         content: "Pick your category, choose your starting point and confirm with payment.",
@@ -183,7 +183,7 @@ function Register() {
                 className="grid gap-4 sm:grid-cols-2"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  toast.success("Thanks for volunteering — the team will reach out.");
+                  toast.success("Thanks for volunteering - the team will reach out.");
                 }}
               >
                 <div className="sm:col-span-2">

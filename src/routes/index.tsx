@@ -17,7 +17,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Register, donate or sponsor the Startups Harambe Run — 8 campuses and 7 neighborhood stations converging at Makerere University on 6 December 2026.",
+          "Register, donate or sponsor the Startups Harambe Run - 8 campuses and 7 neighborhood stations converging at Makerere University on 6 December 2026.",
       },
       { property: "og:title", content: "Startups Harambe Run 2026" },
       {
@@ -54,7 +54,7 @@ function Home() {
             Fifteen starting points. <span className="text-gold">One finish line.</span>
           </h1>
           <p className="mt-5 max-w-xl text-lg text-primary-foreground/85">
-            {EVENT.hashtag} — a multi-origin fundraising run backing Uganda's student founders,
+            {EVENT.hashtag} - a multi-origin fundraising run backing Uganda's student founders,
             entrepreneurs and the investors who bet on them.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
@@ -86,7 +86,7 @@ function Home() {
           <p className="mt-4 text-muted-foreground">
             Runners set off from 8 university campuses and 7 neighborhood stations across greater
             Kampala and converge on {EVENT.finish}. Ticket sales, corporate pledges, individual
-            donations and exhibition bookings all feed one transparent pot — reported live on this
+            donations and exhibition bookings all feed one transparent pot - reported live on this
             site.
           </p>
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
@@ -194,7 +194,7 @@ function Home() {
             className="mx-auto mt-6 flex max-w-md flex-col gap-3 sm:flex-row"
             onSubmit={(e) => {
               e.preventDefault();
-              toast.success("You're on the list — we'll be in touch.");
+              toast.success("You're on the list - we'll be in touch.");
               (e.currentTarget as HTMLFormElement).reset();
             }}
           >
