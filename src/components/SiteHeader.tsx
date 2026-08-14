@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
 import { useState } from "react";
-import logo from "@/assets/logo.asset.json";
+import logo from "@/assets/logo-wide.asset.json";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -19,14 +19,15 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur">
+      <div className="chevron-rule w-full" />
       <div className="mx-auto flex w-full max-w-6xl items-center gap-4 px-5 py-3 md:px-8">
         <Link to="/" className="shrink-0">
           <img
             src={logo.url}
-            alt="Startup Harambe - Run by SFV"
-            className="h-9 w-auto md:h-11"
-            width={220}
-            height={72}
+            alt="Startup Harambe, Run by SFV"
+            className="h-14 w-auto md:h-20"
+            width={1770}
+            height={600}
           />
         </Link>
 
