@@ -1,10 +1,8 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowRight, HeartHandshake, MapPin, Users } from "lucide-react";
 import { toast } from "sonner";
-import hero from "@/assets/hero.asset.json";
 import roadRun from "@/assets/road-run.asset.json";
 import trailRun from "@/assets/trail-run.asset.json";
-import logo from "@/assets/logo-wide.asset.json";
 import { PartnerStrip } from "@/components/PartnerStrip";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -42,22 +40,15 @@ function Home() {
 
       <section className="relative isolate overflow-hidden">
         <img
-          src={hero.url}
-          alt="Runners in green and gold vests on a Kampala road at sunrise"
+          src={trailRun.url}
+          alt="Runners in green kit heading up a dusty Ugandan road at sunrise"
           className="absolute inset-0 size-full object-cover"
-          width={1920}
-          height={1088}
+          width={1264}
+          height={843}
         />
         <div className="hero-overlay absolute inset-0" />
         <div className="pattern-stripes absolute inset-0 opacity-30" />
         <div className="relative mx-auto w-full max-w-6xl px-5 py-24 md:px-8 md:py-36">
-          <img
-            src={logo.url}
-            alt="Startup Harambe, Run by SFV"
-            className="float-slow mb-6 h-16 w-auto rounded-lg bg-background/95 p-2 md:h-24"
-            width={1770}
-            height={600}
-          />
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-gold">
             {EVENT.date} · {EVENT.finish}
           </p>
@@ -149,8 +140,8 @@ function Home() {
       <section className="grid md:grid-cols-2">
         <div className="relative min-h-64 overflow-hidden">
           <img
-            src={trailRun.url}
-            alt="Runners in green kit on a dusty morning road"
+            src={roadRun.url}
+            alt="Close-up of runners in green vests striding along a riverside road"
             className="size-full object-cover"
           />
         </div>
@@ -182,8 +173,8 @@ function Home() {
         </div>
         <div className="relative order-3 min-h-64 overflow-hidden md:order-4">
           <img
-            src={roadRun.url}
-            alt="Close-up of runners in green vests striding along a riverside road"
+            src={trailRun.url}
+            alt="A pack of runners disappearing into morning dust on a country road"
             className="size-full object-cover"
           />
         </div>
