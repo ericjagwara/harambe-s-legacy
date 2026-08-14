@@ -67,7 +67,7 @@ export function SiteFooter() {
           </div>
         </div>
       </div>
-      <div className="border-t border-primary-foreground/15 py-5 text-center text-xs text-primary-foreground/70">
+      <div className="relative border-t border-primary-foreground/15 py-5 text-center text-xs text-primary-foreground/70">
         © {new Date().getFullYear()} TechBuzz Hub · Startup Funding Vehicles
       </div>
     </footer>
