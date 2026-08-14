@@ -34,9 +34,9 @@ const SECTIONS = [
   },
   {
     id: "sfv",
-    title: "About SFV — Startup Funding Vehicles",
+    title: "About SFV - Startup Funding Vehicles",
     body: [
-      "Startup Funding Vehicles (SFV) is TechBuzz Hub's initiative to build practical, locally governed funding instruments for African startups — from small campus innovation grants to structured co-investment vehicles.",
+      "Startup Funding Vehicles (SFV) is TechBuzz Hub's initiative to build practical, locally governed funding instruments for African startups - from small campus innovation grants to structured co-investment vehicles.",
       "Funds raised through the run flow into SFV instruments, and the site reports the totals publicly so every contributor can see where the money lands.",
     ],
   },

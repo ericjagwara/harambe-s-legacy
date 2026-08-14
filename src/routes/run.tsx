@@ -20,7 +20,7 @@ export const Route = createFileRoute("/run")({
         content:
           "All 8 university campuses and 7 neighborhood starting stations, per-station distances, kit collection and safety arrangements for the Startups Harambe Run.",
       },
-      { property: "og:title", content: "Run / Route Map — Startups Harambe Run" },
+      { property: "og:title", content: "Run / Route Map - Startups Harambe Run" },
       {
         property: "og:description",
         content: "Fifteen starting points converging at Makerere University Main Campus.",
@@ -60,7 +60,7 @@ function RoutePage() {
       <PageHero
         eyebrow="Run / Route map"
         title="Fifteen starts, one convergence"
-        description={`Every corridor ends at ${EVENT.finish}. Choose the start closest to you — that is also where you collect your kit.`}
+        description={`Every corridor ends at ${EVENT.finish}. Choose the start closest to you - that is also where you collect your kit.`}
       />
 
       <div className="section space-y-14">
@@ -115,7 +115,7 @@ function RoutePage() {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="finish">
-              <AccordionTrigger>Finish line — {EVENT.finish}</AccordionTrigger>
+              <AccordionTrigger>Finish line - {EVENT.finish}</AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
                 All corridors converge at Makerere University Main Campus, where the exhibition
                 village, pitch stage, medical tent and prize ceremony are hosted.

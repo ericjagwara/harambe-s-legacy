@@ -34,9 +34,9 @@ export const Route = createFileRoute("/statistics")({
       {
         name: "description",
         content:
-          "See funds raised, kits sold and the public contribution list for the Startups Harambe Run — and make a donation or corporate pledge.",
+          "See funds raised, kits sold and the public contribution list for the Startups Harambe Run - and make a donation or corporate pledge.",
       },
-      { property: "og:title", content: "Statistics & Donations — Startups Harambe Run" },
+      { property: "og:title", content: "Statistics & Donations - Startups Harambe Run" },
       {
         property: "og:description",
         content: "Transparent, live reporting of every shilling raised for Uganda's startups.",
@@ -55,7 +55,7 @@ function Statistics() {
       <PageHero
         eyebrow="Statistics & donations"
         title="Every shilling, in the open"
-        description="Ticket payments, corporate pledges, individual donations and booth bookings — reconciled and reported publicly."
+        description="Ticket payments, corporate pledges, individual donations and booth bookings - reconciled and reported publicly."
       />
 
       <section className="section">

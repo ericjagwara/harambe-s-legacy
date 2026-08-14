@@ -17,9 +17,9 @@ export const Route = createFileRoute("/contact")({
       {
         name: "description",
         content:
-          "Reach the Startups Harambe Run team at TechBuzz Hub — email, phone, office location and a direct message form.",
+          "Reach the Startups Harambe Run team at TechBuzz Hub - email, phone, office location and a direct message form.",
       },
-      { property: "og:title", content: "Contact — Startups Harambe Run" },
+      { property: "og:title", content: "Contact - Startups Harambe Run" },
       {
         property: "og:description",
         content: "Questions about running, donating, sponsoring or exhibiting? Talk to the team.",
@@ -36,7 +36,7 @@ function Contact() {
       <PageHero
         eyebrow="Contact us"
         title="Talk to the organisers"
-        description="Runners, sponsors, exhibitors and media — we answer within two working days."
+        description="Runners, sponsors, exhibitors and media - we answer within two working days."
       />
 
       <section className="section grid gap-10 lg:grid-cols-2">
@@ -45,7 +45,7 @@ function Contact() {
             className="grid gap-4"
             onSubmit={(e) => {
               e.preventDefault();
-              toast.success("Message sent — thank you for reaching out.");
+              toast.success("Message sent - thank you for reaching out.");
               (e.currentTarget as HTMLFormElement).reset();
             }}
           >
