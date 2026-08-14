@@ -2,6 +2,9 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowRight, HeartHandshake, MapPin, Users } from "lucide-react";
 import { toast } from "sonner";
 import hero from "@/assets/hero.asset.json";
+import roadRun from "@/assets/road-run.asset.json";
+import trailRun from "@/assets/trail-run.asset.json";
+import logo from "@/assets/logo-wide.asset.json";
 import { PartnerStrip } from "@/components/PartnerStrip";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -46,7 +49,15 @@ function Home() {
           height={1088}
         />
         <div className="hero-overlay absolute inset-0" />
+        <div className="pattern-stripes absolute inset-0 opacity-30" />
         <div className="relative mx-auto w-full max-w-6xl px-5 py-24 md:px-8 md:py-36">
+          <img
+            src={logo.url}
+            alt="Startup Harambe, Run by SFV"
+            className="float-slow mb-6 h-16 w-auto rounded-lg bg-background/95 p-2 md:h-24"
+            width={1770}
+            height={600}
+          />
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-gold">
             {EVENT.date} · {EVENT.finish}
           </p>
@@ -73,11 +84,14 @@ function Home() {
             </Button>
           </div>
         </div>
+        <div className="chevron-rule absolute inset-x-0 bottom-0" />
       </section>
 
       <PartnerStrip />
 
-      <section className="section grid gap-10 md:grid-cols-[1.2fr_1fr]">
+      <section className="relative overflow-hidden">
+        <div className="pattern-grid absolute inset-0 opacity-70" />
+        <div className="section relative grid gap-10 md:grid-cols-[1.2fr_1fr]">
         <div>
           <p className="eyebrow">The campaign</p>
           <h2 className="mt-3 text-3xl uppercase md:text-4xl">
@@ -95,7 +109,10 @@ function Home() {
               { icon: MapPin, label: "Campuses & stations", value: `${CAMPUSES.length + STATIONS.length} starts` },
               { icon: HeartHandshake, label: "Ways to give", value: "4 channels" },
             ].map((s) => (
-              <div key={s.label} className="rounded-lg border border-border bg-card p-4 shadow-lift">
+              <div
+                key={s.label}
+                className="lift-card rounded-lg border border-border bg-card p-4 shadow-lift"
+              >
                 <s.icon className="size-5 text-ember" />
                 <p className="mt-3 font-display text-xl font-extrabold">{s.value}</p>
                 <p className="text-sm text-muted-foreground">{s.label}</p>
@@ -104,7 +121,8 @@ function Home() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-6 shadow-lift">
+        <div className="lift-card relative overflow-hidden rounded-xl border border-border bg-card p-6 shadow-lift">
+          <div className="pattern-stripes absolute -right-10 -top-10 size-32 rotate-12 opacity-60" />
           <p className="eyebrow">Live fundraising counter</p>
           <p className="mt-3 font-display text-4xl font-extrabold text-primary">
             {ugx(EVENT.raised)}
@@ -125,10 +143,55 @@ function Home() {
             <Link to="/statistics">See the contribution list</Link>
           </Button>
         </div>
+        </div>
       </section>
 
-      <section className="bg-primary text-primary-foreground">
-        <div className="section">
+      <section className="grid md:grid-cols-2">
+        <div className="relative min-h-64 overflow-hidden">
+          <img
+            src={trailRun.url}
+            alt="Runners in green kit on a dusty morning road"
+            className="size-full object-cover"
+          />
+        </div>
+        <div className="relative flex items-center overflow-hidden bg-secondary/60">
+          <div className="pattern-dots absolute inset-0 opacity-70" />
+          <div className="relative px-5 py-14 md:px-10">
+            <p className="eyebrow">The atmosphere</p>
+            <h2 className="mt-3 text-3xl uppercase md:text-4xl">
+              Dust, sunrise and a whole city moving
+            </h2>
+            <p className="mt-4 text-muted-foreground">
+              Pace groups, campus crews, corporate teams and family walkers set off together at
+              first light. Marshals, water points and medics line every leg into the finish.
+            </p>
+          </div>
+        </div>
+        <div className="relative order-4 flex items-center overflow-hidden bg-primary text-primary-foreground md:order-3">
+          <div className="pattern-kente absolute inset-0 opacity-30" />
+          <div className="relative px-5 py-14 md:px-10">
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-gold">Every pace welcome</p>
+            <h2 className="mt-3 text-3xl uppercase md:text-4xl">
+              Race it, jog it or <span className="text-gold">walk it</span>
+            </h2>
+            <p className="mt-4 text-primary-foreground/85">
+              Competitive runners chase the finish tape at Makerere, while walkers and virtual
+              donors keep the fundraising counter climbing all day.
+            </p>
+          </div>
+        </div>
+        <div className="relative order-3 min-h-64 overflow-hidden md:order-4">
+          <img
+            src={roadRun.url}
+            alt="Close-up of runners in green vests striding along a riverside road"
+            className="size-full object-cover"
+          />
+        </div>
+      </section>
+
+      <section className="relative overflow-hidden bg-primary text-primary-foreground">
+        <div className="pattern-kente absolute inset-0 opacity-25" />
+        <div className="section relative">
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-gold">Our philosophy</p>
           <h2 className="mt-3 max-w-3xl text-3xl uppercase md:text-4xl">
             Students become founders. Founders become employers. Investors make it repeatable.
@@ -148,7 +211,7 @@ function Home() {
                 d: "Local and diaspora capital gets a visible, accountable pipeline of deals.",
               },
             ].map((p) => (
-              <div key={p.t} className="border-t-2 border-gold pt-4">
+              <div key={p.t} className="lift-card border-t-2 border-gold pt-4">
                 <h3 className="text-xl uppercase text-gold">{p.t}</h3>
                 <p className="mt-2 text-sm text-primary-foreground/80">{p.d}</p>
               </div>
@@ -157,7 +220,9 @@ function Home() {
         </div>
       </section>
 
-      <section className="section grid items-center gap-8 md:grid-cols-2">
+      <section className="relative overflow-hidden">
+        <div className="pattern-grid absolute inset-0 opacity-70" />
+        <div className="section relative grid items-center gap-8 md:grid-cols-2">
         <div>
           <p className="eyebrow">Run map</p>
           <h2 className="mt-3 text-3xl uppercase md:text-4xl">Pick your starting point</h2>
@@ -171,9 +236,9 @@ function Home() {
             </Link>
           </Button>
         </div>
-        <div className="grid grid-cols-2 gap-2 rounded-xl border border-border bg-secondary/60 p-4 text-sm">
+        <div className="grid grid-cols-2 gap-2 rounded-xl border border-border bg-secondary/60 p-4 text-sm shadow-lift">
           {[...CAMPUSES.slice(0, 4), ...STATIONS.slice(0, 4)].map((s) => (
-            <div key={s.name} className="rounded-md bg-card px-3 py-2 font-semibold">
+            <div key={s.name} className="lift-card rounded-md bg-card px-3 py-2 font-semibold">
               {s.name}
             </div>
           ))}
@@ -181,10 +246,12 @@ function Home() {
             Finish · {EVENT.finish}
           </div>
         </div>
+        </div>
       </section>
 
-      <section className="bg-gold text-gold-foreground">
-        <div className="section text-center">
+      <section className="relative overflow-hidden bg-gold text-gold-foreground">
+        <div className="pattern-dots absolute inset-0 opacity-40" />
+        <div className="section relative text-center">
           <h2 className="text-3xl uppercase md:text-4xl">Get the race updates first</h2>
           <p className="mx-auto mt-3 max-w-xl text-sm">
             Route confirmations, kit collection dates and sponsor announcements straight to your
