@@ -1,12 +1,12 @@
-# Harambe's Legacy
+# Project Hug
 
-harambe
+attached is the logo
 
 This project was built with [Lovable](https://lovable.dev).
 
 ## Build with Lovable
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/e890e66a-cfd6-4e79-8789-2f537f9800f4).
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/d0f5ed01-84a2-40f4-bce0-3cbb83abb529).
 
 - **Ship faster**: describe what you want to build and Lovable handles the code.
 - **Stay in sync**: every change made in Lovable is committed straight to this repository.
