@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { BOOTHS, KIT_CONTENTS, TICKETS, ugx } from "@/data/event";
+import { PARTNERS } from "@/data/partners";
 
 export const Route = createFileRoute("/partners-kits")({
   head: () => ({
@@ -49,6 +50,27 @@ function PartnersKits() {
         description="Sponsorship roles, exhibition packages and exactly what every runner carries on race day."
       />
       <PartnerStrip />
+
+      <section className="section">
+        <p className="eyebrow">Our partners</p>
+        <h2 className="mt-3 text-3xl uppercase">Backed by the ecosystem</h2>
+        <div className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-3">
+          {PARTNERS.map((p) => (
+            <div
+              key={p.name}
+              className="lift-card flex h-28 items-center justify-center rounded-xl border border-border bg-card p-5 shadow-lift"
+            >
+              <img
+                src={p.logo}
+                alt={`${p.name} logo`}
+                loading="lazy"
+                className="max-h-16 w-auto max-w-full object-contain"
+              />
+            </div>
+          ))}
+        </div>
+      </section>
+
 
       <section className="section">
         <p className="eyebrow">Tickets & kits</p>

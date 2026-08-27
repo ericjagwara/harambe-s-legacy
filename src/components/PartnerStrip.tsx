@@ -1,11 +1,4 @@
-const PARTNERS = [
-  "TechBuzz Hub",
-  "Startup Funding Vehicles",
-  "Makerere University",
-  "Innovation Village",
-  "Kampala Angel Network",
-  "Your brand here",
-];
+import { PARTNERS } from "@/data/partners";
 
 export function PartnerStrip() {
   return (
@@ -16,13 +9,18 @@ export function PartnerStrip() {
           Featured partners &amp; sponsors
         </p>
         <div className="mt-5 flex overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_10%,#000_90%,transparent)]">
-          <div className="marquee-track flex w-max shrink-0 items-center gap-3 pr-3">
+          <div className="marquee-track flex w-max shrink-0 items-center gap-4 pr-4">
             {[...PARTNERS, ...PARTNERS].map((p, i) => (
               <span
-                key={`${p}-${i}`}
-                className="whitespace-nowrap rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground/80 shadow-lift"
+                key={`${p.name}-${i}`}
+                className="flex h-20 w-44 shrink-0 items-center justify-center rounded-xl border border-border bg-card px-5 shadow-lift"
               >
-                {p}
+                <img
+                  src={p.logo}
+                  alt={`${p.name} logo`}
+                  loading="lazy"
+                  className="max-h-12 w-auto max-w-full object-contain"
+                />
               </span>
             ))}
           </div>
