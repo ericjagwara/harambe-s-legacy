@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { BOOTHS, KIT_CONTENTS, TICKETS, ugx } from "@/data/event";
+import { PARTNERS } from "@/data/partners";
 
 export const Route = createFileRoute("/partners-kits")({
   head: () => ({
