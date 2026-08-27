@@ -58,13 +58,13 @@ function PartnersKits() {
           {PARTNERS.map((p) => (
             <div
               key={p.name}
-              className="lift-card flex h-28 items-center justify-center rounded-xl border border-border bg-card p-5 shadow-lift"
+              className="lift-card flex h-36 items-center justify-center rounded-xl border border-border bg-card p-5 shadow-lift"
             >
               <img
                 src={p.logo}
                 alt={`${p.name} logo`}
                 loading="lazy"
-                className="max-h-16 w-auto max-w-full object-contain"
+                className="max-h-24 w-auto max-w-full object-contain"
               />
             </div>
           ))}

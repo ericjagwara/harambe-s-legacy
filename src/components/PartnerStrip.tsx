@@ -13,13 +13,13 @@ export function PartnerStrip() {
             {[...PARTNERS, ...PARTNERS].map((p, i) => (
               <span
                 key={`${p.name}-${i}`}
-                className="flex h-20 w-44 shrink-0 items-center justify-center rounded-xl border border-border bg-card px-5 shadow-lift"
+                className="flex h-24 w-52 shrink-0 items-center justify-center rounded-xl border border-border bg-card px-5 shadow-lift"
               >
                 <img
                   src={p.logo}
                   alt={`${p.name} logo`}
                   loading="lazy"
-                  className="max-h-12 w-auto max-w-full object-contain"
+                  className="max-h-16 w-auto max-w-full object-contain"
                 />
               </span>
             ))}
