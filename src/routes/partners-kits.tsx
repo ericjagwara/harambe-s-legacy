@@ -51,6 +51,27 @@ function PartnersKits() {
       <PartnerStrip />
 
       <section className="section">
+        <p className="eyebrow">Our partners</p>
+        <h2 className="mt-3 text-3xl uppercase">Backed by the ecosystem</h2>
+        <div className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-3">
+          {PARTNERS.map((p) => (
+            <div
+              key={p.name}
+              className="lift-card flex h-28 items-center justify-center rounded-xl border border-border bg-card p-5 shadow-lift"
+            >
+              <img
+                src={p.logo}
+                alt={`${p.name} logo`}
+                loading="lazy"
+                className="max-h-16 w-auto max-w-full object-contain"
+              />
+            </div>
+          ))}
+        </div>
+      </section>
+
+
+      <section className="section">
         <p className="eyebrow">Tickets & kits</p>
         <h2 className="mt-3 text-3xl uppercase">What a ticket buys</h2>
         <div className="mt-8 grid gap-6 md:grid-cols-3">
