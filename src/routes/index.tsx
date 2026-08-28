@@ -1,8 +1,9 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowRight, HeartHandshake, MapPin, Users } from "lucide-react";
 import { toast } from "sonner";
-import roadRun from "@/assets/road-run.asset.json";
-import trailRun from "@/assets/trail-run.asset.json";
+import crowdStart from "@/assets/gen-crowd-start.jpg";
+import finishFestival from "@/assets/gen-finish-festival.jpg";
+import runnerPortrait from "@/assets/gen-runner-portrait.jpg";
 import { PartnerStrip } from "@/components/PartnerStrip";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -40,11 +41,11 @@ function Home() {
 
       <section className="relative isolate overflow-hidden">
         <img
-          src={trailRun.url}
-          alt="Runners in green kit heading up a dusty Ugandan road at sunrise"
+          src={crowdStart}
+          alt="A large field of runners in green and yellow Harambe Run kit setting off at sunrise in Kampala"
           className="absolute inset-0 size-full object-cover"
-          width={1264}
-          height={843}
+          width={1600}
+          height={912}
         />
         <div className="hero-overlay absolute inset-0" />
         <div className="pattern-stripes absolute inset-0 opacity-30" />
@@ -140,8 +141,11 @@ function Home() {
       <section className="grid md:grid-cols-2">
         <div className="relative min-h-64 overflow-hidden">
           <img
-            src={roadRun.url}
-            alt="Close-up of runners in green vests striding along a riverside road"
+            src={runnerPortrait}
+            alt="A smiling runner in the green and yellow Harambe Run vest on a tree-lined Kampala avenue"
+            loading="lazy"
+            width={1200}
+            height={1408}
             className="size-full object-cover"
           />
         </div>
@@ -173,8 +177,11 @@ function Home() {
         </div>
         <div className="relative order-3 min-h-64 overflow-hidden md:order-4">
           <img
-            src={trailRun.url}
-            alt="A pack of runners disappearing into morning dust on a country road"
+            src={finishFestival}
+            alt="Runners breaking the tape at the campus finish line festival"
+            loading="lazy"
+            width={1600}
+            height={1008}
             className="size-full object-cover"
           />
         </div>
