@@ -1,4 +1,4 @@
-import roadRun from "@/assets/road-run.asset.json";
+import heroImg from "@/assets/gen-finish-festival.jpg";
 
 export function PageHero({
   eyebrow,
@@ -12,7 +12,7 @@ export function PageHero({
   return (
     <section className="relative isolate overflow-hidden bg-primary text-primary-foreground">
       <img
-        src={roadRun.url}
+        src={heroImg}
         alt=""
         aria-hidden
         className="absolute inset-0 size-full object-cover opacity-25"
