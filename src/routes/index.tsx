@@ -141,8 +141,11 @@ function Home() {
       <section className="grid md:grid-cols-2">
         <div className="relative min-h-64 overflow-hidden">
           <img
-            src={roadRun.url}
-            alt="Close-up of runners in green vests striding along a riverside road"
+            src={runnerPortrait}
+            alt="A smiling runner in the green and yellow Harambe Run vest on a tree-lined Kampala avenue"
+            loading="lazy"
+            width={1200}
+            height={1408}
             className="size-full object-cover"
           />
         </div>
