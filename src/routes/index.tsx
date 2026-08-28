@@ -41,11 +41,11 @@ function Home() {
 
       <section className="relative isolate overflow-hidden">
         <img
-          src={trailRun.url}
-          alt="Runners in green kit heading up a dusty Ugandan road at sunrise"
+          src={crowdStart}
+          alt="A large field of runners in green and yellow Harambe Run kit setting off at sunrise in Kampala"
           className="absolute inset-0 size-full object-cover"
-          width={1264}
-          height={843}
+          width={1600}
+          height={912}
         />
         <div className="hero-overlay absolute inset-0" />
         <div className="pattern-stripes absolute inset-0 opacity-30" />
