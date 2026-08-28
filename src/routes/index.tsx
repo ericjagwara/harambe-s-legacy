@@ -1,8 +1,9 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowRight, HeartHandshake, MapPin, Users } from "lucide-react";
 import { toast } from "sonner";
-import roadRun from "@/assets/road-run.asset.json";
-import trailRun from "@/assets/trail-run.asset.json";
+import crowdStart from "@/assets/gen-crowd-start.jpg";
+import finishFestival from "@/assets/gen-finish-festival.jpg";
+import runnerPortrait from "@/assets/gen-runner-portrait.jpg";
 import { PartnerStrip } from "@/components/PartnerStrip";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
