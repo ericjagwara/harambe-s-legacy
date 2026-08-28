@@ -177,8 +177,11 @@ function Home() {
         </div>
         <div className="relative order-3 min-h-64 overflow-hidden md:order-4">
           <img
-            src={trailRun.url}
-            alt="A pack of runners disappearing into morning dust on a country road"
+            src={finishFestival}
+            alt="Runners breaking the tape at the campus finish line festival"
+            loading="lazy"
+            width={1600}
+            height={1008}
             className="size-full object-cover"
           />
         </div>
