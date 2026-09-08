@@ -1,24 +1,53 @@
-# Project Hug
+# Startups Harambe Run 2026
 
-attached is the logo
+Official website for the Startups Harambe Run 2026, a multi-origin fundraising run
+converging at Makerere University on Sunday 6 December 2026 to strengthen Uganda's
+startup investment pipeline.
 
-This project was built with [Lovable](https://lovable.dev).
+## Stack
 
-## Build with Lovable
+- React 19 + TypeScript
+- Vite 7
+- Tailwind CSS 3 + shadcn/ui theme system
+- Hash-based page routing (no server rewrites needed on static hosts)
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/d0f5ed01-84a2-40f4-bce0-3cbb83abb529).
+## Pages
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+Home, Runners, Route, Programs, Partners, Results, Register, Donate, Contact.
 
-## Development
+## Local development
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+```bash
+npm install
 npm run dev
 ```
+
+## Production build
+
+```bash
+npm run build
+```
+
+Output lands in `dist/`.
+
+## Deploy to Netlify
+
+The repo includes `netlify.toml` with the build command and publish directory,
+so connected-repo deploys work out of the box:
+
+1. Push this repository to GitHub.
+2. In Netlify: Add new site, import the GitHub repository.
+3. Netlify reads `netlify.toml` automatically (build: `npm run build`, publish: `dist`).
+4. Deploy.
+
+All routes use hash URLs (for example `/#/runners`), so no SPA redirect rules are
+required. Alternatively, run `npm run build` locally and drag the `dist/` folder
+into the Netlify dashboard.
+
+## Notes
+
+- Registration, donation, sponsorship, booth, volunteer, and contact forms are
+  front-end flows only. No backend or payment gateway is connected; payment
+  channels remain subject to TechBuzz Hub confirmation.
+- Fundraising figures on the Results page are labeled sample preview data.
+- Brand assets live in `public/assets/`.
