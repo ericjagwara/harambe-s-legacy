@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import Header from './components/Header'
 import Footer from './components/Footer'
-import Ticker from './components/Ticker'
 import Home from './pages/Home'
 import RunnersPage from './pages/RunnersPage'
 import RoutePage from './pages/RoutePage'
@@ -11,16 +10,6 @@ import ResultsPage from './pages/ResultsPage'
 import RegisterPage from './pages/RegisterPage'
 import ContactPage from './pages/ContactPage'
 import { pageFromHash, routes, type PageKey } from './routes'
-
-const footerTicker = [
-  '#StartupsHarambeRun',
-  '#HarambeRun',
-  '#HarambeInnovation',
-  '6 December 2026',
-  'Makerere University',
-  'Run the city',
-  'Fund a founder',
-]
 
 function renderPage(page: PageKey) {
   switch (page) {
