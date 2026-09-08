@@ -1,21 +1,9 @@
 import { ArrowRight } from 'lucide-react'
 import Reveal from '../components/Reveal'
 import Countdown from '../components/Countdown'
-import Ticker from '../components/Ticker'
 import { CtaBand, MetricGrid, PageSection, SectionHeader } from '../components/PageLayout'
 import { asset, heroStats, partnerLogos, programCards } from '../data'
 import { pageHref } from '../routes'
-
-const homeTicker = [
-  'UGX 3.75B target',
-  '5,000+ runners',
-  '15 universities',
-  '7 neighborhood stations',
-  'Students',
-  'Founders',
-  'Investors',
-  'One finish line',
-]
 
 export default function Home() {
   return (
