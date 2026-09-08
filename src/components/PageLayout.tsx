@@ -104,9 +104,9 @@ export function CtaBand({ title, copy, primaryLabel, primaryPage, secondaryLabel
 
 export function MetricGrid({ items, dark = false }: { items: Array<{ value: string; label: string }>; dark?: boolean }) {
   return (
-    <div className={`grid gap-px border ${dark ? 'border-white/15 bg-white/15' : 'border-border bg-border'} sm:grid-cols-2 lg:grid-cols-4`}>
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {items.map((item) => (
-        <div key={item.label} className={`${dark ? 'bg-primary' : 'bg-white'} p-5`}>
+        <div key={item.label} className={`${dark ? 'bg-white/[0.07]' : 'bg-white'} p-5`}>
           <p className={`font-display text-4xl uppercase leading-none ${dark ? 'text-secondary' : 'text-primary'}`}>{item.value}</p>
           <p className={`stat-label ${dark ? 'text-white/58' : 'text-muted-foreground'}`}>{item.label}</p>
         </div>
