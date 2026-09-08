@@ -18,7 +18,7 @@ export default function PartnersPage() {
           title="Partners already on the course."
           copy="Partner logos are presented in a restrained grid for clear recognition across the website."
         />
-        <div className="mt-10 grid gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-6">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
           {partnerLogos.map((logo) => (
             <div key={logo.name} className="logo-tile">
               <img src={logo.src} alt={`${logo.name} logo`} className="max-h-12 w-auto object-contain" />
@@ -33,7 +33,7 @@ export default function PartnersPage() {
           title="Four clear levels of association."
           copy="Packages range from lead championship to early association across selected print, digital and event moments."
         />
-        <div className="mt-10 grid gap-px border border-border bg-border md:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {sponsorTiers.map((tier, index) => (
             <Reveal key={tier.name} delay={index * 70}>
               <article className="flex h-full flex-col bg-white p-6 sm:p-7">
@@ -60,7 +60,7 @@ export default function PartnersPage() {
               <a href={pageHref('contact')} className="btn-primary mt-8">Discuss a package</a>
             </div>
           </Reveal>
-          <div className="divide-y divide-border border-y border-border">
+          <div className="divide-y divide-border/60">
             {sectorPackages.map(([name, price]) => (
               <div key={name} className="grid gap-2 py-4 sm:grid-cols-[1fr_auto] sm:items-center">
                 <p className="text-sm font-bold uppercase leading-6 tracking-[0.06em] text-foreground/78">{name}</p>
@@ -77,7 +77,7 @@ export default function PartnersPage() {
           title="Book event-day space."
           copy="Booth packages provide direct access to runners, students, founders, investors and ecosystem partners at the finish-line village."
         />
-        <div className="mt-10 grid gap-px border border-border bg-border lg:grid-cols-3">
+        <div className="mt-10 grid gap-4 lg:grid-cols-3">
           {booths.map((booth, index) => (
             <Reveal key={booth.name} delay={index * 80}>
               <article className="h-full bg-white">

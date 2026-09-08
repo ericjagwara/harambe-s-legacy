@@ -25,10 +25,10 @@ export default function ResultsPage() {
           copy="The figures below are a presentation preview and will be replaced by the confirmed production tracker."
           dark
         />
-        <div className="mt-10 grid gap-px border border-white/15 bg-white/15 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {scoreboardStats.map(([value, label], index) => (
             <Reveal key={label} delay={index * 70}>
-              <div className="bg-primary p-6">
+              <div className="bg-white/[0.07] p-6">
                 <p className="font-display text-4xl uppercase leading-none text-secondary">{value}</p>
                 <p className="stat-label text-white/58">{label}</p>
               </div>
@@ -36,7 +36,7 @@ export default function ResultsPage() {
           ))}
         </div>
         <Reveal delay={120}>
-          <div className="mt-10 border border-white/15 bg-white/5 p-2">
+          <div className="mt-10 bg-white/5 p-2">
             <div className="h-4 bg-secondary" style={{ width: '13%' }} />
           </div>
           <div className="mt-3 flex justify-between gap-4 font-ui text-[10px] font-bold uppercase tracking-[0.18em] text-white/58">
@@ -57,7 +57,7 @@ export default function ResultsPage() {
               </p>
             </div>
           </Reveal>
-          <div className="divide-y divide-border border-y border-border">
+          <div className="divide-y divide-border/60">
             {donorRows.map((row) => (
               <div key={`${row.name}-${row.amount}`} className="grid gap-2 py-5 sm:grid-cols-[1fr_auto] sm:items-center">
                 <div>

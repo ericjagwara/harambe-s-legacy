@@ -83,13 +83,13 @@ export default function Home() {
         <div className="mt-10 grid gap-10 lg:grid-cols-[0.58fr_0.42fr] lg:items-start">
           <Reveal>
             <figure>
-              <div className="aspect-[16/9] overflow-hidden border border-border bg-muted">
+              <div className="aspect-[16/9] overflow-hidden bg-muted">
                 <img src={asset('mission-workshop.webp')} alt="Startup Funding Vehicles workshop participants" className="h-full w-full object-cover" />
               </div>
               <figcaption className="image-caption">SFV ecosystem training and investment readiness programs</figcaption>
             </figure>
           </Reveal>
-          <div className="divide-y divide-border border-y border-border">
+          <div className="divide-y divide-border/60">
             {[
               ['Students', 'Training programs, hackathons and proof of concept grants across participating universities.'],
               ['Entrepreneurs', 'Matching grants, incubation support and investor readiness for early-stage ventures.'],
@@ -115,7 +115,7 @@ export default function Home() {
           title="Hackathons, bootcamps and investor rooms."
           copy="The event is the public entry point. The underlying program supports founders and investors before and after race day."
         />
-        <div className="mt-10 grid gap-px border border-border bg-border lg:grid-cols-3">
+        <div className="mt-10 grid gap-4 lg:grid-cols-3">
           {programCards.map((card, index) => (
             <Reveal key={card.title} delay={index * 90}>
               <article className="h-full bg-white">
@@ -139,7 +139,7 @@ export default function Home() {
           title="Ecosystem builders behind the run."
           copy="Partner visibility spans the route, runner kits, startup programs, exhibition village and public fundraising record."
         />
-        <div className="mt-10 grid gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-6">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
           {partnerLogos.map((logo) => (
             <div key={logo.name} className="logo-tile">
               <img src={logo.src} alt={`${logo.name} logo`} className="max-h-12 w-auto object-contain" />

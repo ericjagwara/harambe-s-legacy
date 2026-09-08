@@ -123,11 +123,11 @@
   }
 
   .rule-card {
-    @apply border border-border bg-white;
+    @apply bg-white;
   }
 
   .logo-tile {
-    @apply flex h-24 items-center justify-center border border-border bg-white p-5 transition duration-200 hover:bg-background;
+    @apply flex h-24 items-center justify-center bg-white p-5 transition duration-200 hover:opacity-80;
   }
 
   .stat-label {
@@ -135,7 +135,7 @@
   }
 
   .content-panel {
-    @apply border border-border bg-white p-6 sm:p-8;
+    @apply bg-white p-6 sm:p-8 shadow-[0_1px_24px_-12px_hsl(var(--foreground)/0.35)];
   }
 
   .image-caption {

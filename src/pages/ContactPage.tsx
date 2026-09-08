@@ -21,20 +21,20 @@ export default function ContactPage() {
       />
 
       <PageSection className="bg-white">
-        <div className="grid gap-px border border-border bg-border lg:grid-cols-[0.38fr_0.62fr]">
+        <div className="grid gap-4 lg:grid-cols-[0.38fr_0.62fr]">
           <Reveal>
             <div className="h-full bg-primary p-6 text-white sm:p-8">
               <p className="eyebrow">Event office</p>
               <h2 className="mt-4 font-display text-4xl uppercase leading-[0.95]">Kampala, Uganda.</h2>
-              <div className="mt-10 space-y-px border border-white/15 bg-white/15">
-                <div className="flex gap-4 bg-primary p-5">
+              <div className="mt-10 space-y-3">
+                <div className="flex gap-4 bg-white/[0.07] p-5">
                   <Mail className="mt-1 h-5 w-5 shrink-0 text-secondary" />
                   <div>
                     <p className="font-ui text-[11px] font-bold uppercase tracking-[0.18em]">Official channel</p>
                     <p className="mt-2 text-sm leading-6 text-white/68">www.haramberun.com. Official email and phone numbers are being confirmed by TechBuzz Hub.</p>
                   </div>
                 </div>
-                <div className="flex gap-4 bg-primary p-5">
+                <div className="flex gap-4 bg-white/[0.07] p-5">
                   <MapPin className="mt-1 h-5 w-5 shrink-0 text-secondary" />
                   <div>
                     <p className="font-ui text-[11px] font-bold uppercase tracking-[0.18em]">Finish line</p>

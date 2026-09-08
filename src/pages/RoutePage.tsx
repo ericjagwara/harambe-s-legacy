@@ -26,7 +26,7 @@ export default function RoutePage() {
           copy="Final route distances will be published with route clearance. Dispatch points and safety cover remain coordinated by the organising team."
         />
         <Reveal delay={120}>
-          <figure className="mt-10 border border-border bg-white p-3 sm:p-4">
+          <figure className="mt-10 bg-white p-3 sm:p-4">
             <img src={asset('route-map.webp')} alt="Official Startups Harambe Run route map" className="w-full object-contain" />
             <figcaption className="image-caption">Convergence and culmination point, Makerere University Freedom Square Pitch</figcaption>
           </figure>

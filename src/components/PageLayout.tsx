@@ -28,7 +28,7 @@ export function PageHero({ eyebrow, title, copy, image, imageAlt = '', imageCapt
           <Reveal delay={120}>
             <figure>
               <div className={`${portrait ? 'aspect-[4/5] max-w-md' : 'aspect-[16/10]'} corner-brackets relative overflow-visible`}>
-                <div className="h-full w-full overflow-hidden border border-border bg-muted">
+                <div className="h-full w-full overflow-hidden bg-muted">
                   <img src={image} alt={imageAlt} className="h-full w-full object-cover object-top" />
                 </div>
               </div>
@@ -104,9 +104,9 @@ export function CtaBand({ title, copy, primaryLabel, primaryPage, secondaryLabel
 
 export function MetricGrid({ items, dark = false }: { items: Array<{ value: string; label: string }>; dark?: boolean }) {
   return (
-    <div className={`grid gap-px border ${dark ? 'border-white/15 bg-white/15' : 'border-border bg-border'} sm:grid-cols-2 lg:grid-cols-4`}>
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {items.map((item) => (
-        <div key={item.label} className={`${dark ? 'bg-primary' : 'bg-white'} p-5`}>
+        <div key={item.label} className={`${dark ? 'bg-white/[0.07]' : 'bg-white'} p-5`}>
           <p className={`font-display text-4xl uppercase leading-none ${dark ? 'text-secondary' : 'text-primary'}`}>{item.value}</p>
           <p className={`stat-label ${dark ? 'text-white/58' : 'text-muted-foreground'}`}>{item.label}</p>
         </div>
@@ -117,7 +117,7 @@ export function MetricGrid({ items, dark = false }: { items: Array<{ value: stri
 
 export function TextList({ items }: { items: string[] }) {
   return (
-    <ul className="divide-y divide-border border-y border-border">
+    <ul className="divide-y divide-border/60">
       {items.map((item) => (
         <li key={item} className="py-4 text-sm font-bold uppercase leading-6 tracking-[0.06em] text-foreground/78">
           {item}
