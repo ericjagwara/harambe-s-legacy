@@ -26,7 +26,7 @@ export default function ContactPage() {
             <div className="h-full bg-primary p-6 text-white sm:p-8">
               <p className="eyebrow">Event office</p>
               <h2 className="mt-4 font-display text-4xl uppercase leading-[0.95]">Kampala, Uganda.</h2>
-              <div className="mt-10 space-y-px border border-white/15 bg-white/15">
+              <div className="mt-10 space-y-3">
                 <div className="flex gap-4 bg-primary p-5">
                   <Mail className="mt-1 h-5 w-5 shrink-0 text-secondary" />
                   <div>

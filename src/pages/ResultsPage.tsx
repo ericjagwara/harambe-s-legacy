@@ -36,7 +36,7 @@ export default function ResultsPage() {
           ))}
         </div>
         <Reveal delay={120}>
-          <div className="mt-10 border border-white/15 bg-white/5 p-2">
+          <div className="mt-10 bg-white/5 p-2">
             <div className="h-4 bg-secondary" style={{ width: '13%' }} />
           </div>
           <div className="mt-3 flex justify-between gap-4 font-ui text-[10px] font-bold uppercase tracking-[0.18em] text-white/58">

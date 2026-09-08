@@ -123,7 +123,7 @@
   }
 
   .rule-card {
-    @apply border border-border bg-white;
+    @apply bg-white;
   }
 
   .logo-tile {
