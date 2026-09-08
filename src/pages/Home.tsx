@@ -68,8 +68,6 @@ export default function Home() {
 
       <Countdown />
 
-      <Ticker items={homeTicker} variant="gold" />
-
       <section className="border-b border-border bg-white py-10">
         <div className="container-site">
           <MetricGrid items={heroStats} />
