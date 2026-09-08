@@ -29,7 +29,7 @@ export default function RunnersPage() {
           title="Three clear ways to take part."
           copy="Pricing is simple and public. Registration support, donations and kit details remain available through the run secretariat."
         />
-        <div className="mt-10 grid gap-px border border-border bg-border lg:grid-cols-3">
+        <div className="mt-10 grid gap-4 lg:grid-cols-3">
           {ticketTypes.map((ticket, index) => (
             <Reveal key={ticket.name} delay={index * 80}>
               <article className="flex h-full flex-col bg-white p-6 sm:p-8">
@@ -59,7 +59,7 @@ export default function RunnersPage() {
             </div>
           </Reveal>
 
-          <div className="grid gap-px border border-border bg-border sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             {kitImages.map((image, index) => (
               <Reveal key={image.name} delay={index * 70}>
                 <figure className="bg-white">
@@ -79,7 +79,7 @@ export default function RunnersPage() {
 
       <PageSection>
         <SectionHeader eyebrow="Race-day flow" title="From dispatch point to Freedom Square." />
-        <div className="mt-10 grid gap-px border border-border bg-border md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {runnerSteps.map((step, index) => (
             <Reveal key={step} delay={index * 80}>
               <div className="h-full bg-white p-6">

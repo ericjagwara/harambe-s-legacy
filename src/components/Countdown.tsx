@@ -41,9 +41,9 @@ export default function Countdown() {
           <p className="font-ui text-[10px] font-bold uppercase tracking-[0.24em] text-secondary">Race day countdown</p>
           <p className="mt-1.5 font-display text-xl uppercase leading-none sm:text-2xl">Sunday, 6 December 2026, Makerere University</p>
         </div>
-        <div className="grid grid-cols-4 gap-px border border-white/15 bg-white/15">
+        <div className="grid grid-cols-4 gap-4">
           {cells.map(([value, label]) => (
-            <div key={label} className="bg-foreground px-4 py-3 text-center sm:px-6">
+            <div key={label} className="bg-white/10 px-4 py-3 text-center sm:px-6">
               <p className="tabular font-display text-3xl leading-none text-secondary sm:text-4xl">{String(value).padStart(2, '0')}</p>
               <p className="mt-1.5 font-ui text-[9px] font-bold uppercase tracking-[0.2em] text-white/55">{label}</p>
             </div>

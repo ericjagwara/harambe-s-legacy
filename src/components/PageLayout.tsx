@@ -28,7 +28,7 @@ export function PageHero({ eyebrow, title, copy, image, imageAlt = '', imageCapt
           <Reveal delay={120}>
             <figure>
               <div className={`${portrait ? 'aspect-[4/5] max-w-md' : 'aspect-[16/10]'} corner-brackets relative overflow-visible`}>
-                <div className="h-full w-full overflow-hidden border border-border bg-muted">
+                <div className="h-full w-full overflow-hidden bg-muted">
                   <img src={image} alt={imageAlt} className="h-full w-full object-cover object-top" />
                 </div>
               </div>
@@ -117,7 +117,7 @@ export function MetricGrid({ items, dark = false }: { items: Array<{ value: stri
 
 export function TextList({ items }: { items: string[] }) {
   return (
-    <ul className="divide-y divide-border border-y border-border">
+    <ul className="divide-y divide-border/60">
       {items.map((item) => (
         <li key={item} className="py-4 text-sm font-bold uppercase leading-6 tracking-[0.06em] text-foreground/78">
           {item}

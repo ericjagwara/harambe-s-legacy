@@ -21,7 +21,7 @@ export default function ContactPage() {
       />
 
       <PageSection className="bg-white">
-        <div className="grid gap-px border border-border bg-border lg:grid-cols-[0.38fr_0.62fr]">
+        <div className="grid gap-4 lg:grid-cols-[0.38fr_0.62fr]">
           <Reveal>
             <div className="h-full bg-primary p-6 text-white sm:p-8">
               <p className="eyebrow">Event office</p>

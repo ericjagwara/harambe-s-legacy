@@ -32,7 +32,7 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
   return (
     <section id="register" className="relative border-b border-border bg-background py-14 lg:py-20">
       <div className="container-site">
-        <div className="grid gap-px border border-border bg-border lg:grid-cols-[0.3fr_0.7fr]">
+        <div className="grid gap-4 lg:grid-cols-[0.3fr_0.7fr]">
           <Reveal>
             <div className="h-full bg-foreground p-4 text-white sm:p-5">
               <div className="grid gap-2">
