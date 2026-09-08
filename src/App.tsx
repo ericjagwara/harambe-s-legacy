@@ -57,7 +57,6 @@ export default function App() {
     <div className="min-h-screen bg-background text-foreground">
       <Header currentPage={page} />
       <main className="pt-[6.5rem] sm:pt-[7.5rem]">{renderPage(page)}</main>
-      <Ticker items={footerTicker} variant="green" reverse />
       <Footer />
     </div>
   )
