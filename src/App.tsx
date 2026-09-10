@@ -7,6 +7,7 @@ import RoutePage from './pages/RoutePage'
 import ProgramsPage from './pages/ProgramsPage'
 import PartnersPage from './pages/PartnersPage'
 import ResultsPage from './pages/ResultsPage'
+import ContributorsPage from './pages/ContributorsPage'
 import RegisterPage from './pages/RegisterPage'
 import ContactPage from './pages/ContactPage'
 import { pageFromHash, routes, type PageKey } from './routes'
@@ -23,6 +24,8 @@ function renderPage(page: PageKey) {
       return <PartnersPage />
     case 'results':
       return <ResultsPage />
+    case 'contributors':
+      return <ContributorsPage />
     case 'register':
       return <RegisterPage initialTab="run" />
     case 'donate':

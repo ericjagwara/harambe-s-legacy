@@ -5,6 +5,7 @@ export type PageKey =
   | 'programs'
   | 'partners'
   | 'results'
+  | 'contributors'
   | 'register'
   | 'donate'
   | 'contact'
@@ -16,6 +17,7 @@ export const routes: Record<PageKey, { path: string; title: string }> = {
   programs: { path: '/programs', title: 'Programs' },
   partners: { path: '/partners', title: 'Partners' },
   results: { path: '/results', title: 'Results' },
+  contributors: { path: '/contributors', title: 'Contributors' },
   register: { path: '/register', title: 'Register' },
   donate: { path: '/donate', title: 'Donate' },
   contact: { path: '/contact', title: 'Contact' },

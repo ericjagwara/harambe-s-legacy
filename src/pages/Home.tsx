@@ -52,7 +52,7 @@ export default function Home() {
           <Reveal delay={140}>
             <div className="mt-14 grid gap-4 border-t border-white/20 pt-5 sm:grid-cols-3 sm:gap-8">
               {[
-                ['Race day', 'Sunday 6 December 2026'],
+                ['Race day', 'Sunday 29 November 2026'],
                 ['Finish line', 'Makerere University, Freedom Square'],
                 ['Start points', '22 official dispatch locations'],
               ].map(([label, value]) => (
