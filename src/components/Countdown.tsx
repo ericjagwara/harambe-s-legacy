@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-const RACE_TIME = new Date('2026-12-06T06:00:00+03:00').getTime()
+const RACE_TIME = new Date('2026-11-29T06:00:00+03:00').getTime()
 
 type Parts = {
   days: number
@@ -39,7 +39,7 @@ export default function Countdown() {
       <div className="container-site grid gap-6 py-6 sm:grid-cols-[1fr_auto] sm:items-center sm:py-7">
         <div>
           <p className="font-ui text-[10px] font-bold uppercase tracking-[0.24em] text-secondary">Race day countdown</p>
-          <p className="mt-1.5 font-display text-xl uppercase leading-none sm:text-2xl">Sunday, 6 December 2026, Makerere University</p>
+          <p className="mt-1.5 font-display text-xl uppercase leading-none sm:text-2xl">Sunday, 29 November 2026, Makerere University</p>
         </div>
         <div className="grid grid-cols-4 gap-4">
           {cells.map(([value, label]) => (

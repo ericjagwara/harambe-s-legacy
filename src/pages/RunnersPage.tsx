@@ -92,7 +92,7 @@ export default function RunnersPage() {
       </PageSection>
 
       <CtaBand
-        title="Reserve your place for 6 December."
+        title="Reserve your place for 29 November."
         copy="Choose a category, select a start point and complete the runner registration flow."
         primaryLabel="Register as a runner"
         primaryPage="register"

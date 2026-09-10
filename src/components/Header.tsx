@@ -39,7 +39,7 @@ export default function Header({ currentPage }: HeaderProps) {
     <header className={`fixed inset-x-0 top-0 z-50 transition-transform duration-300 ${hidden && !open ? 'header-hidden' : 'header-visible'}`}>
       <div className="bg-primary text-white">
         <div className="container-site flex h-10 items-center justify-between gap-5 font-ui text-[10px] font-bold uppercase tracking-[0.18em]">
-          <p className="truncate">Sunday 6 December 2026</p>
+          <p className="truncate">Sunday 29 November 2026</p>
           <div className="flex shrink-0 items-center gap-5">
             <span className="hidden sm:inline">Makerere University</span>
             <a href={pageHref('donate')} className="text-secondary transition-colors hover:text-white">Donate</a>
