@@ -14,7 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      contributions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          in_kind_note: string | null
+          is_anonymous: boolean
+          is_in_kind: boolean
+          name: string
+          type: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          in_kind_note?: string | null
+          is_anonymous?: boolean
+          is_in_kind?: boolean
+          name: string
+          type: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          in_kind_note?: string | null
+          is_anonymous?: boolean
+          is_in_kind?: boolean
+          name?: string
+          type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
