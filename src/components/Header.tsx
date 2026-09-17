@@ -8,7 +8,7 @@ const navItems: Array<[PageKey, string]> = [
   ['route', 'Route'],
   ['programs', 'Programs'],
   ['partners', 'Partners'],
-  ['results', 'Results'],
+  ['results', 'Statistics'],
   ['contact', 'Contact'],
 ]
 

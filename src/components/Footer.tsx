@@ -8,7 +8,7 @@ const eventLinks: Array<[PageKey, string]> = [
   ['route', 'Route'],
   ['programs', 'Programs'],
   ['partners', 'Partners'],
-  ['results', 'Results'],
+  ['results', 'Statistics'],
 ]
 
 const actionLinks: Array<[PageKey, string]> = [
