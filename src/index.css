@@ -143,7 +143,7 @@
   }
 
   .hero-title {
-    @apply font-display text-[2.9rem] uppercase leading-[0.9] text-white sm:text-[4.25rem] lg:text-[5.25rem];
+    @apply font-display text-[2.4rem] uppercase leading-[0.9] text-white sm:text-[3.4rem] lg:text-[4.25rem];
   }
 
   .ticker {
