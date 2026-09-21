@@ -23,10 +23,22 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
     setSubmitted('')
   }, [initialTab])
 
+  const WHATSAPP_NUMBER = '256781405551'
+
   const submit = (event: FormEvent<HTMLFormElement>, label: string) => {
     event.preventDefault()
-    setSubmitted(`${label} captured for follow-up. Final payment gateway and confirmation workflow will be connected by TechBuzz Hub.`)
-    event.currentTarget.reset()
+    const form = event.currentTarget
+    const data = new FormData(form)
+    const details = Array.from(data.entries())
+      .filter(([, value]) => typeof value === 'string' && value.trim() !== '')
+      .map(([key, value]) => `${key}: ${value}`)
+      .join('\n')
+    const message = encodeURIComponent(`Harambe Run 2026, ${label}\n\n${details}`)
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, '_blank', 'noopener')
+    setSubmitted(
+      `Thank you for stepping up for Uganda's builders. Your ${label.toLowerCase()} is with our team and your place is held. We will reach out to you personally the moment payment channels open so you can confirm, and until then you lose nothing. You are part of the movement already.`
+    )
+    form.reset()
   }
 
   return (
@@ -55,9 +67,9 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
                 ))}
               </div>
               <div className="mt-6 border-t border-white/15 p-4">
-                <p className="font-ui text-[11px] font-black uppercase tracking-[0.22em] text-secondary">Payment note</p>
+                <p className="font-ui text-[11px] font-black uppercase tracking-[0.22em] text-secondary">Reserve now, pay later</p>
                 <p className="mt-3 text-sm leading-6 text-white/66">
-                  Ticket, donation, sponsorship and booth payments are designed for one gateway flow. Mobile Money and card channels remain subject to TechBuzz Hub confirmation.
+                  Secure your place today with a simple reservation. Our team confirms every entry personally and shares easy Mobile Money and card payment options with you directly.
                 </p>
               </div>
             </div>
@@ -67,7 +79,7 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
             <div className="bg-white p-6 sm:p-9">
               {submitted ? (
                 <div className="mb-7 border border-primary bg-primary p-6 text-primary-foreground">
-                  <p className="font-ui text-[11px] font-black uppercase tracking-[0.22em] text-secondary">Request received</p>
+                  <p className="font-ui text-[11px] font-black uppercase tracking-[0.22em] text-secondary">You are in</p>
                   <p className="mt-3 text-lg leading-8">{submitted}</p>
                 </div>
               ) : null}
@@ -105,7 +117,7 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
                     <label className="label" htmlFor="student-id">Student ID upload, required for student rate</label>
                     <input className="field bg-background" id="student-id" type="file" name="studentId" accept="image/*,.pdf" />
                   </div>
-                  <button className="btn-primary w-full sm:w-auto" type="submit">Proceed to payment</button>
+                  <button className="btn-primary w-full sm:w-auto" type="submit">Reserve my spot</button>
                 </form>
               ) : null}
 
