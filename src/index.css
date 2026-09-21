@@ -61,9 +61,9 @@
 
 @layer components {
   .font-display {
-    font-family: 'Barlow Condensed', 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
     font-weight: 700;
-    letter-spacing: 0.005em;
+    letter-spacing: 0;
   }
 
   .font-ui {
