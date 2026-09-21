@@ -33,7 +33,7 @@ export default function Home() {
               <p className="font-ui text-[11px] font-bold uppercase tracking-[0.24em] text-secondary">
                 Startups Harambe Run 2026
               </p>
-              <h1 className="hero-title mt-5 max-w-4xl">Run the city.<br />Fund Uganda's next startups.</h1>
+              <h1 className="hero-title mt-5 max-w-6xl">Run the city.<br />Fund Uganda's next startups.</h1>
               <p className="mt-6 max-w-xl text-base leading-7 text-white/78 sm:text-lg sm:leading-8">
                 A multi-origin fundraising run connecting students, entrepreneurs, universities and investors into one public startup funding pipeline.
               </p>
