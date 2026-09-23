@@ -47,6 +47,57 @@ export type Database = {
         }
         Relationships: []
       }
+      payments: {
+        Row: {
+          amount: number
+          contribution_id: string | null
+          created_at: string
+          details: Json
+          email: string | null
+          full_name: string
+          id: string
+          is_anonymous: boolean
+          msisdn: string
+          purpose: string
+          reference: string
+          reference_code: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          contribution_id?: string | null
+          created_at?: string
+          details?: Json
+          email?: string | null
+          full_name: string
+          id?: string
+          is_anonymous?: boolean
+          msisdn: string
+          purpose: string
+          reference: string
+          reference_code?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          contribution_id?: string | null
+          created_at?: string
+          details?: Json
+          email?: string | null
+          full_name?: string
+          id?: string
+          is_anonymous?: boolean
+          msisdn?: string
+          purpose?: string
+          reference?: string
+          reference_code?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
