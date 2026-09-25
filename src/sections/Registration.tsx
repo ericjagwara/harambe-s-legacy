@@ -144,7 +144,7 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
         pollRef.current = null
         setPayState('error')
         setPayMessage('The payment was not completed. You can try again, or use a different mobile money number.')
-      } else if (attempts >= 30) {
+      } else if (attempts >= 24) {
         window.clearInterval(pollRef.current!)
         pollRef.current = null
         setPayState('pending')
