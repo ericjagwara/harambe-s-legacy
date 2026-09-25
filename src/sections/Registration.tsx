@@ -167,6 +167,15 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
         {payState === 'error' ? 'Try again' : payState === 'pending' ? 'Still processing' : 'Approve on your phone'}
       </p>
       <p className="mt-3 text-lg leading-8">{payMessage}</p>
+      {payState === 'waiting' ? (
+        <button
+          type="button"
+          onClick={resetPayment}
+          className="mt-4 font-ui text-[11px] font-black uppercase tracking-[0.22em] underline underline-offset-4"
+        >
+          No prompt? Cancel and try again
+        </button>
+      ) : null}
     </div>
   ) : null
 
