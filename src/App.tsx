@@ -1,26 +1,17 @@
 import { useEffect, useState } from 'react'
 import Header from './components/Header'
 import Footer from './components/Footer'
-import Ticker from './components/Ticker'
+import WhatsAppFloatButton from './components/WhatsAppFloatButton'
 import Home from './pages/Home'
 import RunnersPage from './pages/RunnersPage'
 import RoutePage from './pages/RoutePage'
 import ProgramsPage from './pages/ProgramsPage'
 import PartnersPage from './pages/PartnersPage'
 import ResultsPage from './pages/ResultsPage'
+import ContributorsPage from './pages/ContributorsPage'
 import RegisterPage from './pages/RegisterPage'
 import ContactPage from './pages/ContactPage'
 import { pageFromHash, routes, type PageKey } from './routes'
-
-const footerTicker = [
-  '#StartupsHarambeRun',
-  '#HarambeRun',
-  '#HarambeInnovation',
-  '6 December 2026',
-  'Makerere University',
-  'Run the city',
-  'Fund a founder',
-]
 
 function renderPage(page: PageKey) {
   switch (page) {
@@ -34,6 +25,8 @@ function renderPage(page: PageKey) {
       return <PartnersPage />
     case 'results':
       return <ResultsPage />
+    case 'contributors':
+      return <ContributorsPage />
     case 'register':
       return <RegisterPage initialTab="run" />
     case 'donate':
@@ -68,8 +61,8 @@ export default function App() {
     <div className="min-h-screen bg-background text-foreground">
       <Header currentPage={page} />
       <main className="pt-[6.5rem] sm:pt-[7.5rem]">{renderPage(page)}</main>
-      <Ticker items={footerTicker} variant="green" reverse />
       <Footer />
+      <WhatsAppFloatButton />
     </div>
   )
 }

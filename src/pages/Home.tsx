@@ -1,21 +1,9 @@
 import { ArrowRight } from 'lucide-react'
 import Reveal from '../components/Reveal'
 import Countdown from '../components/Countdown'
-import Ticker from '../components/Ticker'
 import { CtaBand, MetricGrid, PageSection, SectionHeader } from '../components/PageLayout'
 import { asset, heroStats, partnerLogos, programCards } from '../data'
 import { pageHref } from '../routes'
-
-const homeTicker = [
-  'UGX 3.75B target',
-  '5,000+ runners',
-  '15 universities',
-  '7 neighborhood stations',
-  'Students',
-  'Founders',
-  'Investors',
-  'One finish line',
-]
 
 export default function Home() {
   return (
@@ -45,7 +33,7 @@ export default function Home() {
               <p className="font-ui text-[11px] font-bold uppercase tracking-[0.24em] text-secondary">
                 Startups Harambe Run 2026
               </p>
-              <h1 className="hero-title mt-5 max-w-4xl">Run the city. Fund Uganda's next startups.</h1>
+              <h1 className="hero-title mt-5 max-w-6xl">Harambe Run.<br />Fund Job Creation</h1>
               <p className="mt-6 max-w-xl text-base leading-7 text-white/78 sm:text-lg sm:leading-8">
                 A multi-origin fundraising run connecting students, entrepreneurs, universities and investors into one public startup funding pipeline.
               </p>
@@ -64,7 +52,7 @@ export default function Home() {
           <Reveal delay={140}>
             <div className="mt-14 grid gap-4 border-t border-white/20 pt-5 sm:grid-cols-3 sm:gap-8">
               {[
-                ['Race day', 'Sunday 6 December 2026'],
+                ['Race day', 'Sunday 29 November 2026'],
                 ['Finish line', 'Makerere University, Freedom Square'],
                 ['Start points', '22 official dispatch locations'],
               ].map(([label, value]) => (
@@ -79,8 +67,6 @@ export default function Home() {
       </section>
 
       <Countdown />
-
-      <Ticker items={homeTicker} variant="gold" />
 
       <section className="border-b border-border bg-white py-10">
         <div className="container-site">
@@ -97,13 +83,13 @@ export default function Home() {
         <div className="mt-10 grid gap-10 lg:grid-cols-[0.58fr_0.42fr] lg:items-start">
           <Reveal>
             <figure>
-              <div className="aspect-[16/9] overflow-hidden border border-border bg-muted">
+              <div className="aspect-[16/9] overflow-hidden bg-muted">
                 <img src={asset('mission-workshop.webp')} alt="Startup Funding Vehicles workshop participants" className="h-full w-full object-cover" />
               </div>
               <figcaption className="image-caption">SFV ecosystem training and investment readiness programs</figcaption>
             </figure>
           </Reveal>
-          <div className="divide-y divide-border border-y border-border">
+          <div className="divide-y divide-border/60">
             {[
               ['Students', 'Training programs, hackathons and proof of concept grants across participating universities.'],
               ['Entrepreneurs', 'Matching grants, incubation support and investor readiness for early-stage ventures.'],
@@ -129,7 +115,7 @@ export default function Home() {
           title="Hackathons, bootcamps and investor rooms."
           copy="The event is the public entry point. The underlying program supports founders and investors before and after race day."
         />
-        <div className="mt-10 grid gap-px border border-border bg-border lg:grid-cols-3">
+        <div className="mt-10 grid gap-4 lg:grid-cols-3">
           {programCards.map((card, index) => (
             <Reveal key={card.title} delay={index * 90}>
               <article className="h-full bg-white">
@@ -153,7 +139,7 @@ export default function Home() {
           title="Ecosystem builders behind the run."
           copy="Partner visibility spans the route, runner kits, startup programs, exhibition village and public fundraising record."
         />
-        <div className="mt-10 grid gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-6">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
           {partnerLogos.map((logo) => (
             <div key={logo.name} className="logo-tile">
               <img src={logo.src} alt={`${logo.name} logo`} className="max-h-12 w-auto object-contain" />

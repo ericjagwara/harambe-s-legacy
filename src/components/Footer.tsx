@@ -8,7 +8,7 @@ const eventLinks: Array<[PageKey, string]> = [
   ['route', 'Route'],
   ['programs', 'Programs'],
   ['partners', 'Partners'],
-  ['results', 'Results'],
+  ['results', 'Statistics'],
 ]
 
 const actionLinks: Array<[PageKey, string]> = [
@@ -96,7 +96,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 border-y border-white/12 py-6">
-          <div className="grid gap-px bg-white/10 sm:grid-cols-3 lg:grid-cols-6">
+          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
             {partnerLogos.map((logo) => (
               <div key={logo.name} className="flex h-20 items-center justify-center bg-white px-4 py-4">
                 <img src={logo.src} alt={`${logo.name} logo`} className="max-h-9 w-auto object-contain" />
