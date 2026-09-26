@@ -1,1 +1,0 @@
-CREATE POLICY "No direct client access to payments" ON public.payments FOR SELECT TO authenticated, anon USING (false);
