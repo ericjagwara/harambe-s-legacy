@@ -45,6 +45,8 @@ export default function ReceiptPage() {
   const [refresh, setRefresh] = useState(0)
   // Set when Blink's card page sends the customer back here (?card=returned or ?card=cancelled).
   const [cardReturn] = useState(() => new URLSearchParams(window.location.search).get('card'))
+  // Set when the registration form sends someone here straight after a successful mobile money payment.
+  const [arrivedPaid] = useState(() => new URLSearchParams(window.location.search).get('paid') === '1')
 
   useEffect(() => {
     if (!reference) return
@@ -98,11 +100,51 @@ export default function ReceiptPage() {
   const runner = receipt?.purpose === 'Runner registration'
   const student = Boolean(receipt?.category?.toLowerCase().includes('student'))
   const card = receipt?.method === 'card'
+  // Arrived here from a payment that has now gone through: show the success page.
+  const justPaid = paid && (arrivedPaid || cardReturn === 'returned')
 
   return (
     <section className="border-b border-border bg-background py-12 sm:py-16 print:border-0 print:bg-white print:py-0">
       <div className="container-site max-w-3xl">
-        <div className="print:hidden">
+        {justPaid ? (
+          <div className="print:hidden">
+            <p className="eyebrow">{runner ? 'Registration complete' : 'Donation complete'}</p>
+            <h1 className="page-title mt-4">Payment successful</h1>
+            <p className="mt-5 max-w-2xl text-lg leading-8 text-foreground/80">
+              {runner
+                ? `Thank you, ${receipt.name.split(/\s+/)[0]}. Your place at Harambe Run 2026 is confirmed. See you on Sunday 29 November.`
+                : `Thank you, ${receipt.name.split(/\s+/)[0]}. Your donation is counted on the live fundraising board.`}
+            </p>
+            <div className="mt-8 bg-white p-6 sm:p-8">
+              <p className="label">What happens next</p>
+              <ul className="mt-3 space-y-3 text-base leading-7 text-foreground/80">
+                {receipt.phone ? <li>An SMS confirmation is on its way to {receipt.phone}.</li> : null}
+                <li>A confirmation email with your receipt is on its way to the email you gave us.</li>
+                <li>
+                  This page is your receipt. Save or print it below, or reopen it any time at{' '}
+                  <strong className="break-words">haramberun.com/receipt/{receipt.reference}</strong>.
+                </li>
+                {runner ? (
+                  <li>
+                    At kit pickup, show this receipt, the email or the SMS{student ? ', with your valid student ID' : ''}.
+                  </li>
+                ) : null}
+              </ul>
+              {runner ? (
+                <div className="mt-6 border-t border-border pt-6">
+                  <p className="text-base leading-7 text-foreground/80">
+                    Join the runners' WhatsApp group for updates and your start-point briefing. Harambe. Run. Fund. Job Creation. Tell a friend!
+                  </p>
+                  <a href={WHATSAPP_GROUP_LINK} target="_blank" rel="noopener noreferrer" className="btn-gold mt-4">
+                    Join the WhatsApp group
+                  </a>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+
+        <div className={`print:hidden ${justPaid ? 'hidden' : ''}`}>
           <p className="eyebrow">Proof of payment</p>
           <h1 className="page-title mt-4">Your receipt</h1>
           <form onSubmit={lookup} className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -200,7 +242,7 @@ export default function ReceiptPage() {
             <button type="button" className="btn-primary" onClick={() => window.print()}>
               Save or print receipt
             </button>
-            {runner ? (
+            {runner && !justPaid ? (
               <a href={WHATSAPP_GROUP_LINK} target="_blank" rel="noopener noreferrer" className="btn-gold">
                 Join the WhatsApp group
               </a>

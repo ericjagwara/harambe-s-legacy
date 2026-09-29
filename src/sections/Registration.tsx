@@ -1,39 +1,43 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import Reveal from '../components/Reveal'
 import { supabase } from '@/integrations/supabase/client'
 import { booths, neighborhoodStarts, sectorPackages, sponsorTiers, universityStarts } from '../data'
 
 export type RegistrationTab = 'run' | 'donate' | 'sponsor' | 'booth' | 'volunteer'
 
-const tabs: Array<{ key: RegistrationTab; title: string; description: string; tag: string }> = [
-  { key: 'run', title: 'Run', description: 'Register and pay for your running kit.', tag: 'Pay online' },
-  { key: 'donate', title: 'Donate', description: 'Give any amount, named or anonymous.', tag: 'Pay online' },
-  { key: 'sponsor', title: 'Sponsor', description: 'Partner as an organisation or investor.', tag: 'We contact you' },
-  { key: 'booth', title: 'Exhibit', description: 'Book a booth or offer a runner discount.', tag: 'We contact you' },
-  { key: 'volunteer', title: 'Volunteer', description: 'Help on race day or on your campus.', tag: 'Free' },
+const choices: Array<{ key: RegistrationTab; title: string; hint: string }> = [
+  { key: 'run', title: 'Run', hint: 'Register as a runner and pay for your running kit.' },
+  { key: 'donate', title: 'Donate', hint: 'Give any amount, with your name or anonymously.' },
+  { key: 'sponsor', title: 'Sponsor or partner', hint: 'Back the run as an organisation. We send you a proposal.' },
+  { key: 'booth', title: 'Exhibit', hint: 'Book a booth or offer a discount to runners.' },
+  { key: 'volunteer', title: 'Volunteer', hint: 'Help on run day or on your campus. It is free.' },
 ]
 
-const intros: Record<RegistrationTab, { title: string; text: string }> = {
-  run: {
-    title: 'Register as a runner',
-    text: 'Pay for your running kit online with mobile money or a Visa card. You get a receipt and an SMS to show at kit pickup. Run day is 29 November 2026, finishing at Makerere University Freedom Square.',
-  },
-  donate: {
-    title: 'Donate to the Harambe fund',
-    text: 'Your gift funds startup programmes in universities, catalytic funds for startups and angel investor training. Funds are overseen by a steering committee and reported publicly on this site.',
-  },
-  sponsor: {
-    title: 'Become a sponsor or partner',
-    text: 'Tell us about your organisation and the package that interests you. Our partnerships team will contact you with the full proposal and an invoice. Nothing is paid on this site. Every tier includes Startup Funding Vehicles corporate membership.',
-  },
-  booth: {
-    title: 'Exhibit or offer a runner discount',
-    text: 'Request an exhibition booth at the finish line, or list your business as a featured discount provider for runners. We confirm availability and send you an invoice. Nothing is paid on this site.',
-  },
-  volunteer: {
-    title: 'Volunteer with us',
-    text: 'Help as a route marshal, at kit pickup, with media, or by mobilising runners on your campus. Volunteering is free.',
-  },
+const guides: Record<RegistrationTab, string[]> = {
+  run: [
+    'Fill in your details, your run and an emergency contact.',
+    'Pay for your running kit by mobile money or Visa card.',
+    'You get a receipt on screen, by SMS and by email. Show it at kit pickup. Run day is Sunday 29 November 2026.',
+  ],
+  donate: [
+    'Enter your details and the amount you want to give.',
+    'Pay by mobile money or Visa card. You choose whether your name shows on the public donor board.',
+    'You get a receipt on screen, by SMS and by email. Funds support university startup programmes, startup funding and angel investor training.',
+  ],
+  sponsor: [
+    'Tell us about your organisation and the package that interests you.',
+    'Nothing is paid here. Our partnerships team sends you the full proposal and an invoice.',
+    'Every sponsorship tier includes Startup Funding Vehicles corporate membership.',
+  ],
+  booth: [
+    'Choose an exhibition booth at the finish line, or a featured discount listing for runners.',
+    'Nothing is paid here. We confirm availability first, then send you an invoice.',
+  ],
+  volunteer: [
+    'Tell us how you would like to help and when you are available.',
+    'We contact you with your role and a briefing before run day.',
+  ],
 }
 
 const exhibitOptions = [
@@ -89,22 +93,22 @@ function postToBlink(url: string, fields: Record<string, string>) {
 export default function Registration({ initialTab = 'run' }: { initialTab?: RegistrationTab }) {
   const [active, setActive] = useState<RegistrationTab>(initialTab)
   const [submitted, setSubmitted] = useState('')
-  const [showJoinGroup, setShowJoinGroup] = useState(false)
-  const [receiptRef, setReceiptRef] = useState('')
   const [payState, setPayState] = useState<PayState>('idle')
   const [payMessage, setPayMessage] = useState('')
+  const [pendingRef, setPendingRef] = useState('')
+  const [charged, setCharged] = useState(0)
+  const [elapsed, setElapsed] = useState(0)
   const [method, setMethod] = useState<PayMethod>('mobile')
   const [category, setCategory] = useState(runnerCategories[0].label)
   const [sending, setSending] = useState(false)
   const [formError, setFormError] = useState('')
-  const [successTitle, setSuccessTitle] = useState('You are in')
   const pollRef = useRef<number | null>(null)
+  const noticeRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     setActive(initialTab)
     setSubmitted('')
-    setShowJoinGroup(false)
-    setReceiptRef('')
+    setFormError('')
     resetPayment()
   }, [initialTab])
 
@@ -112,13 +116,34 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
     if (pollRef.current) window.clearInterval(pollRef.current)
   }, [])
 
-  const WHATSAPP_GROUP_LINK = 'https://chat.whatsapp.com/FKehPb60rdo9z9wW2shBr2'
+  // Seconds counter shown while waiting for the payment approval.
+  useEffect(() => {
+    if (payState !== 'waiting') return
+    setElapsed(0)
+    const timer = window.setInterval(() => setElapsed((n) => n + 1), 1000)
+    return () => window.clearInterval(timer)
+  }, [payState])
+
+  // Bring a result or error into view, wherever the person was on the page.
+  useEffect(() => {
+    if (payState === 'error' || payState === 'pending' || submitted || formError) {
+      noticeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [payState, submitted, formError])
 
   function resetPayment() {
     if (pollRef.current) window.clearInterval(pollRef.current)
     pollRef.current = null
     setPayState('idle')
     setPayMessage('')
+    setPendingRef('')
+  }
+
+  const choose = (key: RegistrationTab) => {
+    setActive(key)
+    setSubmitted('')
+    setFormError('')
+    resetPayment()
   }
 
   const submit = async (event: FormEvent<HTMLFormElement>, type: 'Sponsorship' | 'Exhibition' | 'Volunteer') => {
@@ -130,22 +155,21 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
     })
     setSending(true)
     setFormError('')
+    setSubmitted('')
     const { error } = await supabase.functions.invoke('submit-enquiry', { body: { type, fields } })
     setSending(false)
     if (error) {
       setFormError(await functionError(error, 'We could not send your details. Please try again, or email info@haramberun.com.'))
       return
     }
-    setSuccessTitle('Received')
     setSubmitted(
       type === 'Sponsorship'
-        ? 'Thank you for backing Uganda\'s builders. Our partnerships team will contact you with the full proposal and next steps. Nothing has been charged.'
+        ? 'Thank you for backing Uganda\'s builders. Our partnerships team will contact you with the full proposal and next steps. A confirmation email is on its way. Nothing has been charged.'
         : type === 'Exhibition'
-          ? 'Your request is in. We will confirm availability and send you an invoice. Nothing has been charged.'
-          : 'Thank you for volunteering. We will contact you with your role and a briefing before run day.'
+          ? 'Your request is in. We will confirm availability and send you an invoice. A confirmation email is on its way. Nothing has been charged.'
+          : 'Thank you for volunteering. We will contact you with your role and a briefing before run day. A confirmation email is on its way.'
     )
     form.reset()
-    window.scrollTo({ top: (document.getElementById('register')?.offsetTop ?? 0) - 120, behavior: 'smooth' })
   }
 
   const pay = async (
@@ -166,73 +190,50 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
       return
     }
 
-    setSubmitted('')
-    setShowJoinGroup(false)
-    setReceiptRef('')
-    setPayState('starting')
-    setPayMessage(method === 'card' ? 'Opening the secure Blink card payment page.' : 'Sending a payment request to your phone.')
-
     const extras: Record<string, string> = {}
     data.forEach((value, key) => {
       if (typeof value === 'string' && value.trim() !== '' && !['name', 'phone', 'amount'].includes(key)) {
         extras[key] = value
       }
     })
+    const body = {
+      fullName,
+      email: data.get('email'),
+      phone,
+      amount,
+      purpose,
+      isAnonymous: String(data.get('display') ?? '').toLowerCase().includes('anonymous'),
+      details: extras,
+    }
+
+    setPayState('starting')
+    setPayMessage('')
+    setCharged(amount)
 
     if (method === 'card') {
-      const { data: cardResult, error: cardError } = await supabase.functions.invoke('blinkpay-card-start', {
-        body: {
-          fullName,
-          email: data.get('email'),
-          phone,
-          amount,
-          purpose,
-          isAnonymous: String(data.get('display') ?? '').toLowerCase().includes('anonymous'),
-          details: extras,
-        },
-      })
-      const started = cardResult as { url?: string; fields?: Record<string, string>; error?: string } | null
+      const { data: cardResult, error: cardError } = await supabase.functions.invoke('blinkpay-card-start', { body })
+      const started = cardResult as { url?: string; fields?: Record<string, string> } | null
       if (cardError || !started?.url || !started.fields) {
         setPayState('error')
-        setPayMessage(
-          started?.error ?? (await functionError(cardError, 'We could not open the card payment page. Please try again, or pay with mobile money.'))
-        )
+        setPayMessage(await functionError(cardError, 'We could not open the card payment page. Please try again, or pay with mobile money.'))
         return
       }
       postToBlink(started.url, started.fields)
       return
     }
 
-    const { data: result, error } = await supabase.functions.invoke('blinkpay-deposit', {
-      body: {
-        fullName,
-        email: data.get('email'),
-        phone,
-        amount,
-        purpose,
-        isAnonymous: String(data.get('display') ?? '').toLowerCase().includes('anonymous'),
-        details: extras,
-      },
-    })
-
-    const failure = error || (result && (result as { error?: string }).error)
-    if (failure) {
+    const { data: result, error } = await supabase.functions.invoke('blinkpay-deposit', { body })
+    if (error) {
       setPayState('error')
-      setPayMessage(
-        typeof failure === 'string'
-          ? failure
-          : 'We could not reach your mobile money wallet just now. Please check the number and try again.'
-      )
+      setPayMessage(await functionError(error, 'We could not reach your mobile money wallet just now. Please check the number and try again.'))
       return
     }
 
     const referenceCode = (result as { referenceCode?: string }).referenceCode
     const reference = (result as { reference?: string }).reference ?? ''
-    const charged = Number((result as { amount?: number }).amount ?? amount)
+    setCharged(Number((result as { amount?: number }).amount ?? amount))
+    setPendingRef(reference)
     setPayState('waiting')
-    setPayMessage(
-      `Check your phone. Approve the mobile money request for UGX ${charged.toLocaleString('en-UG')} by entering your PIN. Network charges from MTN or Airtel are shown on the prompt.`
-    )
 
     let attempts = 0
     pollRef.current = window.setInterval(async () => {
@@ -243,82 +244,111 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
       if (status === 'SUCCESSFUL') {
         window.clearInterval(pollRef.current!)
         pollRef.current = null
-        setPayState('success')
-        setPayMessage('')
-        setSuccessTitle('You are in')
-        setSubmitted(
-          purpose === 'Donation'
-            ? `Payment received. Thank you for funding Uganda's next job creators. Your gift of UGX ${charged.toLocaleString('en-UG')} is already counted on our live fundraising board. Your reference is ${reference}.`
-            : `Payment received. Your place at Harambe Run 2026 is confirmed. Your reference is ${reference}. Save your receipt below: you will need it, or your confirmation SMS, at kit pickup. Harambe. Run. Fund. Job Creation. Tell a friend!`
-        )
-        setShowJoinGroup(purpose === 'Runner registration')
-        setReceiptRef(reference)
-        form.reset()
+        // The receipt page is the success page: confirmation, receipt, WhatsApp group and next steps.
+        window.location.assign(`/receipt/${reference}?paid=1`)
       } else if (status === 'FAILED') {
         window.clearInterval(pollRef.current!)
         pollRef.current = null
         setPayState('error')
-        setPayMessage('The payment was not completed. You can try again, or use a different mobile money number.')
-      } else if (attempts >= 24) {
+        setPayMessage('The payment was not completed. It may have been declined, cancelled or timed out. You can try again, or use a different number.')
+      } else if (attempts >= 36) {
         window.clearInterval(pollRef.current!)
         pollRef.current = null
         setPayState('pending')
-        setPayMessage(
-          `We have not seen the approval yet. If you approved it, the payment will still come through. Your reference is ${reference}; you can check it any time at haramberun.com/receipt/${reference}.`
-        )
+        setPayMessage('We have not received the approval yet. If you entered your PIN, the payment will still come through and you will get an SMS and email.')
       }
     }, 5000)
   }
 
   const busy = payState === 'starting' || payState === 'waiting'
+  const student = category.toLowerCase().includes('student')
+  const minutes = `${Math.floor(elapsed / 60)}:${String(elapsed % 60).padStart(2, '0')}`
 
-  const payNotice = payMessage ? (
-    <div
-      className={`mb-7 p-6 ${
-        payState === 'error' ? 'bg-foreground text-white' : 'bg-secondary text-secondary-foreground'
-      }`}
-    >
-      <p className="font-ui text-[11px] font-black uppercase tracking-[0.22em]">
-        {payState === 'error' ? 'Try again' : payState === 'pending' ? 'Still processing' : method === 'card' ? 'Card payment' : 'Approve on your phone'}
-      </p>
-      <p className="mt-3 text-lg leading-8">{payMessage}</p>
-      {payState === 'waiting' ? (
-        <button
-          type="button"
-          onClick={resetPayment}
-          className="mt-4 font-ui text-[11px] font-black uppercase tracking-[0.22em] underline underline-offset-4"
-        >
-          No prompt? Cancel and try again
-        </button>
-      ) : null}
-    </div>
+  const payNotice =
+    payState === 'error' || payState === 'pending' ? (
+      <div ref={noticeRef} className={`p-6 ${payState === 'error' ? 'bg-foreground text-white' : 'bg-secondary text-secondary-foreground'}`} role="alert">
+        <p className="font-ui text-[11px] font-black uppercase tracking-[0.22em]">
+          {payState === 'error' ? 'Payment not completed' : 'Still waiting for approval'}
+        </p>
+        <p className="mt-3 text-lg leading-8">{payMessage}</p>
+        {payState === 'pending' && pendingRef ? (
+          <p className="mt-3 text-base leading-7">
+            Your reference is <strong>{pendingRef}</strong>.{' '}
+            <a href={`/receipt/${pendingRef}`} className="font-bold underline underline-offset-4">
+              Check your receipt
+            </a>{' '}
+            in a few minutes.
+          </p>
+        ) : null}
+      </div>
+    ) : null
+
+  const overlay = busy ? createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-foreground/85 p-4" role="dialog" aria-modal="true" aria-live="polite">
+      <div className="w-full max-w-md bg-white p-8 text-center">
+        <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-primary/15 border-t-primary" aria-hidden="true" />
+        {payState === 'starting' ? (
+          <>
+            <p className="mt-6 font-display text-3xl uppercase leading-none">
+              {method === 'card' ? 'Opening card payment' : 'Sending the request'}
+            </p>
+            <p className="mt-4 text-base leading-7 text-foreground/75">
+              {method === 'card'
+                ? 'Taking you to Blink\'s secure payment page. You will enter your card details there.'
+                : 'Sending a payment request to your phone. This takes a few seconds.'}
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="mt-6 font-display text-3xl uppercase leading-none">Check your phone</p>
+            <p className="mt-4 text-base leading-7 text-foreground/75">
+              Approve the payment of <strong>UGX {charged.toLocaleString('en-UG')}</strong> by entering your mobile money PIN. MTN or Airtel shows its network charges on the prompt.
+            </p>
+            <p className="mt-4 text-sm text-foreground/60">
+              Waiting for approval, {minutes}. Keep this page open; it moves on by itself.
+            </p>
+            <button type="button" onClick={resetPayment} className="btn-outline mt-6">
+              No prompt? Cancel
+            </button>
+          </>
+        )}
+      </div>
+    </div>,
+    document.body,
   ) : null
 
   const methodPicker = (
-    <fieldset>
+    <fieldset className="sm:col-span-2">
       <legend className="label">Pay with</legend>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         {(
           [
-            ['mobile', 'Mobile money', 'MTN or Airtel'],
-            ['card', 'Visa card', 'Secure Blink page'],
+            ['mobile', 'Mobile money', 'MTN or Airtel. Approve the prompt on your phone.'],
+            ['card', 'Visa card', 'Enter your card on Blink\'s secure page.'],
           ] as Array<[PayMethod, string, string]>
         ).map(([key, title, hint]) => (
-          <button
+          <label
             key={key}
-            type="button"
-            aria-pressed={method === key}
-            onClick={() => {
-              setMethod(key)
-              if (payState === 'error') resetPayment()
-            }}
-            className={`border p-4 text-left transition-colors ${
-              method === key ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background hover:border-primary'
+            className={`flex cursor-pointer items-start gap-3 border p-4 transition-colors ${
+              method === key ? 'border-primary bg-primary/[0.04]' : 'border-border bg-white hover:border-primary'
             }`}
           >
-            <span className="block font-ui text-xs font-black uppercase tracking-[0.2em]">{title}</span>
-            <span className={`mt-1 block text-sm ${method === key ? 'text-primary-foreground/80' : 'text-foreground/60'}`}>{hint}</span>
-          </button>
+            <input
+              type="radio"
+              name="pay_method"
+              value={key}
+              checked={method === key}
+              onChange={() => {
+                setMethod(key)
+                if (payState === 'error') resetPayment()
+              }}
+              className="mt-1 h-4 w-4 shrink-0 accent-[hsl(var(--primary))]"
+            />
+            <span>
+              <span className="block font-ui text-xs font-black uppercase tracking-[0.18em]">{title}</span>
+              <span className="mt-1 block text-sm leading-5 text-foreground/65">{hint}</span>
+            </span>
+          </label>
         ))}
       </div>
     </fieldset>
@@ -326,369 +356,356 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
 
   const chargesNote =
     method === 'card'
-      ? 'You will enter your card details on Blink\'s secure payment page, not on this site. You come back here to your receipt when you finish.'
-      : 'Mobile money network charges apply. MTN or Airtel shows them on the prompt before you enter your PIN.'
-  const busyLabel = method === 'card' ? 'Opening card payment' : 'Waiting for approval'
-  const student = category.toLowerCase().includes('student')
+      ? 'You leave this site briefly to pay on Blink\'s secure page, then come back to your receipt.'
+      : 'Mobile money network charges apply and are shown on the prompt before you enter your PIN.'
 
-  const switchTab = (key: RegistrationTab) => {
-    setActive(key)
-    setSubmitted('')
-    setShowJoinGroup(false)
-    setReceiptRef('')
-    setFormError('')
-    resetPayment()
-  }
+  const success = submitted ? (
+    <div ref={noticeRef} className="bg-primary p-6 text-primary-foreground" role="status">
+      <p className="font-ui text-[11px] font-black uppercase tracking-[0.22em] text-secondary">Received</p>
+      <p className="mt-3 text-lg leading-8">{submitted}</p>
+    </div>
+  ) : null
 
-  const intro = intros[active]
-  const activeTab = tabs.find((tab) => tab.key === active)!
+  const errorBox = formError ? (
+    <div ref={noticeRef} className="bg-foreground p-6 text-lg leading-8 text-white" role="alert">
+      {formError}
+    </div>
+  ) : null
 
   return (
-    <section id="register" className="relative border-b border-border bg-background py-14 lg:py-20">
+    <section id="register" className="relative border-b border-border bg-background py-8 sm:py-12 lg:py-16">
+      {overlay}
       <div className="container-site">
         <Reveal>
-          <p className="label">What would you like to do?</p>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5" role="tablist" aria-label="Ways to take part">
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                type="button"
-                role="tab"
-                aria-selected={active === tab.key}
-                onClick={() => switchTab(tab.key)}
-                className={`flex flex-col border-2 p-4 text-left transition-colors ${
-                  active === tab.key
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'border-border bg-white text-foreground hover:border-primary'
-                }`}
-              >
-                <span className="font-display text-2xl uppercase leading-none">{tab.title}</span>
-                <span className={`mt-2 text-sm leading-5 ${active === tab.key ? 'text-primary-foreground/80' : 'text-foreground/65'}`}>
-                  {tab.description}
-                </span>
-                <span
-                  className={`mt-3 self-start px-2 py-1 font-ui text-[10px] font-black uppercase tracking-[0.18em] ${
-                    active === tab.key ? 'bg-secondary text-secondary-foreground' : 'bg-background text-foreground/70'
-                  }`}
-                >
-                  {tab.tag}
-                </span>
-              </button>
-            ))}
-          </div>
-        </Reveal>
+          <div className="bg-white p-6 sm:p-10">
+            <fieldset>
+              <legend className="w-full">
+                <p className="eyebrow">Startups Harambe Run 2026</p>
+                <h1 className="mt-4 font-display text-4xl uppercase leading-none sm:text-5xl">What would you like to do?</h1>
+              </legend>
+              <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {choices.map((choice) => (
+                  <label
+                    key={choice.key}
+                    className={`flex cursor-pointer items-start gap-3 border p-4 transition-colors ${
+                      active === choice.key ? 'border-primary bg-primary/[0.04]' : 'border-border hover:border-primary'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="what"
+                      value={choice.key}
+                      checked={active === choice.key}
+                      onChange={() => choose(choice.key)}
+                      className="mt-1.5 h-5 w-5 shrink-0 accent-[hsl(var(--primary))]"
+                    />
+                    <span>
+                      <span className="block font-display text-2xl uppercase leading-tight">{choice.title}</span>
+                      <span className="mt-1 block text-sm leading-5 text-foreground/65">{choice.hint}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
 
-        <Reveal delay={120}>
-          <div className="mt-4 bg-white p-6 sm:p-9">
-            <div className="mb-8 max-w-3xl">
-              <p className="eyebrow">{activeTab.tag}</p>
-              <h2 className="mt-3 font-display text-4xl uppercase leading-none sm:text-5xl">{intro.title}</h2>
-              <p className="mt-4 text-lg leading-8 text-foreground/75">{intro.text}</p>
+            <div className="mt-10 border-t border-border pt-8">
+              <p className="label">How it works</p>
+              <ol className="mt-3 max-w-3xl space-y-2 text-base leading-7 text-foreground/80">
+                {guides[active].map((line, index) => (
+                  <li key={line} className="flex gap-3">
+                    <span className="font-ui text-xs font-black leading-7 text-accent">{index + 1}.</span>
+                    <span>{line}</span>
+                  </li>
+                ))}
+              </ol>
             </div>
 
-            {submitted ? (
-              <div className="mb-7 border border-primary bg-primary p-6 text-primary-foreground">
-                <p className="font-ui text-[11px] font-black uppercase tracking-[0.22em] text-secondary">{successTitle}</p>
-                <p className="mt-3 text-lg leading-8">{submitted}</p>
-                <div className="mt-5 flex flex-wrap gap-3">
-                  {receiptRef ? (
-                    <a href={`/receipt/${receiptRef}`} className="btn-gold inline-flex">
-                      View and save receipt
-                    </a>
-                  ) : null}
-                  {showJoinGroup ? (
-                    <a
-                      href={WHATSAPP_GROUP_LINK}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-outline inline-flex border-white text-white"
+            <div className="mt-8">
+              {active === 'run' ? (
+                <form
+                  onSubmit={(event) =>
+                    pay(event, 'Runner registration', (data) =>
+                      runnerCategories.find((c) => c.label === String(data.get('category')))?.amount ?? 30000
+                    )
+                  }
+                  className="grid gap-8"
+                >
+                  <FormGroup title="About you">
+                    <Field label="Full name" id="runner-name">
+                      <input className="field" id="runner-name" name="name" autoComplete="name" required />
+                    </Field>
+                    <Field label="Email (your receipt is sent here)" id="runner-email">
+                      <input className="field" id="runner-email" type="email" name="email" autoComplete="email" required />
+                    </Field>
+                    <Field label="Gender" id="runner-gender">
+                      <select className="field" id="runner-gender" name="gender" required defaultValue="">
+                        <option value="" disabled>Choose</option>
+                        <option>Female</option>
+                        <option>Male</option>
+                        <option>Prefer not to say</option>
+                      </select>
+                    </Field>
+                    <Field label="Date of birth" id="runner-dob">
+                      <input className="field" id="runner-dob" type="date" name="date_of_birth" min="1930-01-01" max="2014-12-31" required />
+                    </Field>
+                  </FormGroup>
+
+                  <FormGroup title="Your run">
+                    <Field label="Category" id="category">
+                      <select className="field" id="category" name="category" required value={category} onChange={(e) => setCategory(e.target.value)}>
+                        {runnerCategories.map((c) => (
+                          <option key={c.label}>{c.label}</option>
+                        ))}
+                      </select>
+                    </Field>
+                    <Field label="Starting point" id="start">
+                      <select className="field" id="start" name="start" required>
+                        {startPoints.map((point) => (
+                          <option key={point}>{point}</option>
+                        ))}
+                      </select>
+                    </Field>
+                    <Field label="Running kit size" id="kit-size">
+                      <select className="field" id="kit-size" name="kit_size" required defaultValue="">
+                        <option value="" disabled>Choose a size</option>
+                        {kitSizes.map((size) => (
+                          <option key={size}>{size}</option>
+                        ))}
+                      </select>
+                    </Field>
+                    <Field label={student ? 'University or institution' : 'Organisation or institution (optional)'} id="institution">
+                      <input className="field" id="institution" name="institution" list="institution-list" required={student} />
+                      <datalist id="institution-list">
+                        {universityStarts.map((u) => (
+                          <option key={u} value={u.split(',')[0]} />
+                        ))}
+                      </datalist>
+                    </Field>
+                    {student ? (
+                      <p className="text-sm leading-6 text-foreground/70 sm:col-span-2">
+                        Student rate: bring your valid student ID to kit pickup. No upload is needed now.
+                      </p>
+                    ) : null}
+                  </FormGroup>
+
+                  <FormGroup title="Next of kin (emergency contact)">
+                    <Field label="Full name" id="nok-name">
+                      <input className="field" id="nok-name" name="next_of_kin_name" required />
+                    </Field>
+                    <Field label="Relationship" id="nok-relationship">
+                      <input className="field" id="nok-relationship" name="next_of_kin_relationship" placeholder="Parent, sibling, spouse, friend" required />
+                    </Field>
+                    <Field label="Phone number" id="nok-phone">
+                      <input className="field" id="nok-phone" name="next_of_kin_phone" inputMode="tel" placeholder="0772000000" required />
+                    </Field>
+                    <Field label="Medical conditions or allergies (optional)" id="medical">
+                      <input className="field" id="medical" name="medical_notes" placeholder="e.g. asthma, none" />
+                    </Field>
+                  </FormGroup>
+
+                  <FormGroup title="Payment">
+                    {methodPicker}
+                    <Field label={method === 'card' ? 'Your phone number (your SMS receipt is sent here)' : 'Mobile money number (the payment prompt comes here)'} id="runner-phone">
+                      <input className="field" id="runner-phone" name="phone" inputMode="tel" autoComplete="tel" placeholder="0781405551" required />
+                    </Field>
+                  </FormGroup>
+
+                  <label className="flex items-start gap-3 text-base leading-7">
+                    <input type="checkbox" name="consent" value="Agreed" required className="mt-1.5 h-5 w-5 shrink-0 accent-[hsl(var(--primary))]" />
+                    <span>
+                      I confirm I am fit to take part and run at my own risk, that my details above are correct, and that photos and videos of me at the event may be used to promote Harambe Run.
+                    </span>
+                  </label>
+
+                  {payNotice}
+
+                  <div>
+                    <button className="btn-primary w-full sm:w-auto" type="submit" disabled={busy}>
+                      {method === 'card' ? 'Continue to card payment' : `Pay UGX ${(student ? 15000 : 30000).toLocaleString('en-UG')} and confirm my place`}
+                    </button>
+                    <p className="mt-3 text-sm leading-6 text-foreground/70">{chargesNote}</p>
+                  </div>
+                </form>
+              ) : null}
+
+              {active === 'donate' ? (
+                <form onSubmit={(event) => pay(event, 'Donation', (data) => Number(String(data.get('amount')).replace(/\D/g, '')))} className="grid gap-8">
+                  <FormGroup title="About you">
+                    <Field label="Name or organisation" id="donor-name">
+                      <input className="field" id="donor-name" name="name" autoComplete="name" required />
+                    </Field>
+                    <Field label="Email (your receipt is sent here)" id="donor-email">
+                      <input className="field" id="donor-email" type="email" name="email" autoComplete="email" required />
+                    </Field>
+                    <Field label="Amount in UGX (minimum 500)" id="amount">
+                      <input className="field" id="amount" name="amount" inputMode="numeric" placeholder="100000" required />
+                    </Field>
+                    <Field label="On the public donor board" id="display">
+                      <select className="field" id="display" name="display" required>
+                        <option>Show my name</option>
+                        <option>Display as anonymous</option>
+                      </select>
+                    </Field>
+                  </FormGroup>
+
+                  <FormGroup title="Payment">
+                    {methodPicker}
+                    <Field
+                      label={method === 'card' ? 'Phone number (optional, for an SMS receipt)' : 'Mobile money number (the payment prompt comes here)'}
+                      id="donor-phone"
                     >
-                      Join the WhatsApp group
-                    </a>
-                  ) : null}
-                </div>
-              </div>
-            ) : null}
+                      <input className="field" id="donor-phone" name="phone" inputMode="tel" autoComplete="tel" placeholder="0781405551" required={method === 'mobile'} />
+                    </Field>
+                  </FormGroup>
 
-            {active === 'run' || active === 'donate' ? payNotice : null}
-            {formError ? <div className="mb-7 bg-foreground p-6 text-lg leading-8 text-white">{formError}</div> : null}
+                  {payNotice}
 
-            {active === 'run' ? (
-              <form
-                onSubmit={(event) =>
-                  pay(event, 'Runner registration', (data) =>
-                    runnerCategories.find((c) => c.label === String(data.get('category')))?.amount ?? 30000
-                  )
-                }
-                className="grid gap-8"
-              >
-                <FormGroup title="About you">
-                  <Field label="Full name" id="runner-name">
-                    <input className="field" id="runner-name" name="name" autoComplete="name" required />
-                  </Field>
-                  <Field label="Email" id="runner-email">
-                    <input className="field" id="runner-email" type="email" name="email" autoComplete="email" required />
-                  </Field>
-                  <Field label="Gender" id="runner-gender">
-                    <select className="field" id="runner-gender" name="gender" required defaultValue="">
-                      <option value="" disabled>Choose</option>
-                      <option>Female</option>
-                      <option>Male</option>
-                      <option>Prefer not to say</option>
-                    </select>
-                  </Field>
-                  <Field label="Date of birth" id="runner-dob">
-                    <input className="field" id="runner-dob" type="date" name="date_of_birth" min="1930-01-01" max="2014-12-31" required />
-                  </Field>
-                </FormGroup>
+                  <div>
+                    <button className="btn-gold w-full sm:w-auto" type="submit" disabled={busy}>
+                      {method === 'card' ? 'Continue to card payment' : 'Give now'}
+                    </button>
+                    <p className="mt-3 text-sm leading-6 text-foreground/70">{chargesNote}</p>
+                  </div>
+                </form>
+              ) : null}
 
-                <FormGroup title="Your run">
-                  <Field label="Category" id="category">
-                    <select className="field" id="category" name="category" required value={category} onChange={(e) => setCategory(e.target.value)}>
-                      {runnerCategories.map((c) => (
-                        <option key={c.label}>{c.label}</option>
-                      ))}
-                    </select>
+              {active === 'sponsor' ? (
+                <form onSubmit={(event) => submit(event, 'Sponsorship')} className="grid gap-8">
+                  <HoneyPot />
+                  <FormGroup title="Your organisation">
+                    <Field label="Organisation" id="sponsor-org">
+                      <input className="field" id="sponsor-org" name="organisation" autoComplete="organization" required />
+                    </Field>
+                    <Field label="Contact person" id="sponsor-name">
+                      <input className="field" id="sponsor-name" name="name" autoComplete="name" required />
+                    </Field>
+                    <Field label="Role or title" id="sponsor-role">
+                      <input className="field" id="sponsor-role" name="role" autoComplete="organization-title" />
+                    </Field>
+                    <Field label="Email" id="sponsor-email">
+                      <input className="field" id="sponsor-email" type="email" name="email" autoComplete="email" required />
+                    </Field>
+                    <Field label="Phone number" id="sponsor-phone">
+                      <input className="field" id="sponsor-phone" name="phone" inputMode="tel" autoComplete="tel" required />
+                    </Field>
+                    <Field label="Package of interest" id="tier">
+                      <select className="field" id="tier" name="choice" required defaultValue="">
+                        <option value="" disabled>Choose a package</option>
+                        <optgroup label="Sponsorship tiers">
+                          {sponsorTiers.map((tier) => (
+                            <option key={tier.name}>{`${tier.name}, ${tier.price}`}</option>
+                          ))}
+                        </optgroup>
+                        <optgroup label="Sector and add-on packages">
+                          {sectorPackages.map(([name, price]) => (
+                            <option key={name}>{`${name}, ${price}`}</option>
+                          ))}
+                        </optgroup>
+                        <optgroup label="Other">
+                          <option>In-kind support (goods or services)</option>
+                          <option>Not sure yet, please advise</option>
+                        </optgroup>
+                      </select>
+                    </Field>
+                  </FormGroup>
+                  <Field label="Anything we should know? (optional)" id="sponsor-message">
+                    <textarea className="field min-h-28" id="sponsor-message" name="message" placeholder="Goals for the partnership, in-kind offer, timelines" />
                   </Field>
-                  <Field label="Starting point" id="start">
-                    <select className="field" id="start" name="start" required>
-                      {startPoints.map((point) => (
-                        <option key={point}>{point}</option>
-                      ))}
-                    </select>
-                  </Field>
-                  <Field label="Running kit size" id="kit-size">
-                    <select className="field" id="kit-size" name="kit_size" required defaultValue="">
-                      <option value="" disabled>Choose a size</option>
-                      {kitSizes.map((size) => (
-                        <option key={size}>{size}</option>
-                      ))}
-                    </select>
-                  </Field>
-                  <Field label={student ? 'University or institution' : 'Organisation or institution (optional)'} id="institution">
-                    <input className="field" id="institution" name="institution" list="institution-list" required={student} />
-                    <datalist id="institution-list">
-                      {universityStarts.map((u) => (
-                        <option key={u} value={u.split(',')[0]} />
-                      ))}
-                    </datalist>
-                  </Field>
-                </FormGroup>
-                {student ? (
-                  <p className="-mt-4 text-sm leading-6 text-foreground/70">
-                    Student rate: bring your valid student ID to kit pickup. No upload is needed now.
-                  </p>
-                ) : null}
+                  {success}
+                  {errorBox}
+                  <div>
+                    <button className="btn-primary w-full sm:w-auto" type="submit" disabled={sending}>
+                      {sending ? 'Sending…' : 'Send sponsorship interest'}
+                    </button>
+                  </div>
+                </form>
+              ) : null}
 
-                <FormGroup title="Next of kin (emergency contact)">
-                  <Field label="Full name" id="nok-name">
-                    <input className="field" id="nok-name" name="next_of_kin_name" required />
-                  </Field>
-                  <Field label="Relationship" id="nok-relationship">
-                    <input className="field" id="nok-relationship" name="next_of_kin_relationship" placeholder="Parent, sibling, spouse, friend" required />
-                  </Field>
-                  <Field label="Phone number" id="nok-phone">
-                    <input className="field" id="nok-phone" name="next_of_kin_phone" inputMode="tel" placeholder="0772000000" required />
-                  </Field>
-                  <Field label="Medical conditions or allergies (optional)" id="medical">
-                    <input className="field" id="medical" name="medical_notes" placeholder="e.g. asthma, none" />
-                  </Field>
-                </FormGroup>
-
-                <FormGroup title="Payment">
-                  <div className="sm:col-span-2">{methodPicker}</div>
-                  <Field label={method === 'card' ? 'Your phone number' : 'Mobile money number (the payment prompt comes here)'} id="runner-phone">
-                    <input className="field" id="runner-phone" name="phone" inputMode="tel" autoComplete="tel" placeholder="0781405551" required />
-                  </Field>
-                </FormGroup>
-
-                <label className="flex items-start gap-3 text-base leading-7">
-                  <input type="checkbox" name="consent" value="Agreed" required className="mt-1.5 h-5 w-5 shrink-0 accent-[hsl(var(--primary))]" />
-                  <span>
-                    I confirm I am fit to take part and run at my own risk, that my details above are correct, and that photos and videos of me at the event may be used to promote Harambe Run.
-                  </span>
-                </label>
-
-                <div>
-                  <button className="btn-primary w-full sm:w-auto" type="submit" disabled={busy}>
-                    {busy ? busyLabel : method === 'card' ? 'Continue to card payment' : 'Pay and confirm my place'}
-                  </button>
-                  <p className="mt-3 text-sm leading-6 text-foreground/70">{chargesNote}</p>
-                </div>
-              </form>
-            ) : null}
-
-            {active === 'donate' ? (
-              <form onSubmit={(event) => pay(event, 'Donation', (data) => Number(String(data.get('amount')).replace(/\D/g, '')))} className="grid gap-8">
-                <FormGroup title="About you">
-                  <Field label="Name or organisation" id="donor-name">
-                    <input className="field" id="donor-name" name="name" autoComplete="name" required />
-                  </Field>
-                  <Field label="Email" id="donor-email">
-                    <input className="field" id="donor-email" type="email" name="email" autoComplete="email" required />
-                  </Field>
-                  <Field label="Amount, UGX (minimum 500)" id="amount">
-                    <input className="field" id="amount" name="amount" inputMode="numeric" placeholder="100000" required />
-                  </Field>
-                  <Field label="On the public donor board" id="display">
-                    <select className="field" id="display" name="display" required>
-                      <option>Show my name</option>
-                      <option>Display as anonymous</option>
-                    </select>
-                  </Field>
-                </FormGroup>
-
-                <FormGroup title="Payment">
-                  <div className="sm:col-span-2">{methodPicker}</div>
-                  <Field
-                    label={method === 'card' ? 'Phone number (optional, for your receipt SMS)' : 'Mobile money number (the payment prompt comes here)'}
-                    id="donor-phone"
-                  >
-                    <input className="field" id="donor-phone" name="phone" inputMode="tel" autoComplete="tel" placeholder="0781405551" required={method === 'mobile'} />
-                  </Field>
-                </FormGroup>
-
-                <div>
-                  <button className="btn-gold w-full sm:w-auto" type="submit" disabled={busy}>
-                    {busy ? busyLabel : method === 'card' ? 'Continue to card payment' : 'Give now'}
-                  </button>
-                  <p className="mt-3 text-sm leading-6 text-foreground/70">{chargesNote}</p>
-                </div>
-              </form>
-            ) : null}
-
-            {active === 'sponsor' ? (
-              <form onSubmit={(event) => submit(event, 'Sponsorship')} className="grid gap-8">
-                <HoneyPot />
-                <FormGroup title="Your organisation">
-                  <Field label="Organisation" id="sponsor-org">
-                    <input className="field" id="sponsor-org" name="organisation" autoComplete="organization" required />
-                  </Field>
-                  <Field label="Contact person" id="sponsor-name">
-                    <input className="field" id="sponsor-name" name="name" autoComplete="name" required />
-                  </Field>
-                  <Field label="Role or title" id="sponsor-role">
-                    <input className="field" id="sponsor-role" name="role" autoComplete="organization-title" />
-                  </Field>
-                  <Field label="Email" id="sponsor-email">
-                    <input className="field" id="sponsor-email" type="email" name="email" autoComplete="email" required />
-                  </Field>
-                  <Field label="Phone number" id="sponsor-phone">
-                    <input className="field" id="sponsor-phone" name="phone" inputMode="tel" autoComplete="tel" required />
-                  </Field>
-                  <Field label="Package of interest" id="tier">
-                    <select className="field" id="tier" name="choice" required defaultValue="">
-                      <option value="" disabled>Choose a package</option>
-                      <optgroup label="Sponsorship tiers">
-                        {sponsorTiers.map((tier) => (
-                          <option key={tier.name}>{`${tier.name}, ${tier.price}`}</option>
+              {active === 'booth' ? (
+                <form onSubmit={(event) => submit(event, 'Exhibition')} className="grid gap-8">
+                  <HoneyPot />
+                  <FormGroup title="Your business">
+                    <Field label="Business or organisation" id="booth-org">
+                      <input className="field" id="booth-org" name="organisation" autoComplete="organization" required />
+                    </Field>
+                    <Field label="Contact person" id="booth-name">
+                      <input className="field" id="booth-name" name="name" autoComplete="name" required />
+                    </Field>
+                    <Field label="Email" id="booth-email">
+                      <input className="field" id="booth-email" type="email" name="email" autoComplete="email" required />
+                    </Field>
+                    <Field label="Phone number" id="booth-phone">
+                      <input className="field" id="booth-phone" name="phone" inputMode="tel" autoComplete="tel" required />
+                    </Field>
+                    <Field label="Booth or listing" id="booth-choice">
+                      <select className="field" id="booth-choice" name="choice" required defaultValue="">
+                        <option value="" disabled>Choose an option</option>
+                        {exhibitOptions.map((option) => (
+                          <option key={option}>{option}</option>
                         ))}
-                      </optgroup>
-                      <optgroup label="Sector and add-on packages">
-                        {sectorPackages.map(([name, price]) => (
-                          <option key={name}>{`${name}, ${price}`}</option>
+                      </select>
+                    </Field>
+                    <Field label="What will you showcase or offer?" id="booth-offer">
+                      <input className="field" id="booth-offer" name="offer" placeholder="Products, services, or the discount for runners" required />
+                    </Field>
+                  </FormGroup>
+                  {success}
+                  {errorBox}
+                  <div>
+                    <button className="btn-primary w-full sm:w-auto" type="submit" disabled={sending}>
+                      {sending ? 'Sending…' : 'Send request'}
+                    </button>
+                  </div>
+                </form>
+              ) : null}
+
+              {active === 'volunteer' ? (
+                <form onSubmit={(event) => submit(event, 'Volunteer')} className="grid gap-8">
+                  <HoneyPot />
+                  <FormGroup title="About you">
+                    <Field label="Full name" id="vol-name">
+                      <input className="field" id="vol-name" name="name" autoComplete="name" required />
+                    </Field>
+                    <Field label="Email" id="vol-email">
+                      <input className="field" id="vol-email" type="email" name="email" autoComplete="email" required />
+                    </Field>
+                    <Field label="Phone number" id="vol-phone">
+                      <input className="field" id="vol-phone" name="phone" inputMode="tel" autoComplete="tel" required />
+                    </Field>
+                    <Field label="University or organisation (optional)" id="vol-org">
+                      <input className="field" id="vol-org" name="organisation" list="institution-list-vol" />
+                      <datalist id="institution-list-vol">
+                        {universityStarts.map((u) => (
+                          <option key={u} value={u.split(',')[0]} />
                         ))}
-                      </optgroup>
-                      <optgroup label="Other">
-                        <option>In-kind support (goods or services)</option>
-                        <option>Not sure yet, please advise</option>
-                      </optgroup>
-                    </select>
-                  </Field>
-                </FormGroup>
-                <Field label="Anything we should know? (optional)" id="sponsor-message">
-                  <textarea className="field min-h-28" id="sponsor-message" name="message" placeholder="Goals for the partnership, in-kind offer, timelines" />
-                </Field>
-                <div>
-                  <button className="btn-primary w-full sm:w-auto" type="submit" disabled={sending}>
-                    {sending ? 'Sending' : 'Send sponsorship interest'}
-                  </button>
-                  <p className="mt-3 text-sm leading-6 text-foreground/70">No payment is taken here. We will send the proposal and an invoice.</p>
-                </div>
-              </form>
-            ) : null}
-
-            {active === 'booth' ? (
-              <form onSubmit={(event) => submit(event, 'Exhibition')} className="grid gap-8">
-                <HoneyPot />
-                <FormGroup title="Your business">
-                  <Field label="Business or organisation" id="booth-org">
-                    <input className="field" id="booth-org" name="organisation" autoComplete="organization" required />
-                  </Field>
-                  <Field label="Contact person" id="booth-name">
-                    <input className="field" id="booth-name" name="name" autoComplete="name" required />
-                  </Field>
-                  <Field label="Email" id="booth-email">
-                    <input className="field" id="booth-email" type="email" name="email" autoComplete="email" required />
-                  </Field>
-                  <Field label="Phone number" id="booth-phone">
-                    <input className="field" id="booth-phone" name="phone" inputMode="tel" autoComplete="tel" required />
-                  </Field>
-                  <Field label="Booth or listing" id="booth-choice">
-                    <select className="field" id="booth-choice" name="choice" required defaultValue="">
-                      <option value="" disabled>Choose an option</option>
-                      {exhibitOptions.map((option) => (
-                        <option key={option}>{option}</option>
-                      ))}
-                    </select>
-                  </Field>
-                  <Field label="What will you showcase or offer?" id="booth-offer">
-                    <input className="field" id="booth-offer" name="offer" placeholder="Products, services, or the discount for runners" required />
-                  </Field>
-                </FormGroup>
-                <div>
-                  <button className="btn-primary w-full sm:w-auto" type="submit" disabled={sending}>
-                    {sending ? 'Sending' : 'Send request'}
-                  </button>
-                  <p className="mt-3 text-sm leading-6 text-foreground/70">No payment is taken here. We confirm availability first, then invoice you.</p>
-                </div>
-              </form>
-            ) : null}
-
-            {active === 'volunteer' ? (
-              <form onSubmit={(event) => submit(event, 'Volunteer')} className="grid gap-8">
-                <HoneyPot />
-                <FormGroup title="About you">
-                  <Field label="Full name" id="vol-name">
-                    <input className="field" id="vol-name" name="name" autoComplete="name" required />
-                  </Field>
-                  <Field label="Email" id="vol-email">
-                    <input className="field" id="vol-email" type="email" name="email" autoComplete="email" required />
-                  </Field>
-                  <Field label="Phone number" id="vol-phone">
-                    <input className="field" id="vol-phone" name="phone" inputMode="tel" autoComplete="tel" required />
-                  </Field>
-                  <Field label="University or organisation (optional)" id="vol-org">
-                    <input className="field" id="vol-org" name="organisation" list="institution-list-vol" />
-                    <datalist id="institution-list-vol">
-                      {universityStarts.map((u) => (
-                        <option key={u} value={u.split(',')[0]} />
-                      ))}
-                    </datalist>
-                  </Field>
-                  <Field label="How would you like to help?" id="vol-role">
-                    <select className="field" id="vol-role" name="choice" required defaultValue="">
-                      <option value="" disabled>Choose a role</option>
-                      {volunteerRoles.map((role) => (
-                        <option key={role}>{role}</option>
-                      ))}
-                    </select>
-                  </Field>
-                  <Field label="When are you available?" id="vol-when">
-                    <select className="field" id="vol-when" name="availability" required defaultValue="">
-                      <option value="" disabled>Choose</option>
-                      <option>Run day only (29 November)</option>
-                      <option>Before the run and on run day</option>
-                    </select>
-                  </Field>
-                </FormGroup>
-                <div>
-                  <button className="btn-primary w-full sm:w-auto" type="submit" disabled={sending}>
-                    {sending ? 'Sending' : 'Sign up to volunteer'}
-                  </button>
-                </div>
-              </form>
-            ) : null}
+                      </datalist>
+                    </Field>
+                    <Field label="How would you like to help?" id="vol-role">
+                      <select className="field" id="vol-role" name="choice" required defaultValue="">
+                        <option value="" disabled>Choose a role</option>
+                        {volunteerRoles.map((role) => (
+                          <option key={role}>{role}</option>
+                        ))}
+                      </select>
+                    </Field>
+                    <Field label="When are you available?" id="vol-when">
+                      <select className="field" id="vol-when" name="availability" required defaultValue="">
+                        <option value="" disabled>Choose</option>
+                        <option>Run day only (29 November)</option>
+                        <option>Before the run and on run day</option>
+                      </select>
+                    </Field>
+                  </FormGroup>
+                  {success}
+                  {errorBox}
+                  <div>
+                    <button className="btn-primary w-full sm:w-auto" type="submit" disabled={sending}>
+                      {sending ? 'Sending…' : 'Sign up to volunteer'}
+                    </button>
+                  </div>
+                </form>
+              ) : null}
+            </div>
           </div>
         </Reveal>
       </div>

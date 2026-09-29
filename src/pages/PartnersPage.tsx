@@ -16,12 +16,12 @@ export default function PartnersPage() {
         <SectionHeader
           eyebrow="Current ecosystem"
           title="Partners already on the course."
-          copy="Partner logos are presented in a restrained grid for clear recognition across the website."
+          copy="Organisations already backing the pipeline across investment, training and startup support."
         />
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+        <div className="mt-10 grid grid-cols-3 gap-3 sm:gap-4 lg:grid-cols-6">
           {partnerLogos.map((logo) => (
             <div key={logo.name} className="logo-tile">
-              <img src={logo.src} alt={`${logo.name} logo`} className="max-h-12 w-auto object-contain" />
+              <img src={logo.src} alt={`${logo.name} logo`} className="max-h-12 max-w-full object-contain" />
             </div>
           ))}
         </div>

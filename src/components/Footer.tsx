@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import { asset, partnerLogos } from '../data'
+import { supabase } from '@/integrations/supabase/client'
 import { pageHref, type PageKey } from '../routes'
 
 const eventLinks: Array<[PageKey, string]> = [
@@ -19,11 +20,23 @@ const actionLinks: Array<[PageKey, string]> = [
 
 export default function Footer() {
   const [joined, setJoined] = useState(false)
+  const [joinError, setJoinError] = useState(false)
 
-  const subscribe = (event: FormEvent<HTMLFormElement>) => {
+  // Saved in Supabase (Table Editor -> enquiries, type "Updates") with a welcome email.
+  const subscribe = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    const form = event.currentTarget
+    const data = new FormData(form)
+    setJoinError(false)
+    const { error } = await supabase.functions.invoke('submit-enquiry', {
+      body: { type: 'Updates', fields: { email: String(data.get('email') ?? ''), website: String(data.get('website') ?? '') } },
+    })
+    if (error) {
+      setJoinError(true)
+      return
+    }
     setJoined(true)
-    event.currentTarget.reset()
+    form.reset()
   }
 
   return (
@@ -82,7 +95,9 @@ export default function Footer() {
               <form onSubmit={subscribe} className="mt-4 flex border border-white/20">
                 <input
                   type="email"
+                  name="email"
                   required
+                  aria-label="Email address for updates"
                   placeholder="Email address"
                   className="min-w-0 flex-1 bg-transparent px-3 py-3 text-sm text-white outline-none placeholder:text-white/45"
                 />
@@ -91,15 +106,16 @@ export default function Footer() {
                 </button>
               </form>
               {joined ? <p className="mt-3 text-xs font-bold uppercase tracking-[0.12em] text-secondary">You are on the update list.</p> : null}
+              {joinError ? <p className="mt-3 text-xs font-bold uppercase tracking-[0.12em] text-white/80">Could not sign you up. Please try again.</p> : null}
             </div>
           </div>
         </div>
 
         <div className="mt-12 border-y border-white/12 py-6">
-          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:grid-cols-6">
             {partnerLogos.map((logo) => (
-              <div key={logo.name} className="flex h-20 items-center justify-center bg-white px-4 py-4">
-                <img src={logo.src} alt={`${logo.name} logo`} className="max-h-9 w-auto object-contain" />
+              <div key={logo.name} className="flex h-14 items-center justify-center bg-white p-2 sm:h-20 sm:p-4">
+                <img src={logo.src} alt={`${logo.name} logo`} className="max-h-9 max-w-full object-contain" />
               </div>
             ))}
           </div>

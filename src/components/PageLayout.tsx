@@ -16,7 +16,7 @@ type PageHeroProps = {
 export function PageHero({ eyebrow, title, copy, image, imageAlt = '', imageCaption, portrait = false }: PageHeroProps) {
   return (
     <section className="border-b border-border bg-white py-14 sm:py-16 lg:py-20">
-      <div className="container-site grid gap-10 lg:grid-cols-[0.92fr_0.68fr] lg:items-end">
+      <div className="container-site grid gap-10 lg:grid-cols-[0.92fr_0.68fr] lg:items-center">
         <Reveal>
           <div>
             <p className="eyebrow">{eyebrow}</p>
@@ -77,7 +77,7 @@ export function CtaBand({ title, copy, primaryLabel, primaryPage, secondaryLabel
       className="relative z-10 -mt-[2vw] bg-primary pb-14 pt-[calc(2vw+3.5rem)] text-white sm:pb-16 sm:pt-[calc(2vw+4rem)]"
       style={{ clipPath: 'polygon(0 2vw, 100% 0, 100% 100%, 0 100%)' }}
     >
-      <div className="container-site grid gap-8 lg:grid-cols-[0.68fr_0.32fr] lg:items-center">
+      <div className="container-site grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center lg:gap-12">
         <Reveal>
           <div>
             <h2 className="font-display text-4xl uppercase leading-[0.95] sm:text-5xl">{title}</h2>
@@ -104,10 +104,10 @@ export function CtaBand({ title, copy, primaryLabel, primaryPage, secondaryLabel
 
 export function MetricGrid({ items, dark = false }: { items: Array<{ value: string; label: string }>; dark?: boolean }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
       {items.map((item) => (
-        <div key={item.label} className={`${dark ? 'bg-white/[0.07]' : 'bg-white'} p-5`}>
-          <p className={`font-display text-4xl uppercase leading-none ${dark ? 'text-secondary' : 'text-primary'}`}>{item.value}</p>
+        <div key={item.label} className={`${dark ? 'bg-white/[0.07]' : 'bg-white'} p-4 sm:p-5`}>
+          <p className={`font-display text-[1.6rem] uppercase leading-none sm:text-4xl ${dark ? 'text-secondary' : 'text-primary'}`}>{item.value}</p>
           <p className={`stat-label ${dark ? 'text-white/58' : 'text-muted-foreground'}`}>{item.label}</p>
         </div>
       ))}

@@ -139,10 +139,10 @@ export default function Home() {
           title="Ecosystem builders behind the run."
           copy="Partner visibility spans the route, runner kits, startup programs, exhibition village and public fundraising record."
         />
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+        <div className="mt-10 grid grid-cols-3 gap-3 sm:gap-4 lg:grid-cols-6">
           {partnerLogos.map((logo) => (
             <div key={logo.name} className="logo-tile">
-              <img src={logo.src} alt={`${logo.name} logo`} className="max-h-12 w-auto object-contain" />
+              <img src={logo.src} alt={`${logo.name} logo`} className="max-h-12 max-w-full object-contain" />
             </div>
           ))}
         </div>

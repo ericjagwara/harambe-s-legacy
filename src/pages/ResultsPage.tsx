@@ -10,10 +10,18 @@ export default function ResultsPage() {
   const progress = (raised / FUNDRAISING_TARGET) * 100
   const remaining = Math.max(0, FUNDRAISING_TARGET - raised)
 
+  // Large figures read better short in the stat row (UGX 3.75B); the bar below keeps exact amounts.
+  const short = (value: number) =>
+    value >= 1e9
+      ? `UGX ${Number((value / 1e9).toFixed(2))}B`
+      : value >= 1e6
+        ? `UGX ${Number((value / 1e6).toFixed(1))}M`
+        : formatUGX(value)
+
   const stats: Array<[string, string]> = [
-    [formatUGX(raised), 'raised so far'],
+    [short(raised), 'raised so far'],
     [`${progress.toFixed(1)}%`, 'of the target reached'],
-    [formatUGX(remaining), 'still to raise'],
+    [short(remaining), 'still to raise'],
     [count.toLocaleString('en-UG'), 'recorded contributions'],
   ]
 
@@ -32,7 +40,7 @@ export default function ResultsPage() {
           copy="The total updates as new contributions are confirmed by the finance team."
           dark
         />
-        <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 lg:grid-cols-4">
           {stats.map(([value, label], index) => (
             <Reveal key={label} delay={index * 70}>
               <div>
@@ -79,6 +87,11 @@ export default function ResultsPage() {
               </span>
               Live feed
             </div>
+            {rows.length === 0 ? (
+              <p className="mt-4 border-t border-border/50 py-5 text-base leading-7 text-muted-foreground">
+                No contributions yet. The first confirmed ticket or donation will appear here.
+              </p>
+            ) : null}
             <div className="mt-4 divide-y divide-border/50">
               {rows.slice(0, 8).map((row) => (
                 <div

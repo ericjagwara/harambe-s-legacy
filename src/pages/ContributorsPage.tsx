@@ -3,21 +3,13 @@ import { PageHero, PageSection, CtaBand } from '../components/PageLayout'
 import { useContributions } from '../hooks/useContributions'
 import { FUNDRAISING_TARGET, formatUGX, timeAgo } from '../data/contributors'
 
-const filters = [
-  'All',
-  'Corporate pledge',
-  'Investor network',
-  'Student team',
-  'Runner ticket',
-  'Booth payment',
-  'Online donation',
-  'Diaspora pledge',
-]
-
 export default function ContributorsPage() {
   const { rows, latestId, raised, count } = useContributions()
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('All')
+
+  // Only offer filters for the kinds of contribution that actually exist.
+  const filters = useMemo(() => ['All', ...Array.from(new Set(rows.map((row) => row.type))).sort()], [rows])
 
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase()
@@ -52,7 +44,7 @@ export default function ContributorsPage() {
               onChange={(event) => setQuery(event.target.value)}
             />
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className={`flex flex-wrap gap-2 ${filters.length > 2 ? '' : 'hidden'}`}>
             {filters.map((item) => (
               <button
                 key={item}
@@ -88,7 +80,9 @@ export default function ContributorsPage() {
             </div>
           ))}
           {visible.length === 0 && (
-            <p className="py-10 text-sm text-muted-foreground">No contributions match that search yet.</p>
+            <p className="py-10 text-sm text-muted-foreground">
+              {rows.length === 0 ? 'No contributions yet. Be the first on the list.' : 'No contributions match that search.'}
+            </p>
           )}
         </div>
       </PageSection>

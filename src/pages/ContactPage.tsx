@@ -1,25 +1,32 @@
 import { useState, type FormEvent } from 'react'
-import { Mail, MapPin, Send } from 'lucide-react'
+import { Mail, MapPin, MessageCircle, Send } from 'lucide-react'
+import { supabase } from '@/integrations/supabase/client'
 import Reveal from '../components/Reveal'
 import { PageHero, PageSection } from '../components/PageLayout'
 
 export default function ContactPage() {
   const [sent, setSent] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState('')
 
-  const ORG_EMAIL = 'info@haramberun.com'
-
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  // Saved as an enquiry (Supabase: Table Editor -> enquiries) and emailed to info@haramberun.com.
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
-    const data = new FormData(form)
-    const topic = String(data.get('topic') ?? 'General enquiry')
-    const details = Array.from(data.entries())
-      .filter(([, value]) => typeof value === 'string' && value.trim() !== '')
-      .map(([key, value]) => `${key}: ${value}`)
-      .join('\n')
-    const subject = encodeURIComponent(`Harambe Run 2026, ${topic}`)
-    const body = encodeURIComponent(details)
-    window.open(`mailto:${ORG_EMAIL}?subject=${subject}&body=${body}`, '_blank', 'noopener')
+    const fields: Record<string, string> = {}
+    new FormData(form).forEach((value, key) => {
+      if (typeof value === 'string' && value.trim() !== '') fields[key] = value.trim()
+    })
+    setSending(true)
+    setError('')
+    setSent(false)
+    const { error: fnError } = await supabase.functions.invoke('submit-enquiry', { body: { type: 'Contact', fields: { ...fields, choice: fields.topic } } })
+    setSending(false)
+    if (fnError) {
+      const body = await (fnError as { context?: Response }).context?.json?.().catch(() => null)
+      setError(body?.error ?? 'We could not send your message. Please try again, or email info@haramberun.com.')
+      return
+    }
     setSent(true)
     form.reset()
   }
@@ -47,6 +54,15 @@ export default function ContactPage() {
                   </div>
                 </div>
                 <div className="flex gap-4 bg-white/[0.07] p-5">
+                  <MessageCircle className="mt-1 h-5 w-5 shrink-0 text-secondary" />
+                  <div>
+                    <p className="font-ui text-[11px] font-bold uppercase tracking-[0.18em]">WhatsApp</p>
+                    <a href="https://wa.me/256781405551" target="_blank" rel="noopener noreferrer" className="mt-2 block text-sm leading-6 text-white/68 underline-offset-4 hover:underline">
+                      +256 781 405 551
+                    </a>
+                  </div>
+                </div>
+                <div className="flex gap-4 bg-white/[0.07] p-5">
                   <MapPin className="mt-1 h-5 w-5 shrink-0 text-secondary" />
                   <div>
                     <p className="font-ui text-[11px] font-bold uppercase tracking-[0.18em]">Finish line</p>
@@ -61,10 +77,15 @@ export default function ContactPage() {
             <form onSubmit={submit} className="bg-background p-6 sm:p-8">
               {sent ? (
                 <div className="mb-6 border border-primary bg-primary p-5 text-primary-foreground">
-                  <p className="font-ui text-[11px] font-bold uppercase tracking-[0.18em] text-secondary">Message noted</p>
-                  <p className="mt-2 text-sm leading-6">Your message has been captured for follow-up by the organising team.</p>
+                  <p className="font-ui text-[11px] font-bold uppercase tracking-[0.18em] text-secondary">Message sent</p>
+                  <p className="mt-2 text-sm leading-6">Thank you. The team has your message and will reply by email.</p>
                 </div>
               ) : null}
+              {error ? <div className="mb-6 bg-foreground p-5 text-sm leading-6 text-white" role="alert">{error}</div> : null}
+              <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+                <label htmlFor="contact-website">Website</label>
+                <input id="contact-website" name="website" tabIndex={-1} autoComplete="off" />
+              </div>
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
                   <label className="label" htmlFor="contact-name">Name</label>
@@ -90,8 +111,8 @@ export default function ContactPage() {
                 <label className="label" htmlFor="message">Message</label>
                 <textarea className="field min-h-40" id="message" name="message" required />
               </div>
-              <button className="btn-primary mt-7 w-full sm:w-auto" type="submit">
-                Send message
+              <button className="btn-primary mt-7 w-full sm:w-auto" type="submit" disabled={sending}>
+                {sending ? 'Sending…' : 'Send message'}
                 <Send className="ml-3 h-4 w-4" />
               </button>
             </form>

@@ -99,19 +99,19 @@
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center border border-primary bg-primary px-5 py-3 font-ui text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground transition-colors duration-200 hover:bg-foreground;
+    @apply inline-flex items-center justify-center whitespace-nowrap border border-primary bg-primary px-5 py-3 font-ui text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground transition-colors duration-200 hover:bg-foreground;
   }
 
   .btn-outline {
-    @apply inline-flex items-center justify-center border border-foreground bg-transparent px-5 py-3 font-ui text-[11px] font-bold uppercase tracking-[0.18em] text-foreground transition-colors duration-200 hover:bg-foreground hover:text-white;
+    @apply inline-flex items-center justify-center whitespace-nowrap border border-foreground bg-transparent px-5 py-3 font-ui text-[11px] font-bold uppercase tracking-[0.18em] text-foreground transition-colors duration-200 hover:bg-foreground hover:text-white;
   }
 
   .btn-outline-dark {
-    @apply inline-flex items-center justify-center border border-white/35 bg-transparent px-5 py-3 font-ui text-[11px] font-bold uppercase tracking-[0.18em] text-white transition-colors duration-200 hover:border-secondary hover:bg-secondary hover:text-secondary-foreground;
+    @apply inline-flex items-center justify-center whitespace-nowrap border border-white/35 bg-transparent px-5 py-3 font-ui text-[11px] font-bold uppercase tracking-[0.18em] text-white transition-colors duration-200 hover:border-secondary hover:bg-secondary hover:text-secondary-foreground;
   }
 
   .btn-gold {
-    @apply inline-flex items-center justify-center border border-secondary bg-secondary px-5 py-3 font-ui text-[11px] font-bold uppercase tracking-[0.18em] text-secondary-foreground transition-colors duration-200 hover:border-foreground hover:bg-foreground hover:text-white;
+    @apply inline-flex items-center justify-center whitespace-nowrap border border-secondary bg-secondary px-5 py-3 font-ui text-[11px] font-bold uppercase tracking-[0.18em] text-secondary-foreground transition-colors duration-200 hover:border-foreground hover:bg-foreground hover:text-white;
   }
 
   .field {
@@ -127,7 +127,7 @@
   }
 
   .logo-tile {
-    @apply flex h-24 items-center justify-center bg-white p-5 transition duration-200 hover:opacity-80;
+    @apply flex h-20 items-center justify-center bg-white p-3 sm:h-24 sm:p-5 transition duration-200 hover:opacity-80;
   }
 
   .stat-label {
