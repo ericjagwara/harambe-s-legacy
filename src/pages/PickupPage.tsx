@@ -192,8 +192,12 @@ export default function PickupPage() {
                       {runner ? (row.category ?? 'Runner').replace(/, UGX.*$/, '') : 'Donation, no kit'} · paid {ugx(row.amount)}
                       {row.start ? ` · ${row.start}` : ''}
                     </p>
-                    {paid && runner && student && !row.collectedAt ? (
-                      <p className="mt-3 font-ui text-xs font-black uppercase tracking-[0.18em] text-foreground">Check student ID before handing over</p>
+                    {paid && runner && !row.collectedAt ? (
+                      <p className="mt-3 font-ui text-xs font-black uppercase tracking-[0.18em] text-foreground">
+                        {student
+                          ? 'Check their student ID shows this name before handing over'
+                          : 'Check their ID shows this name before handing over'}
+                      </p>
                     ) : null}
                     {underpaid ? (
                       <p className="mt-3 font-ui text-xs font-black uppercase tracking-[0.18em] text-foreground">

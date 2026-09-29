@@ -25,6 +25,17 @@ function siteUrl() {
 }
 const siteHost = () => siteUrl().replace(/^https?:\/\//, '')
 
+// Receipt links carry a short key made from the reference with a server-only secret, so a receipt
+// cannot be opened by guessing references. Keep in sync with payment-receipt, blinkpay-deposit
+// and blinkpay-card-start.
+export async function receiptKey(reference: string) {
+  const secret = Deno.env.get('RECEIPT_SECRET') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+  const sig = new Uint8Array(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`receipt:${reference}`)))
+  const alphabet = 'abcdefghjkmnpqrstuvwxyz23456789'
+  return Array.from(sig.slice(0, 8), (b) => alphabet[b % alphabet.length]).join('')
+}
+
 const ugx = (amount: number) => `UGX ${Number(amount).toLocaleString('en-US')}`
 const fit = (message: string) => (message.length <= 160 ? message : `${message.slice(0, 157)}...`)
 const firstName = (p: Payment) => String(p.full_name).trim().split(/\s+/)[0]
@@ -33,16 +44,16 @@ const isStudent = (p: Payment) => String(p.details?.category ?? '').toLowerCase(
 
 // ---------- SMS ----------
 
-export function buildMessages(p: Payment) {
-  const first = firstName(p).slice(0, 12)
-  const receipt = `Receipt: ${siteHost()}/receipt/${p.reference}`
+export async function buildMessages(p: Payment) {
+  const first = firstName(p).slice(0, 10)
+  const receipt = `Receipt: ${siteHost()}/receipt/${p.reference}?k=${await receiptKey(p.reference)}`
   if (isRunner(p)) {
     return [
-      fit(`Harambe Run: ${first}, ${ugx(p.amount)} paid. Ref ${p.reference}. Show this SMS${isStudent(p) ? ' + student ID' : ''} at kit pickup. ${receipt}`),
+      fit(`Harambe Run: ${first}, ${ugx(p.amount)} paid. Ref ${p.reference}. Bring this SMS${isStudent(p) ? ' + student ID' : ''} to kit pickup. ${receipt}`),
       fit(`Join the Harambe Run runners group: ${WHATSAPP_GROUP} Harambe. Run. Fund. Job Creation. Tell a friend!`),
     ]
   }
-  return [fit(`Harambe Run: thank you ${first}! ${ugx(p.amount)} donation received. Ref ${p.reference}. ${receipt} Tell a friend!`)]
+  return [fit(`Harambe Run: thank you ${first}! ${ugx(p.amount)} donation received. Ref ${p.reference}. ${receipt}`)]
 }
 
 async function sendSms(to: string, messages: string[]) {
@@ -93,8 +104,8 @@ function row(label: string, value: unknown) {
   return `<tr><td style="padding:8px 0;color:#5b6b63;font-size:13px;width:42%;vertical-align:top">${esc(label)}</td><td style="padding:8px 0;color:#0b2e22;font-size:15px;font-weight:bold">${esc(value)}</td></tr>`
 }
 
-export function buildEmail(p: Payment) {
-  const receiptUrl = `${siteUrl()}/receipt/${p.reference}`
+export async function buildEmail(p: Payment) {
+  const receiptUrl = `${siteUrl()}/receipt/${p.reference}?k=${await receiptKey(p.reference)}`
   const d = (p.details ?? {}) as Record<string, unknown>
   const runner = isRunner(p)
   const subject = runner
@@ -132,7 +143,7 @@ ${runner ? row('Kit size', d.kit_size) : ''}
 </table>
 ${pickup}
 <p style="margin:24px 0 0"><a href="${receiptUrl}" style="display:inline-block;background:#00563a;color:#ffffff;text-decoration:none;font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;padding:14px 20px">View or print your receipt</a></p>
-<p style="margin:10px 0 0;font-size:13px;color:#5b6b63">You can reopen your receipt any time at ${esc(siteHost())}/receipt/${esc(p.reference)}</p>
+<p style="margin:10px 0 0;font-size:13px;color:#5b6b63">Keep this email: the button above opens your receipt any time. You can also find it at ${esc(siteHost())}/receipt with reference ${esc(p.reference)} and the phone number you paid with.</p>
 ${whatsapp}
 <p style="margin:28px 0 0;font-size:15px;line-height:22px;color:#0b2e22"><strong>Harambe. Run. Fund. Job Creation.</strong> Tell a friend!</p>
 </td></tr>
@@ -195,9 +206,9 @@ export async function completePayment(supabase: Supabase, paymentId: string) {
 
   const { data: p } = await supabase.from('payments').select('*').eq('id', paymentId).single()
   if (!p) return
-  const email = buildEmail(p)
+  const email = await buildEmail(p)
   const [sms, mail] = await Promise.all([
-    sendSms(String(p.msisdn ?? ''), buildMessages(p)),
+    sendSms(String(p.msisdn ?? ''), await buildMessages(p)),
     sendEmail(String(p.email ?? ''), email.subject, email.html, email.text),
   ])
   if (sms.status !== 'sent') console.warn('confirmation sms not sent', p.reference, sms)

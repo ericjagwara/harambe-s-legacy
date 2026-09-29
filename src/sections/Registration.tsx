@@ -6,12 +6,12 @@ import { booths, neighborhoodStarts, sectorPackages, sponsorTiers, universitySta
 
 export type RegistrationTab = 'run' | 'donate' | 'sponsor' | 'booth' | 'volunteer'
 
-const choices: Array<{ key: RegistrationTab; title: string; hint: string }> = [
-  { key: 'run', title: 'Run', hint: 'Register as a runner and pay for your running kit.' },
-  { key: 'donate', title: 'Donate', hint: 'Give any amount, with your name or anonymously.' },
-  { key: 'sponsor', title: 'Sponsor or partner', hint: 'Back the run as an organisation. We send you a proposal.' },
-  { key: 'booth', title: 'Exhibit', hint: 'Book a booth or offer a discount to runners.' },
-  { key: 'volunteer', title: 'Volunteer', hint: 'Help on run day or on your campus. It is free.' },
+const choices: Array<{ key: RegistrationTab; title: string }> = [
+  { key: 'run', title: 'Run: register and pay for a running kit' },
+  { key: 'donate', title: 'Donate: give any amount' },
+  { key: 'sponsor', title: 'Sponsor or partner as an organisation' },
+  { key: 'booth', title: 'Exhibit: book a booth or offer a runner discount' },
+  { key: 'volunteer', title: 'Volunteer on run day or on campus' },
 ]
 
 const guides: Record<RegistrationTab, string[]> = {
@@ -90,12 +90,13 @@ function postToBlink(url: string, fields: Record<string, string>) {
   form.submit()
 }
 
-export default function Registration({ initialTab = 'run' }: { initialTab?: RegistrationTab }) {
-  const [active, setActive] = useState<RegistrationTab>(initialTab)
+export default function Registration({ initialTab = '' }: { initialTab?: RegistrationTab | '' }) {
+  const [active, setActive] = useState<RegistrationTab | ''>(initialTab)
   const [submitted, setSubmitted] = useState('')
   const [payState, setPayState] = useState<PayState>('idle')
   const [payMessage, setPayMessage] = useState('')
   const [pendingRef, setPendingRef] = useState('')
+  const [pendingKey, setPendingKey] = useState('')
   const [charged, setCharged] = useState(0)
   const [elapsed, setElapsed] = useState(0)
   const [method, setMethod] = useState<PayMethod>('mobile')
@@ -139,7 +140,7 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
     setPendingRef('')
   }
 
-  const choose = (key: RegistrationTab) => {
+  const choose = (key: RegistrationTab | '') => {
     setActive(key)
     setSubmitted('')
     setFormError('')
@@ -231,8 +232,10 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
 
     const referenceCode = (result as { referenceCode?: string }).referenceCode
     const reference = (result as { reference?: string }).reference ?? ''
+    const receiptKey = (result as { receiptKey?: string }).receiptKey ?? ''
     setCharged(Number((result as { amount?: number }).amount ?? amount))
     setPendingRef(reference)
+    setPendingKey(receiptKey)
     setPayState('waiting')
 
     let attempts = 0
@@ -245,7 +248,7 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
         window.clearInterval(pollRef.current!)
         pollRef.current = null
         // The receipt page is the success page: confirmation, receipt, WhatsApp group and next steps.
-        window.location.assign(`/receipt/${reference}?paid=1`)
+        window.location.assign(`/receipt/${reference}?paid=1${receiptKey ? `&k=${receiptKey}` : ''}`)
       } else if (status === 'FAILED') {
         window.clearInterval(pollRef.current!)
         pollRef.current = null
@@ -266,7 +269,7 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
 
   const payNotice =
     payState === 'error' || payState === 'pending' ? (
-      <div ref={noticeRef} className={`p-6 ${payState === 'error' ? 'bg-foreground text-white' : 'bg-secondary text-secondary-foreground'}`} role="alert">
+      <div ref={noticeRef} className={`scroll-mt-28 p-6 ${payState === 'error' ? 'bg-foreground text-white' : 'bg-secondary text-secondary-foreground'}`} role="alert">
         <p className="font-ui text-[11px] font-black uppercase tracking-[0.22em]">
           {payState === 'error' ? 'Payment not completed' : 'Still waiting for approval'}
         </p>
@@ -274,7 +277,7 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
         {payState === 'pending' && pendingRef ? (
           <p className="mt-3 text-base leading-7">
             Your reference is <strong>{pendingRef}</strong>.{' '}
-            <a href={`/receipt/${pendingRef}`} className="font-bold underline underline-offset-4">
+            <a href={`/receipt/${pendingRef}${pendingKey ? `?k=${pendingKey}` : ''}`} className="font-bold underline underline-offset-4">
               Check your receipt
             </a>{' '}
             in a few minutes.
@@ -318,7 +321,7 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
   ) : null
 
   const methodPicker = (
-    <fieldset className="sm:col-span-2">
+    <fieldset className="min-w-0 sm:col-span-2">
       <legend className="label">Pay with</legend>
       <div className="mt-1 space-y-3">
         {(
@@ -355,52 +358,55 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
       : 'Mobile money network charges apply and are shown on the prompt before you enter your PIN.'
 
   const success = submitted ? (
-    <div ref={noticeRef} className="bg-primary p-6 text-primary-foreground" role="status">
+    <div ref={noticeRef} className="scroll-mt-28 bg-primary p-6 text-primary-foreground" role="status">
       <p className="font-ui text-[11px] font-black uppercase tracking-[0.22em] text-secondary">Received</p>
       <p className="mt-3 text-lg leading-8">{submitted}</p>
     </div>
   ) : null
 
   const errorBox = formError ? (
-    <div ref={noticeRef} className="bg-foreground p-6 text-lg leading-8 text-white" role="alert">
+    <div ref={noticeRef} className="scroll-mt-28 bg-foreground p-6 text-lg leading-8 text-white" role="alert">
       {formError}
     </div>
   ) : null
 
   return (
-    <section id="register" className="relative border-b border-border bg-background py-8 sm:py-12 lg:py-16">
+    <section id="register" className="relative border-b border-border bg-background pb-8 pt-4 sm:py-12 lg:py-16">
       {overlay}
       <div className="container-site">
         <Reveal>
-          <div className="bg-white p-6 sm:p-10">
-            <fieldset>
-              <legend className="w-full">
-                <p className="eyebrow">Startups Harambe Run 2026</p>
-                <h1 className="mt-4 font-display text-4xl uppercase leading-none sm:text-5xl">What would you like to do?</h1>
-              </legend>
-              <div className="mt-6 space-y-4">
-                {choices.map((choice) => (
-                  <label key={choice.key} className="flex cursor-pointer items-start gap-3">
-                    <input
-                      type="radio"
-                      name="what"
-                      value={choice.key}
-                      checked={active === choice.key}
-                      onChange={() => choose(choice.key)}
-                      className="mt-1 h-5 w-5 shrink-0 accent-[hsl(var(--primary))]"
-                    />
-                    <span className="leading-6">
-                      <span className="block text-lg text-foreground">{choice.title}</span>
-                      <span className="block text-sm text-foreground/60">{choice.hint}</span>
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
+          <div className="-mx-5 bg-white px-5 py-7 sm:mx-0 sm:p-10">
+            <p className="eyebrow">Startups Harambe Run 2026</p>
+            <h1 className="mt-3 font-display text-[2.1rem] uppercase leading-none sm:mt-4 sm:text-5xl">What would you like to do?</h1>
+            <label htmlFor="what" className="sr-only">
+              What would you like to do?
+            </label>
+            <select
+              id="what"
+              name="what"
+              required
+              value={active}
+              onChange={(event) => choose(event.target.value as RegistrationTab | '')}
+              className="field mt-5 sm:mt-6 sm:max-w-xl"
+            >
+              <option value="" disabled>
+                Select an option
+              </option>
+              {choices.map((choice) => (
+                <option key={choice.key} value={choice.key}>
+                  {choice.title}
+                </option>
+              ))}
+            </select>
 
-            <div className="mt-10 border-t border-border pt-8">
+            {active === '' ? (
+              <p className="mt-4 text-base leading-7 text-foreground/70">Choose an option to see the form. Runners and donors pay online; everyone else sends their details and our team follows up.</p>
+            ) : null}
+
+            {active !== '' ? (
+            <div className="mt-6 border-t border-border pt-5 sm:mt-10 sm:pt-8">
               <p className="label">How it works</p>
-              <ol className="mt-3 max-w-3xl space-y-2 text-base leading-7 text-foreground/80">
+              <ol className="mt-2 max-w-3xl space-y-1.5 text-[15px] leading-6 text-foreground/80 sm:mt-3 sm:space-y-2 sm:text-base sm:leading-7">
                 {guides[active].map((line, index) => (
                   <li key={line} className="flex gap-3">
                     <span className="font-ui text-xs font-black leading-7 text-accent">{index + 1}.</span>
@@ -409,8 +415,9 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
                 ))}
               </ol>
             </div>
+            ) : null}
 
-            <div className="mt-8">
+            <div className="mt-6 sm:mt-8">
               {active === 'run' ? (
                 <form
                   onSubmit={(event) =>
@@ -418,7 +425,7 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
                       runnerCategories.find((c) => c.label === String(data.get('category')))?.amount ?? 30000
                     )
                   }
-                  className="grid gap-8"
+                  className="grid grid-cols-1 gap-6 sm:gap-8"
                 >
                   <FormGroup title="About you">
                     <Field label="Full name" id="runner-name">
@@ -436,7 +443,7 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
                       </select>
                     </Field>
                     <Field label="Date of birth" id="runner-dob">
-                      <input className="field" id="runner-dob" type="date" name="date_of_birth" min="1930-01-01" max="2014-12-31" required />
+                      <input className="field max-w-full appearance-none" id="runner-dob" type="date" name="date_of_birth" min="1930-01-01" max="2014-12-31" required />
                     </Field>
                   </FormGroup>
 
@@ -519,7 +526,7 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
               ) : null}
 
               {active === 'donate' ? (
-                <form onSubmit={(event) => pay(event, 'Donation', (data) => Number(String(data.get('amount')).replace(/\D/g, '')))} className="grid gap-8">
+                <form onSubmit={(event) => pay(event, 'Donation', (data) => Number(String(data.get('amount')).replace(/\D/g, '')))} className="grid grid-cols-1 gap-6 sm:gap-8">
                   <FormGroup title="About you">
                     <Field label="Name or organisation" id="donor-name">
                       <input className="field" id="donor-name" name="name" autoComplete="name" required />
@@ -560,7 +567,7 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
               ) : null}
 
               {active === 'sponsor' ? (
-                <form onSubmit={(event) => submit(event, 'Sponsorship')} className="grid gap-8">
+                <form onSubmit={(event) => submit(event, 'Sponsorship')} className="grid grid-cols-1 gap-6 sm:gap-8">
                   <HoneyPot />
                   <FormGroup title="Your organisation">
                     <Field label="Organisation" id="sponsor-org">
@@ -612,7 +619,7 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
               ) : null}
 
               {active === 'booth' ? (
-                <form onSubmit={(event) => submit(event, 'Exhibition')} className="grid gap-8">
+                <form onSubmit={(event) => submit(event, 'Exhibition')} className="grid grid-cols-1 gap-6 sm:gap-8">
                   <HoneyPot />
                   <FormGroup title="Your business">
                     <Field label="Business or organisation" id="booth-org">
@@ -650,7 +657,7 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
               ) : null}
 
               {active === 'volunteer' ? (
-                <form onSubmit={(event) => submit(event, 'Volunteer')} className="grid gap-8">
+                <form onSubmit={(event) => submit(event, 'Volunteer')} className="grid grid-cols-1 gap-6 sm:gap-8">
                   <HoneyPot />
                   <FormGroup title="About you">
                     <Field label="Full name" id="vol-name">
@@ -705,7 +712,7 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
 
 function FormGroup({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <fieldset className="grid gap-5 border-t border-border pt-6 sm:grid-cols-2">
+    <fieldset className="grid min-w-0 grid-cols-1 gap-4 border-t border-border pt-5 sm:grid-cols-2 sm:gap-5 sm:pt-6">
       <legend className="float-left mb-1 w-full font-ui text-xs font-black uppercase tracking-[0.2em] text-primary sm:col-span-2">
         {title}
       </legend>
@@ -716,7 +723,7 @@ function FormGroup({ title, children }: { title: string; children: ReactNode }) 
 
 function Field({ label, id, children }: { label: string; id: string; children: ReactNode }) {
   return (
-    <div>
+    <div className="min-w-0">
       <label className="label" htmlFor={id}>
         {label}
       </label>

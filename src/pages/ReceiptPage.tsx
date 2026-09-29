@@ -39,6 +39,9 @@ const ugx = (amount: number) => `UGX ${Number(amount).toLocaleString('en-UG')}`
 
 export default function ReceiptPage() {
   const [reference, setReference] = useState(() => receiptRefFromPath(window.location.pathname))
+  // Receipts open with the key from the SMS, email or success link, or with the phone number used to pay.
+  const [key, setKey] = useState(() => new URLSearchParams(window.location.search).get('k') ?? '')
+  const [phone, setPhone] = useState('')
   const [receipt, setReceipt] = useState<Receipt | null>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -49,7 +52,7 @@ export default function ReceiptPage() {
   const [arrivedPaid] = useState(() => new URLSearchParams(window.location.search).get('paid') === '1')
 
   useEffect(() => {
-    if (!reference) return
+    if (!reference || (!key && !phone)) return
     let cancelled = false
     const quiet = refresh > 0
     if (!quiet) {
@@ -58,7 +61,7 @@ export default function ReceiptPage() {
       setReceipt(null)
     }
     supabase.functions
-      .invoke('payment-receipt', { body: { reference } })
+      .invoke('payment-receipt', { body: key ? { reference, key } : { reference, phone } })
       .then(async ({ data, error: fnError }) => {
         if (cancelled) return
         let message = (data as { error?: string } | null)?.error
@@ -68,15 +71,22 @@ export default function ReceiptPage() {
         }
         if (message) {
           if (!quiet) setError(message)
-        } else {
-          setReceipt(data as Receipt)
+          return
+        }
+        const found = data as Receipt & { key?: string }
+        setReceipt(found)
+        // Opened with the phone number: give the address bar the key so this page can be reopened or bookmarked.
+        if (!key && found.key) {
+          const params = new URLSearchParams(window.location.search)
+          params.set('k', found.key)
+          window.history.replaceState(null, '', `/receipt/${found.reference}?${params.toString()}`)
         }
       })
       .finally(() => !cancelled && setLoading(false))
     return () => {
       cancelled = true
     }
-  }, [reference, refresh])
+  }, [reference, key, phone, refresh])
 
   // After a card payment, keep checking for Blink's confirmation for about two minutes.
   const waitingForCard = cardReturn === 'returned' && receipt?.status === 'PENDING' && refresh < 30
@@ -88,13 +98,20 @@ export default function ReceiptPage() {
 
   const lookup = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    const value = String(new FormData(event.currentTarget).get('reference') ?? '').trim().toUpperCase()
-    if (!value) return
+    const data = new FormData(event.currentTarget)
+    const value = String(data.get('reference') ?? '').trim().toUpperCase()
+    const phoneValue = String(data.get('phone') ?? '').trim()
+    if (!value || !phoneValue) return
     const ref = value.startsWith('HR26-') ? value : `HR26-${value.replace(/^HR26/, '')}`
     window.history.pushState(null, '', `/receipt/${ref}`)
     setRefresh(0)
+    setKey('')
+    setPhone(phoneValue)
     setReference(ref)
   }
+
+  // A reference in the address bar without its key: ask for the phone number.
+  const needsPhone = Boolean(reference) && !key && !phone
 
   const paid = receipt?.status === 'SUCCESSFUL'
   const runner = receipt?.purpose === 'Runner registration'
@@ -147,17 +164,38 @@ export default function ReceiptPage() {
         <div className={`print:hidden ${justPaid ? 'hidden' : ''}`}>
           <p className="eyebrow">Proof of payment</p>
           <h1 className="page-title mt-4">Your receipt</h1>
-          <form onSubmit={lookup} className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <label className="sr-only" htmlFor="receipt-ref">Payment reference</label>
-            <input
-              className="field bg-white sm:flex-1"
-              id="receipt-ref"
-              name="reference"
-              placeholder="Payment reference, e.g. HR26-86802167"
-              defaultValue={reference}
-              autoCapitalize="characters"
-            />
-            <button className="btn-primary" type="submit">Find receipt</button>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-foreground/75">
+            {needsPhone
+              ? 'Enter the phone number you paid with to open this receipt.'
+              : 'Enter your payment reference and the phone number you paid with. The link in your SMS or email opens your receipt directly.'}
+          </p>
+          <form onSubmit={lookup} className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-[1fr_1fr_auto]">
+            <div className="min-w-0">
+              <label className="label" htmlFor="receipt-ref">Payment reference</label>
+              <input
+                className="field bg-white"
+                id="receipt-ref"
+                name="reference"
+                placeholder="HR26-86802167"
+                defaultValue={reference}
+                autoCapitalize="characters"
+                required
+              />
+            </div>
+            <div className="min-w-0">
+              <label className="label" htmlFor="receipt-phone">Phone number you paid with</label>
+              <input
+                className="field bg-white"
+                id="receipt-phone"
+                name="phone"
+                inputMode="tel"
+                autoComplete="tel"
+                placeholder="0781405551"
+                defaultValue={phone}
+                required
+              />
+            </div>
+            <button className="btn-primary self-end" type="submit">Find receipt</button>
           </form>
         </div>
 

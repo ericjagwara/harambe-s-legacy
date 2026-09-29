@@ -36,6 +36,15 @@ function normalisePhone(raw: string) {
   return digits
 }
 
+// Keep in sync with receiptKey in blinkpay-callback/notify.ts.
+async function receiptKey(reference: string) {
+  const secret = Deno.env.get('RECEIPT_SECRET') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+  const sig = new Uint8Array(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`receipt:${reference}`)))
+  const alphabet = 'abcdefghjkmnpqrstuvwxyz23456789'
+  return Array.from(sig.slice(0, 8), (b) => alphabet[b % alphabet.length]).join('')
+}
+
 async function sha1Hex(text: string) {
   const hash = await crypto.subtle.digest('SHA-1', new TextEncoder().encode(text))
   return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, '0')).join('')
@@ -103,6 +112,7 @@ Deno.serve(async (req) => {
       return json({ error: 'Could not start the payment. Please try again.' }, 500)
     }
 
+    const key = await receiptKey(reference)
     const fields: Record<string, string> = {
       amount: String(amount),
       currency_code: 'UGX',
@@ -110,8 +120,8 @@ Deno.serve(async (req) => {
       names: fullName,
       phone_number: phone,
       email_address: email,
-      cancel_redirect_url: `${site}/receipt/${reference}?card=cancelled`,
-      success_redirect_url: `${site}/receipt/${reference}?card=returned`,
+      cancel_redirect_url: `${site}/receipt/${reference}?card=cancelled&k=${key}`,
+      success_redirect_url: `${site}/receipt/${reference}?card=returned&k=${key}`,
       status_notification_url: `${supabaseUrl}/functions/v1/blinkpay-card-callback?ref=${reference}&token=${cardToken}`,
       merchant_id: merchantId,
     }

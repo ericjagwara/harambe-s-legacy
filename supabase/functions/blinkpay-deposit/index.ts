@@ -39,6 +39,15 @@ function normaliseMsisdn(raw: string) {
   return digits
 }
 
+// Keep in sync with receiptKey in blinkpay-callback/notify.ts.
+async function receiptKey(reference: string) {
+  const secret = Deno.env.get('RECEIPT_SECRET') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+  const sig = new Uint8Array(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`receipt:${reference}`)))
+  const alphabet = 'abcdefghjkmnpqrstuvwxyz23456789'
+  return Array.from(sig.slice(0, 8), (b) => alphabet[b % alphabet.length]).join('')
+}
+
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
 
@@ -114,7 +123,7 @@ Deno.serve(async (req) => {
       .update({ reference_code: String(result.reference_code ?? ''), status: String(result.status ?? 'PENDING'), updated_at: new Date().toISOString() })
       .eq('id', payment.id)
 
-    return json({ reference, referenceCode: result.reference_code, status: result.status ?? 'PENDING', amount })
+    return json({ reference, receiptKey: await receiptKey(reference), referenceCode: result.reference_code, status: result.status ?? 'PENDING', amount })
   } catch (error) {
     console.error('blinkpay-deposit error', error)
     return json({ error: 'Something went wrong starting the payment.' }, 500)

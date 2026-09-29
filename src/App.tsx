@@ -30,9 +30,9 @@ function renderPage(page: PageKey) {
     case 'contributors':
       return <ContributorsPage />
     case 'register':
-      return <RegisterPage initialTab="run" />
+      return <RegisterPage />
     case 'donate':
-      return <RegisterPage initialTab="donate" donate />
+      return <RegisterPage donate />
     case 'contact':
       return <ContactPage />
     case 'receipt':
@@ -94,7 +94,8 @@ export default function App() {
       <main className="pt-[6.5rem] sm:pt-[7.5rem] print:pt-0">{renderPage(page)}</main>
       <div className="print:hidden">
         <Footer />
-        <WhatsAppFloatButton />
+        {/* Hidden on form pages, where it would cover fields and buttons on phones. */}
+      {['register', 'donate', 'receipt', 'pickup'].includes(page) ? null : <WhatsAppFloatButton />}
       </div>
     </div>
   )
