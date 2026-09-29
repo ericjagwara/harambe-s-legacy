@@ -1,6 +1,26 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 import { createClient } from 'npm:@supabase/supabase-js@2'
-import { blinkpay } from '../_shared/blinkpay.ts'
+import { completePayment } from './notify.ts'
+
+const BLINKPAY_URL = (Deno.env.get('BLINKPAY_API_URL') ?? 'https://payments-dev.blink.co.ug/api/').replace(/\/?$/, '/')
+
+async function blinkpay(payload: Record<string, unknown>) {
+  const res = await fetch(BLINKPAY_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      username: Deno.env.get('BLINKPAY_MM_USERNAME'),
+      password: Deno.env.get('BLINKPAY_MM_PASSWORD'),
+      ...payload,
+    }),
+  })
+  const text = await res.text()
+  try {
+    return JSON.parse(text) as Record<string, unknown>
+  } catch {
+    return { error: true, message: `Unexpected response from payment provider (${res.status})` }
+  }
+}
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
@@ -18,33 +38,19 @@ Deno.serve(async (req) => {
     if (!payment) return json({ error: 'Payment not found.' }, 404)
 
     if (payment.status === 'SUCCESSFUL' || payment.status === 'FAILED') {
-      return json({ status: payment.status })
+      return json({ status: payment.status, reference: payment.reference })
     }
 
     const result = await blinkpay({ api: 'checktransactionstatus', reference_code: referenceCode })
-    if (result.error) return json({ status: payment.status })
+    if (result.error) return json({ status: payment.status, reference: payment.reference })
 
     const status = String(result.status ?? payment.status).toUpperCase()
     if (status !== payment.status) {
       await supabase.from('payments').update({ status, updated_at: new Date().toISOString() }).eq('id', payment.id)
-      if (status === 'SUCCESSFUL' && !payment.contribution_id) {
-        const { data: contribution } = await supabase
-          .from('contributions')
-          .insert({
-            name: payment.is_anonymous ? 'Anonymous contributor' : payment.full_name,
-            type: payment.purpose === 'Donation' ? 'Online donation' : 'Runner ticket',
-            amount: payment.amount,
-            is_anonymous: payment.is_anonymous,
-          })
-          .select()
-          .single()
-        if (contribution) {
-          await supabase.from('payments').update({ contribution_id: contribution.id }).eq('id', payment.id)
-        }
-      }
+      if (status === 'SUCCESSFUL') await completePayment(supabase, payment.id)
     }
 
-    return json({ status })
+    return json({ status, reference: payment.reference })
   } catch (error) {
     console.error('blinkpay-status error', error)
     return json({ error: 'Could not check the payment status.' }, 500)

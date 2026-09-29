@@ -4,3 +4,9 @@
 
 [build.environment]
   NODE_VERSION = "20"
+
+# Serve the app for every page path, so /results or /register opened directly or shared as a link loads correctly.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

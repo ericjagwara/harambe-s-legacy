@@ -14,8 +14,8 @@ export default function RegisterPage({ initialTab = 'run', donate = false }: Reg
         title={donate ? 'Pledge support for the startup pipeline.' : 'Choose your lane. Join the run.'}
         copy={
           donate
-            ? 'Support the pipeline without running. Public display can be named or anonymous, and final payment channels remain subject to TechBuzz Hub confirmation.'
-            : 'One flow supports runner registration, donations, sponsorship interest, booth booking and volunteer sign-up. Student runners verify status with a valid student ID.'
+            ? 'Support the pipeline without running. Give any amount by mobile money or Visa card, shown on the donor board with your name or anonymously.'
+            : 'Run, donate, sponsor, exhibit or volunteer. Runners and donors pay online. Sponsors, exhibitors and volunteers send their details and our team follows up.'
         }
       />
       <Registration initialTab={initialTab} />

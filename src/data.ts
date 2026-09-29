@@ -98,12 +98,12 @@ export const safetyNotes = [
 export const ticketTypes = [
   {
     name: 'Student runner',
-    price: 'UGX 30,000',
-    detail: 'Valid student ID required. Start from a partner university campus.',
+    price: 'UGX 15,000',
+    detail: 'Valid student ID checked at kit pickup. Start from a partner university campus.',
   },
   {
     name: 'General public runner',
-    price: 'UGX 50,000',
+    price: 'UGX 30,000',
     detail: 'Open category. Start from a campus or neighborhood station.',
   },
   {
