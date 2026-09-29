@@ -66,7 +66,7 @@ Deno.serve(async (req) => {
     const phone = text(fields.phone, 40)
     if (!name) return json({ error: 'Please enter your name.' }, 400)
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: 'Please enter a valid email address.' }, 400)
-    if (type !== 'Contact' && type !== 'Updates' && phone.replace(/\D/g, '').length < 9) return json({ error: 'Please enter a valid phone number.' }, 400)
+    if (type !== 'Updates' && phone.replace(/\D/g, '').length < 9) return json({ error: 'Please enter a valid phone number.' }, 400)
 
     const details: Record<string, string> = {}
     for (const [key, value] of Object.entries(fields).slice(0, 30)) {

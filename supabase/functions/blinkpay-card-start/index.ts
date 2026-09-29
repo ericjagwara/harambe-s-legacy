@@ -67,7 +67,8 @@ Deno.serve(async (req) => {
 
     if (!fullName) return json({ error: 'Please enter your name.' }, 400)
     if (purpose !== 'Runner registration' && purpose !== 'Donation') return json({ error: 'Missing payment purpose.' }, 400)
-    if (phone && (phone.length < 10 || phone.length > 15)) return json({ error: 'Enter a valid phone number, or leave it empty.' }, 400)
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: 'Please enter a valid email address.' }, 400)
+    if (phone.length < 10 || phone.length > 15) return json({ error: 'Please enter a valid phone number, for example 0781405551.' }, 400)
 
     let amount: number
     if (purpose === 'Runner registration') {

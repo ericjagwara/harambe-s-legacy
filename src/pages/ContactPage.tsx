@@ -93,7 +93,11 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <label className="label" htmlFor="contact-email">Email</label>
-                  <input className="field" id="contact-email" type="email" name="email" required />
+                  <input className="field" id="contact-email" type="email" name="email" autoComplete="email" required />
+                </div>
+                <div>
+                  <label className="label" htmlFor="contact-phone">Phone number</label>
+                  <input className="field" id="contact-phone" name="phone" inputMode="tel" autoComplete="tel" placeholder="0781405551" required />
                 </div>
               </div>
               <div className="mt-5">

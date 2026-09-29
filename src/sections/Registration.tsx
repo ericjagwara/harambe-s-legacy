@@ -320,19 +320,14 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
   const methodPicker = (
     <fieldset className="sm:col-span-2">
       <legend className="label">Pay with</legend>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="mt-1 space-y-3">
         {(
           [
-            ['mobile', 'Mobile money', 'MTN or Airtel. Approve the prompt on your phone.'],
-            ['card', 'Visa card', 'Enter your card on Blink\'s secure page.'],
+            ['mobile', 'Mobile money', 'MTN or Airtel. You approve a prompt on your phone.'],
+            ['card', 'Visa card', 'You enter your card on Blink\'s secure payment page.'],
           ] as Array<[PayMethod, string, string]>
         ).map(([key, title, hint]) => (
-          <label
-            key={key}
-            className={`flex cursor-pointer items-start gap-3 border p-4 transition-colors ${
-              method === key ? 'border-primary bg-primary/[0.04]' : 'border-border bg-white hover:border-primary'
-            }`}
-          >
+          <label key={key} className="flex cursor-pointer items-start gap-3">
             <input
               type="radio"
               name="pay_method"
@@ -342,11 +337,11 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
                 setMethod(key)
                 if (payState === 'error') resetPayment()
               }}
-              className="mt-1 h-4 w-4 shrink-0 accent-[hsl(var(--primary))]"
+              className="mt-1 h-[18px] w-[18px] shrink-0 accent-[hsl(var(--primary))]"
             />
-            <span>
-              <span className="block font-ui text-xs font-black uppercase tracking-[0.18em]">{title}</span>
-              <span className="mt-1 block text-sm leading-5 text-foreground/65">{hint}</span>
+            <span className="leading-6">
+              <span className="block text-base text-foreground">{title}</span>
+              <span className="block text-sm text-foreground/60">{hint}</span>
             </span>
           </label>
         ))}
@@ -383,25 +378,20 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
                 <p className="eyebrow">Startups Harambe Run 2026</p>
                 <h1 className="mt-4 font-display text-4xl uppercase leading-none sm:text-5xl">What would you like to do?</h1>
               </legend>
-              <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="mt-6 space-y-4">
                 {choices.map((choice) => (
-                  <label
-                    key={choice.key}
-                    className={`flex cursor-pointer items-start gap-3 border p-4 transition-colors ${
-                      active === choice.key ? 'border-primary bg-primary/[0.04]' : 'border-border hover:border-primary'
-                    }`}
-                  >
+                  <label key={choice.key} className="flex cursor-pointer items-start gap-3">
                     <input
                       type="radio"
                       name="what"
                       value={choice.key}
                       checked={active === choice.key}
                       onChange={() => choose(choice.key)}
-                      className="mt-1.5 h-5 w-5 shrink-0 accent-[hsl(var(--primary))]"
+                      className="mt-1 h-5 w-5 shrink-0 accent-[hsl(var(--primary))]"
                     />
-                    <span>
-                      <span className="block font-display text-2xl uppercase leading-tight">{choice.title}</span>
-                      <span className="mt-1 block text-sm leading-5 text-foreground/65">{choice.hint}</span>
+                    <span className="leading-6">
+                      <span className="block text-lg text-foreground">{choice.title}</span>
+                      <span className="block text-sm text-foreground/60">{choice.hint}</span>
                     </span>
                   </label>
                 ))}
@@ -551,10 +541,10 @@ export default function Registration({ initialTab = 'run' }: { initialTab?: Regi
                   <FormGroup title="Payment">
                     {methodPicker}
                     <Field
-                      label={method === 'card' ? 'Phone number (optional, for an SMS receipt)' : 'Mobile money number (the payment prompt comes here)'}
+                      label={method === 'card' ? 'Your phone number (your SMS receipt is sent here)' : 'Mobile money number (the payment prompt comes here)'}
                       id="donor-phone"
                     >
-                      <input className="field" id="donor-phone" name="phone" inputMode="tel" autoComplete="tel" placeholder="0781405551" required={method === 'mobile'} />
+                      <input className="field" id="donor-phone" name="phone" inputMode="tel" autoComplete="tel" placeholder="0781405551" required />
                     </Field>
                   </FormGroup>
 
