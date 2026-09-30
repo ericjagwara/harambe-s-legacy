@@ -1,66 +1,51 @@
-import { Flag, MapPin } from 'lucide-react'
+import { Flag } from 'lucide-react'
 import Reveal from '../components/Reveal'
-import { CtaBand, MetricGrid, PageHero, PageSection, SectionHeader, TextList } from '../components/PageLayout'
-import { asset, neighborhoodStarts, safetyNotes, universityStarts } from '../data'
+import { CtaBand, MetricGrid, PageHero, PageSection, SectionHeader } from '../components/PageLayout'
+import { safetyNotes } from '../data'
 
 const routeFacts = [
-  { value: '15', label: 'university dispatch points' },
-  { value: '7', label: 'neighborhood stations' },
-  { value: '22', label: 'official start locations' },
-  { value: '1', label: 'shared finish line' },
+  { value: '4', label: 'race distances' },
+  { value: '10', label: 'start points' },
+  { value: '1', label: 'finish line at Makerere' },
+  { value: '29 Nov', label: 'run day, 2026' },
+]
+
+// Start point locations are announced closer to run day; only the count is shown for now.
+const distances = [
+  { km: '21 km', name: 'Half marathon', note: 'For experienced runners.' },
+  { km: '10 km', name: '10K run', note: 'A strong challenge for regular runners.' },
+  { km: '5 km', name: '5K run', note: 'Popular with students and first-time racers.' },
+  { km: '3 km', name: 'Fun run', note: 'Walk, jog or run. Open to everyone.' },
 ]
 
 export default function RoutePage() {
   return (
     <>
       <PageHero
-        eyebrow="Route and start points"
+        eyebrow="Distances and route"
         title="Every road points to Makerere."
-        copy="Runners start from partner university campuses and neighborhood stations, follow official cleared routes and converge at Makerere University Freedom Square Pitch."
+        copy="Choose 21 km, 10 km, 5 km or 3 km. Runners set off from 10 start points across Kampala, at university campuses, institutions and community locations, and finish together at Makerere University Freedom Square. Start points and final routes are shared with registered runners before run day."
       />
 
       <PageSection className="bg-white">
         <SectionHeader
-          eyebrow="Official route map"
-          title="One citywide convergence."
-          copy="Final route distances will be published with route clearance. Dispatch points and safety cover remain coordinated by the organising team."
+          eyebrow="Race distances"
+          title="Four distances. One finish line."
+          copy="Pick the distance that suits you when you register. Every distance finishes at Makerere University Freedom Square."
         />
-        <Reveal delay={120}>
-          <figure className="mt-10 bg-white p-3 sm:p-4">
-            <img src={asset('route-map.webp')} alt="Official Startups Harambe Run route map" className="w-full object-contain" />
-            <figcaption className="image-caption">Convergence and culmination point, Makerere University Freedom Square Pitch</figcaption>
-          </figure>
-        </Reveal>
+        <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          {distances.map((distance, index) => (
+            <Reveal key={distance.km} delay={index * 70}>
+              <article className="h-full bg-background p-5 sm:p-7">
+                <p className="font-display text-4xl uppercase leading-none text-primary sm:text-5xl">{distance.km}</p>
+                <h3 className="mt-4 font-display text-xl uppercase leading-none sm:text-2xl">{distance.name}</h3>
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">{distance.note}</p>
+              </article>
+            </Reveal>
+          ))}
+        </div>
         <div className="mt-8">
           <MetricGrid items={routeFacts} />
-        </div>
-      </PageSection>
-
-      <PageSection>
-        <SectionHeader eyebrow="Dispatch network" title="Fifteen campuses and seven neighborhood stations." />
-        <div className="mt-10 grid gap-10 lg:grid-cols-2">
-          <Reveal>
-            <div className="content-panel">
-              <div className="flex items-center gap-3">
-                <MapPin className="h-5 w-5 text-accent" />
-                <h3 className="font-display text-3xl uppercase leading-none">University starts</h3>
-              </div>
-              <div className="mt-6">
-                <TextList items={universityStarts} />
-              </div>
-            </div>
-          </Reveal>
-          <Reveal delay={120}>
-            <div className="content-panel">
-              <div className="flex items-center gap-3">
-                <MapPin className="h-5 w-5 text-accent" />
-                <h3 className="font-display text-3xl uppercase leading-none">Neighborhood stations</h3>
-              </div>
-              <div className="mt-6">
-                <TextList items={neighborhoodStarts} />
-              </div>
-            </div>
-          </Reveal>
         </div>
       </PageSection>
 
@@ -89,8 +74,8 @@ export default function RoutePage() {
       </PageSection>
 
       <CtaBand
-        title="Choose the start point closest to you."
-        copy="Runner registration includes category selection, start point selection and kit collection details."
+        title="Pick your distance and register."
+        copy="Registration takes a few minutes: your details, your category and distance, and payment by mobile money or Visa card."
         primaryLabel="Register to run"
         primaryPage="register"
         secondaryLabel="Runner guide"

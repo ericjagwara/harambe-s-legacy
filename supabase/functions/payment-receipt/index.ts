@@ -76,6 +76,8 @@ Deno.serve(async (req) => {
       amount: p.amount,
       category: details.category ?? null,
       start: details.start ?? null,
+      distance: details.distance ?? null,
+      startup: details.startup_name ?? null,
       phone: maskPhone(p.msisdn),
       paidAt: p.status === 'SUCCESSFUL' ? (callback.completion_date ?? p.updated_at) : null,
       createdAt: p.created_at,

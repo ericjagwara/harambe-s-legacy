@@ -11,6 +11,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 const RUNNER_PRICES: Record<string, number> = {
   'Student runner, UGX 15,000': 15000,
   'General public runner, UGX 30,000': 30000,
+  'Startup or SME runner, UGX 100,000 (includes social media mentions and visibility)': 100000,
   // Old labels from the site before the price change, charged at the new prices.
   'Student runner, UGX 30,000': 15000,
   'General public runner, UGX 50,000': 30000,

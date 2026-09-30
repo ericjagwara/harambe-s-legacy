@@ -12,6 +12,8 @@ type Receipt = {
   amount: number
   category: string | null
   start: string | null
+  distance?: string | null
+  startup?: string | null
   phone: string
   paidAt: string | null
   createdAt: string
@@ -239,6 +241,8 @@ export default function ReceiptPage() {
               {receipt.phone ? <Item label={card ? 'Phone number' : 'Mobile money number'} value={receipt.phone} /> : null}
               <Item label="Paid with" value={card ? 'Visa card' : 'Mobile money'} />
               {receipt.category ? <Item label="Category" value={receipt.category} /> : null}
+              {receipt.startup ? <Item label="Startup" value={receipt.startup} /> : null}
+              {receipt.distance ? <Item label="Distance" value={receipt.distance} /> : null}
               {receipt.start ? <Item label="Starting point" value={receipt.start} /> : null}
               {paid ? <Item label="Paid on" value={formatWhen(receipt.paidAt)} /> : null}
               {receipt.receiptNumber ? <Item label={card ? 'Card transaction ID' : 'Network receipt number'} value={receipt.receiptNumber} /> : null}

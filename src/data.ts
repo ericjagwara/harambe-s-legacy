@@ -18,7 +18,7 @@ export const partnerLogos = [
 export const heroStats = [
   { value: 'UGX 3.75B', label: 'fundraising target' },
   { value: '5,000+', label: 'expected participants' },
-  { value: '22', label: 'official dispatch points' },
+  { value: '10', label: 'start points' },
   { value: '1', label: 'Makerere finish line' },
 ]
 
@@ -89,7 +89,7 @@ export const neighborhoodStarts = [
 ]
 
 export const safetyNotes = [
-  'Route marshals stationed at dispatch points and key junctions',
+  'Route marshals stationed at start points and key junctions',
   'Ambulance and first aid cover along the official routes',
   'Police route clearance and traffic coordination',
   'Signed convergence protocol at Makerere University Freedom Square Pitch',
@@ -99,12 +99,17 @@ export const ticketTypes = [
   {
     name: 'Student runner',
     price: 'UGX 15,000',
-    detail: 'Valid student ID checked at kit pickup. Start from a partner university campus.',
+    detail: 'Valid student ID checked at kit pickup. Choose 21 km, 10 km, 5 km or 3 km.',
   },
   {
     name: 'General public runner',
     price: 'UGX 30,000',
-    detail: 'Open category. Start from a campus or neighborhood station.',
+    detail: 'Open to everyone. Choose 21 km, 10 km, 5 km or 3 km.',
+  },
+  {
+    name: 'Startup or SME runner',
+    price: 'UGX 100,000',
+    detail: 'Run for your startup or business. Includes social media mentions and visibility, with your startup name and logo.',
   },
   {
     name: 'Virtual donor',

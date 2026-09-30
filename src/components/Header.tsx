@@ -6,7 +6,7 @@ import { pageHref, type PageKey } from '../routes'
 const navItems: Array<[PageKey, string]> = [
   ['runners', 'Runners'],
   ['route', 'Route'],
-  ['programs', 'Programs'],
+  ['volunteer', 'Volunteer'],
   ['partners', 'Partners'],
   ['results', 'Statistics'],
   ['contact', 'Contact'],

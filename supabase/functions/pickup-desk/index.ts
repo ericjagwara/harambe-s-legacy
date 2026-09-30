@@ -7,6 +7,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 const RUNNER_PRICES: Record<string, number> = {
   'Student runner, UGX 15,000': 15000,
   'General public runner, UGX 30,000': 30000,
+  'Startup or SME runner, UGX 100,000 (includes social media mentions and visibility)': 100000,
   'Student runner, UGX 30,000': 30000,
   'General public runner, UGX 50,000': 50000,
 }
@@ -46,6 +47,8 @@ function toRow(p: any) {
     method: details.method === 'card' ? 'card' : 'mobile',
     category,
     start: details.start ?? null,
+    distance: details.distance ?? null,
+    startup: details.startup_name ?? null,
     amount: Number(p.amount),
     expectedAmount: category ? RUNNER_PRICES[category] ?? null : null,
     paidAt: p.status === 'SUCCESSFUL' ? (details.callback?.completion_date ?? p.updated_at) : null,

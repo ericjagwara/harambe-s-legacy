@@ -5,7 +5,7 @@ import { pageHref, type PageKey } from '../routes'
 
 type PageHeroProps = {
   eyebrow: string
-  title: string
+  title: ReactNode
   copy: string
   image?: string
   imageAlt?: string

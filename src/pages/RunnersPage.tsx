@@ -4,10 +4,10 @@ import { asset, kitImages, kitItems, ticketTypes } from '../data'
 import { pageHref } from '../routes'
 
 const runnerSteps = [
-  'Choose a student, public or virtual donor category.',
-  'Select an official campus or neighborhood start point.',
-  'Collect the physical kit at the chosen dispatch point.',
-  'Run the cleared route and converge at Makerere University.',
+  'Choose your category: student, general public, or startup and SME.',
+  'Pick your distance: 21 km, 10 km, 5 km or 3 km.',
+  'Collect your kit at the kit pickup desk with your receipt or SMS.',
+  'Run on Sunday 29 November and finish at Makerere University.',
 ]
 
 export default function RunnersPage() {
@@ -15,8 +15,8 @@ export default function RunnersPage() {
     <>
       <PageHero
         eyebrow="Runner guide"
-        title="Pick a start point. Collect the kit. Fund a founder."
-        copy="Each paid runner receives an official kit for collection at the chosen starting point. Student runners use a valid student ID to access the reduced rate."
+        title="Pick your distance. Collect the kit. Fund a founder."
+        copy="Every paid runner receives an official running kit, collected at the kit pickup desk. Students use a valid student ID for the reduced rate."
         image={asset('runner-mockup.webp')}
         imageAlt="Runner wearing the official Harambe Run vest"
         imageCaption="Official 2026 runner identity"
@@ -26,10 +26,10 @@ export default function RunnersPage() {
       <PageSection>
         <SectionHeader
           eyebrow="Entry categories"
-          title="Three clear ways to take part."
+          title="Clear ways to take part."
           copy="Pricing is simple and public. Registration support, donations and kit details remain available through the run secretariat."
         />
-        <div className="mt-10 grid gap-4 lg:grid-cols-3">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {ticketTypes.map((ticket, index) => (
             <Reveal key={ticket.name} delay={index * 80}>
               <article className="flex h-full flex-col bg-white p-6 sm:p-8">
@@ -37,7 +37,9 @@ export default function RunnersPage() {
                 <h3 className="mt-5 font-display text-3xl uppercase leading-none text-foreground">{ticket.name}</h3>
                 <p className="mt-5 font-display text-4xl uppercase leading-none text-primary">{ticket.price}</p>
                 <p className="mt-4 flex-1 text-sm leading-6 text-muted-foreground">{ticket.detail}</p>
-                <a href={pageHref('register')} className="btn-primary mt-7 w-full">Select category</a>
+                <a href={ticket.price === 'Open pledge' ? pageHref('donate') : `${pageHref('register')}?for=run`} className="btn-primary mt-7 w-full">
+                  {ticket.price === 'Open pledge' ? 'Donate' : 'Select category'}
+                </a>
               </article>
             </Reveal>
           ))}
@@ -78,7 +80,7 @@ export default function RunnersPage() {
       </PageSection>
 
       <PageSection>
-        <SectionHeader eyebrow="Race-day flow" title="From dispatch point to Freedom Square." />
+        <SectionHeader eyebrow="Race-day flow" title="From registration to Freedom Square." />
         <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {runnerSteps.map((step, index) => (
             <Reveal key={step} delay={index * 80}>
@@ -93,7 +95,7 @@ export default function RunnersPage() {
 
       <CtaBand
         title="Reserve your place for 29 November."
-        copy="Choose a category, select a start point and complete the runner registration flow."
+        copy="Choose a category and distance, pay online and get your receipt by SMS and email."
         primaryLabel="Register as a runner"
         primaryPage="register"
         secondaryLabel="View the route"

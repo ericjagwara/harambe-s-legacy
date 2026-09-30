@@ -10,6 +10,8 @@ type Row = {
   phone: string
   category: string | null
   start: string | null
+  distance?: string | null
+  startup?: string | null
   amount: number
   expectedAmount: number | null
   paidAt: string | null
@@ -190,6 +192,8 @@ export default function PickupPage() {
                     </div>
                     <p className="mt-4 text-lg">
                       {runner ? (row.category ?? 'Runner').replace(/, UGX.*$/, '') : 'Donation, no kit'} · paid {ugx(row.amount)}
+                      {row.distance ? ` · ${row.distance}` : ''}
+                      {row.startup ? ` · ${row.startup}` : ''}
                       {row.start ? ` · ${row.start}` : ''}
                     </p>
                     {paid && runner && !row.collectedAt ? (

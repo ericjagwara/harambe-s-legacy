@@ -7,7 +7,7 @@ import { pageHref, type PageKey } from '../routes'
 const eventLinks: Array<[PageKey, string]> = [
   ['runners', 'Runners'],
   ['route', 'Route'],
-  ['programs', 'Programs'],
+  ['volunteer', 'Volunteer'],
   ['partners', 'Partners'],
   ['results', 'Statistics'],
 ]
@@ -58,7 +58,7 @@ export default function Footer() {
               <img src={asset('brand-logo.webp')} alt="Startup Harambe, run by SFV" className="h-10 w-auto object-contain" />
             </div>
             <p className="mt-6 max-w-xl text-sm leading-7 text-white/72">
-              A multi-origin fundraising run connecting students, entrepreneurs, universities and investors into one public startup funding pipeline.
+              #StartupsHarambeRun unlocks capital by funding student businesses and startups, training investors and forming investor networks.
             </p>
             <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 font-ui text-[10px] font-bold uppercase tracking-[0.18em] text-secondary">
               <span>#StartupsHarambeRun</span>

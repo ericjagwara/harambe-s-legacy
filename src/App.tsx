@@ -5,7 +5,7 @@ import WhatsAppFloatButton from './components/WhatsAppFloatButton'
 import Home from './pages/Home'
 import RunnersPage from './pages/RunnersPage'
 import RoutePage from './pages/RoutePage'
-import ProgramsPage from './pages/ProgramsPage'
+import VolunteerPage from './pages/VolunteerPage'
 import PartnersPage from './pages/PartnersPage'
 import ResultsPage from './pages/ResultsPage'
 import ContributorsPage from './pages/ContributorsPage'
@@ -21,8 +21,8 @@ function renderPage(page: PageKey) {
       return <RunnersPage />
     case 'route':
       return <RoutePage />
-    case 'programs':
-      return <ProgramsPage />
+    case 'volunteer':
+      return <VolunteerPage />
     case 'partners':
       return <PartnersPage />
     case 'results':
@@ -68,8 +68,8 @@ export default function App() {
       if (url.origin !== window.location.origin) return
       if (!isAppPath(url.pathname)) return
       event.preventDefault()
-      if (url.pathname !== window.location.pathname) {
-        window.history.pushState(null, '', url.pathname)
+      if (url.pathname + url.search !== window.location.pathname + window.location.search) {
+        window.history.pushState(null, '', url.pathname + url.search)
       }
       syncRoute()
     }
@@ -95,7 +95,7 @@ export default function App() {
       <div className="print:hidden">
         <Footer />
         {/* Hidden on form pages, where it would cover fields and buttons on phones. */}
-      {['register', 'donate', 'receipt', 'pickup'].includes(page) ? null : <WhatsAppFloatButton />}
+      {['register', 'donate', 'volunteer', 'receipt', 'pickup'].includes(page) ? null : <WhatsAppFloatButton />}
       </div>
     </div>
   )

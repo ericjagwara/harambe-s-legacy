@@ -1,11 +1,16 @@
-import Registration from '../sections/Registration'
+import Registration, { type RegistrationTab } from '../sections/Registration'
+
+const OPTIONS: RegistrationTab[] = ['run', 'donate', 'sponsor', 'booth', 'volunteer']
 
 type RegisterPageProps = {
   donate?: boolean
 }
 
 // The form's own "What would you like to do?" question is the page heading.
-// /register starts on "Select an option"; /donate opens with Donate already chosen.
+// /register starts on "Select an option"; /register?for=run preselects an option (used by "Register to run" links);
+// /donate opens with Donate already chosen.
 export default function RegisterPage({ donate = false }: RegisterPageProps) {
-  return <Registration initialTab={donate ? 'donate' : ''} />
+  const wanted = new URLSearchParams(window.location.search).get('for') as RegistrationTab | null
+  const preset = wanted && OPTIONS.includes(wanted) ? wanted : ''
+  return <Registration initialTab={donate ? 'donate' : preset} />
 }

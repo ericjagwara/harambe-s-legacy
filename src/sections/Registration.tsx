@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'rea
 import { createPortal } from 'react-dom'
 import Reveal from '../components/Reveal'
 import { supabase } from '@/integrations/supabase/client'
-import { booths, neighborhoodStarts, sectorPackages, sponsorTiers, universityStarts } from '../data'
+import { booths, sectorPackages, sponsorTiers, universityStarts } from '../data'
 
 export type RegistrationTab = 'run' | 'donate' | 'sponsor' | 'booth' | 'volunteer'
 
@@ -57,11 +57,13 @@ const volunteerRoles = [
 
 const kitSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 
-const startPoints = [...universityStarts, ...neighborhoodStarts]
+const distances = ['21 km (half marathon)', '10 km', '5 km', '3 km (fun run)']
 
 const runnerCategories = [
   { label: 'Student runner, UGX 15,000', amount: 15000 },
   { label: 'General public runner, UGX 30,000', amount: 30000 },
+  // Keep this label identical to RUNNER_PRICES in blinkpay-deposit, blinkpay-card-start and pickup-desk.
+  { label: 'Startup or SME runner, UGX 100,000 (includes social media mentions and visibility)', amount: 100000 },
 ]
 
 type PayState = 'idle' | 'starting' | 'waiting' | 'success' | 'pending' | 'error'
@@ -90,8 +92,14 @@ function postToBlink(url: string, fields: Record<string, string>) {
   form.submit()
 }
 
-export default function Registration({ initialTab = '' }: { initialTab?: RegistrationTab | '' }) {
-  const [active, setActive] = useState<RegistrationTab | ''>(initialTab)
+type RegistrationProps = {
+  initialTab?: RegistrationTab | ''
+  // Show only this form, with its own heading and no "What would you like to do?" dropdown.
+  fixed?: { tab: RegistrationTab; eyebrow: string; title: string; intro: string }
+}
+
+export default function Registration({ initialTab = '', fixed }: RegistrationProps) {
+  const [active, setActive] = useState<RegistrationTab | ''>(fixed?.tab ?? initialTab)
   const [submitted, setSubmitted] = useState('')
   const [payState, setPayState] = useState<PayState>('idle')
   const [payMessage, setPayMessage] = useState('')
@@ -107,7 +115,7 @@ export default function Registration({ initialTab = '' }: { initialTab?: Registr
   const noticeRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    setActive(initialTab)
+    setActive(fixed?.tab ?? initialTab)
     setSubmitted('')
     setFormError('')
     resetPayment()
@@ -116,6 +124,11 @@ export default function Registration({ initialTab = '' }: { initialTab?: Registr
   useEffect(() => () => {
     if (pollRef.current) window.clearInterval(pollRef.current)
   }, [])
+
+  // Volunteering has its own page with the full application form.
+  useEffect(() => {
+    if (active === 'volunteer' && !fixed) window.location.assign('/volunteer')
+  }, [active, fixed])
 
   // Seconds counter shown while waiting for the payment approval.
   useEffect(() => {
@@ -197,6 +210,28 @@ export default function Registration({ initialTab = '' }: { initialTab?: Registr
         extras[key] = value
       }
     })
+
+    // Startup/SME runners may attach a logo; it is stored privately in Supabase Storage (bucket startup-logos).
+    const logo = data.get('startup_logo')
+    if (logo instanceof File && logo.size > 0) {
+      const ext = (logo.name.split('.').pop() ?? '').toLowerCase().replace('jpeg', 'jpg')
+      if (!['png', 'jpg', 'webp', 'svg'].includes(ext) || logo.size > 2 * 1024 * 1024) {
+        setPayState('error')
+        setPayMessage('The logo must be a PNG, JPG, WEBP or SVG image of 2 MB or less.')
+        return
+      }
+      setPayState('starting')
+      const path = `${crypto.randomUUID()}.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('startup-logos')
+        .upload(path, logo, { contentType: logo.type || undefined, upsert: false })
+      if (uploadError) {
+        setPayState('error')
+        setPayMessage('We could not upload your logo. Please try again, or remove the logo and send it to info@haramberun.com later.')
+        return
+      }
+      extras.startup_logo = path
+    }
     const body = {
       fullName,
       email: data.get('email'),
@@ -265,6 +300,8 @@ export default function Registration({ initialTab = '' }: { initialTab?: Registr
 
   const busy = payState === 'starting' || payState === 'waiting'
   const student = category.toLowerCase().includes('student')
+  const startup = category.toLowerCase().includes('startup')
+  const runnerPrice = runnerCategories.find((c) => c.label === category)?.amount ?? 30000
   const minutes = `${Math.floor(elapsed / 60)}:${String(elapsed % 60).padStart(2, '0')}`
 
   const payNotice =
@@ -376,6 +413,14 @@ export default function Registration({ initialTab = '' }: { initialTab?: Registr
       <div className="container-site">
         <Reveal>
           <div className="-mx-5 bg-white px-5 py-7 sm:mx-0 sm:p-10">
+            {fixed ? (
+              <>
+                <p className="eyebrow">{fixed.eyebrow}</p>
+                <h1 className="mt-3 font-display text-[2.1rem] uppercase leading-none sm:mt-4 sm:text-5xl">{fixed.title}</h1>
+                <p className="mt-4 max-w-3xl text-base leading-7 text-foreground/75 sm:text-lg sm:leading-8">{fixed.intro}</p>
+              </>
+            ) : (
+              <>
             <p className="eyebrow">Startups Harambe Run 2026</p>
             <h1 className="mt-3 font-display text-[2.1rem] uppercase leading-none sm:mt-4 sm:text-5xl">What would you like to do?</h1>
             <label htmlFor="what" className="sr-only">
@@ -402,6 +447,8 @@ export default function Registration({ initialTab = '' }: { initialTab?: Registr
             {active === '' ? (
               <p className="mt-4 text-base leading-7 text-foreground/70">Choose an option to see the form. Runners and donors pay online; everyone else sends their details and our team follows up.</p>
             ) : null}
+              </>
+            )}
 
             {active !== '' ? (
             <div className="mt-6 border-t border-border pt-5 sm:mt-10 sm:pt-8">
@@ -455,10 +502,11 @@ export default function Registration({ initialTab = '' }: { initialTab?: Registr
                         ))}
                       </select>
                     </Field>
-                    <Field label="Starting point" id="start">
-                      <select className="field" id="start" name="start" required>
-                        {startPoints.map((point) => (
-                          <option key={point}>{point}</option>
+                    <Field label="Distance" id="distance">
+                      <select className="field" id="distance" name="distance" required defaultValue="">
+                        <option value="" disabled>Choose a distance</option>
+                        {distances.map((distance) => (
+                          <option key={distance}>{distance}</option>
                         ))}
                       </select>
                     </Field>
@@ -470,14 +518,34 @@ export default function Registration({ initialTab = '' }: { initialTab?: Registr
                         ))}
                       </select>
                     </Field>
-                    <Field label={student ? 'University or institution' : 'Organisation or institution (optional)'} id="institution">
-                      <input className="field" id="institution" name="institution" list="institution-list" required={student} />
-                      <datalist id="institution-list">
-                        {universityStarts.map((u) => (
-                          <option key={u} value={u.split(',')[0]} />
-                        ))}
-                      </datalist>
-                    </Field>
+                    {startup ? (
+                      <>
+                        <Field label="Startup or business name" id="startup-name">
+                          <input className="field" id="startup-name" name="startup_name" autoComplete="organization" required />
+                        </Field>
+                        <Field label="Logo (optional, PNG, JPG or SVG, up to 2 MB)" id="startup-logo">
+                          <input
+                            className="field py-2.5 file:mr-3 file:border-0 file:bg-background file:px-3 file:py-1.5 file:font-ui file:text-xs file:font-bold file:uppercase file:tracking-[0.12em] file:text-foreground"
+                            id="startup-logo"
+                            name="startup_logo"
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                          />
+                        </Field>
+                        <p className="text-sm leading-6 text-foreground/70 sm:col-span-2">
+                          Your startup name and logo are used for the social media mentions and visibility included in this package.
+                        </p>
+                      </>
+                    ) : (
+                      <Field label={student ? 'University or institution' : 'Organisation or institution (optional)'} id="institution">
+                        <input className="field" id="institution" name="institution" list="institution-list" required={student} />
+                        <datalist id="institution-list">
+                          {universityStarts.map((u) => (
+                            <option key={u} value={u.split(',')[0]} />
+                          ))}
+                        </datalist>
+                      </Field>
+                    )}
                     {student ? (
                       <p className="text-sm leading-6 text-foreground/70 sm:col-span-2">
                         Student rate: bring your valid student ID to kit pickup. No upload is needed now.
@@ -518,7 +586,7 @@ export default function Registration({ initialTab = '' }: { initialTab?: Registr
 
                   <div>
                     <button className="btn-primary w-full sm:w-auto" type="submit" disabled={busy}>
-                      {method === 'card' ? 'Continue to card payment' : `Pay UGX ${(student ? 15000 : 30000).toLocaleString('en-UG')} and confirm my place`}
+                      {method === 'card' ? 'Continue to card payment' : `Pay UGX ${runnerPrice.toLocaleString('en-UG')} and confirm my place`}
                     </button>
                     <p className="mt-3 text-sm leading-6 text-foreground/70">{chargesNote}</p>
                   </div>

@@ -138,6 +138,8 @@ ${row('Reference', p.reference)}
 ${row('Amount paid', ugx(p.amount))}
 ${row('Name', p.full_name)}
 ${runner ? row('Category', d.category) : ''}
+${runner ? row('Startup', d.startup_name) : ''}
+${runner ? row('Distance', d.distance) : ''}
 ${runner ? row('Starting point', d.start) : ''}
 ${runner ? row('Kit size', d.kit_size) : ''}
 </table>
@@ -158,6 +160,8 @@ ${whatsapp}
     `Reference: ${p.reference}`,
     `Amount paid: ${ugx(p.amount)}`,
     runner && d.category ? `Category: ${d.category}` : '',
+    runner && d.startup_name ? `Startup: ${d.startup_name}` : '',
+    runner && d.distance ? `Distance: ${d.distance}` : '',
     runner && d.start ? `Starting point: ${d.start}` : '',
     runner && d.kit_size ? `Kit size: ${d.kit_size}` : '',
     '',

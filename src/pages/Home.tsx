@@ -33,12 +33,12 @@ export default function Home() {
               <p className="font-ui text-[11px] font-bold uppercase tracking-[0.24em] text-secondary">
                 Startups Harambe Run 2026
               </p>
-              <h1 className="hero-title mt-5 max-w-6xl">Harambe Run.<br />Fund Job Creation</h1>
+              <h1 className="hero-title mt-5 max-w-6xl">We've a Problem!<br />Run. Sponsor. Fund. Donate</h1>
               <p className="mt-6 max-w-xl text-base leading-7 text-white/78 sm:text-lg sm:leading-8">
-                A multi-origin fundraising run connecting students, entrepreneurs, universities and investors into one public startup funding pipeline.
+                #StartupsHarambeRun unlocks capital by funding student businesses and startups, training investors and forming investor networks.
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-                <a href={pageHref('register')} className="btn-gold">
+                <a href={`${pageHref('register')}?for=run`} className="btn-gold">
                   Register to run
                   <ArrowRight className="ml-3 h-4 w-4" />
                 </a>
@@ -54,7 +54,7 @@ export default function Home() {
               {[
                 ['Race day', 'Sunday 29 November 2026'],
                 ['Finish line', 'Makerere University, Freedom Square'],
-                ['Start points', '22 official dispatch locations'],
+                ['Distances', '21 km, 10 km, 5 km and 3 km'],
               ].map(([label, value]) => (
                 <div key={label}>
                   <p className="font-ui text-[10px] font-bold uppercase tracking-[0.22em] text-secondary">{label}</p>
