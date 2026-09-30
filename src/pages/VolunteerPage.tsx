@@ -202,7 +202,7 @@ export default function VolunteerPage() {
                     ))}
                   </ol>
 
-                  <div ref={(el) => (stepRefs.current[0] = el)} hidden={step !== 0}>
+                  <div ref={(el) => { stepRefs.current[0] = el }} hidden={step !== 0}>
                     <Group title="1. Your details">
                       <Field label="Full name" id="v-name">
                         <input className="field" id="v-name" name="name" autoComplete="name" required />
@@ -236,7 +236,7 @@ export default function VolunteerPage() {
                     </Group>
                   </div>
 
-                  <div ref={(el) => (stepRefs.current[1] = el)} hidden={step !== 1}>
+                  <div ref={(el) => { stepRefs.current[1] = el }} hidden={step !== 1}>
                     <Group title="2. How you'd like to help">
                       <fieldset className="min-w-0 sm:col-span-2">
                         <legend className="label">Which volunteer roles interest you? Select all that apply.</legend>
@@ -300,7 +300,7 @@ export default function VolunteerPage() {
                     </Group>
                   </div>
 
-                  <div ref={(el) => (stepRefs.current[2] = el)} hidden={step !== 2}>
+                  <div ref={(el) => { stepRefs.current[2] = el }} hidden={step !== 2}>
                     <Group title="3. Availability">
                       <Choices
                         legend="Can you commit to pre-run activities: weekly in October to early November, and daily in the final week?"
@@ -316,7 +316,7 @@ export default function VolunteerPage() {
                     </Group>
                   </div>
 
-                  <div ref={(el) => (stepRefs.current[3] = el)} hidden={step !== 3}>
+                  <div ref={(el) => { stepRefs.current[3] = el }} hidden={step !== 3}>
                     <Group title="4. Motivation">
                       <Field label="Why do you want to volunteer for #StartupsHarambeRun?" id="v-why" wide>
                         <textarea className="field min-h-28" id="v-why" name="motivation" required />
@@ -333,7 +333,7 @@ export default function VolunteerPage() {
                     </Group>
                   </div>
 
-                  <div ref={(el) => (stepRefs.current[4] = el)} hidden={step !== 4}>
+                  <div ref={(el) => { stepRefs.current[4] = el }} hidden={step !== 4}>
                     <Group title="5. Logistics and safety">
                       <Field label="Run kit or T-shirt size" id="v-size">
                         <select className="field" id="v-size" name="kit_size" required defaultValue="">
@@ -354,7 +354,7 @@ export default function VolunteerPage() {
                     </Group>
                   </div>
 
-                  <div ref={(el) => (stepRefs.current[5] = el)} hidden={step !== 5}>
+                  <div ref={(el) => { stepRefs.current[5] = el }} hidden={step !== 5}>
                     <Group title="6. Consent">
                       <label className="flex items-start gap-3 text-base leading-7 sm:col-span-2">
                         <input type="checkbox" name="consent_code_of_conduct" value="Agreed" required className="mt-1.5 h-5 w-5 shrink-0 accent-[hsl(var(--primary))]" />
