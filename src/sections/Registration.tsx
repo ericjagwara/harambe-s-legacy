@@ -7,10 +7,10 @@ import { booths, sectorPackages, sponsorTiers, universityStarts } from '../data'
 export type RegistrationTab = 'run' | 'donate' | 'sponsor' | 'booth'
 
 const choices: Array<{ key: RegistrationTab; title: string }> = [
-  { key: 'run', title: 'Run: register and pay for a running kit' },
-  { key: 'donate', title: 'Donate: give any amount' },
-  { key: 'sponsor', title: 'Sponsor or partner as an organisation' },
-  { key: 'booth', title: 'Exhibit: book a booth or offer a runner discount' },
+  { key: 'run', title: 'Run - Register to run / Offer discounts' },
+  { key: 'donate', title: 'Donate - Give any amount' },
+  { key: 'sponsor', title: 'Sponsor - Partner as an organisation' },
+  { key: 'booth', title: 'Exhibit - Book a booth and exhibit' },
 ]
 
 const guides: Record<RegistrationTab, string[]> = {
@@ -30,15 +30,13 @@ const guides: Record<RegistrationTab, string[]> = {
     'Every sponsorship tier includes Startup Funding Vehicles corporate membership.',
   ],
   booth: [
-    'Choose an exhibition booth at the finish line, or a featured discount listing for runners.',
+    'Choose an exhibition booth at the finish line.',
     'Nothing is paid here. We confirm availability first, then send you an invoice.',
   ],
 }
 
 const exhibitOptions = [
   ...booths.map((booth) => `${booth.name}, ${booth.size}, ${booth.price}`),
-  'Featured startup discount provider, UGX 60,000',
-  'Featured SME or corporate discount provider, UGX 100,000',
 ]
 
 const kitSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
@@ -682,16 +680,16 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
                     <Field label="Phone number" id="booth-phone">
                       <input className="field" id="booth-phone" name="phone" inputMode="tel" autoComplete="tel" required />
                     </Field>
-                    <Field label="Booth or listing" id="booth-choice">
+                    <Field label="Booth" id="booth-choice">
                       <select className="field" id="booth-choice" name="choice" required defaultValue="">
-                        <option value="" disabled>Choose an option</option>
+                        <option value="" disabled>Choose a booth</option>
                         {exhibitOptions.map((option) => (
                           <option key={option}>{option}</option>
                         ))}
                       </select>
                     </Field>
                     <Field label="What will you showcase or offer?" id="booth-offer">
-                      <input className="field" id="booth-offer" name="offer" placeholder="Products, services, or the discount for runners" required />
+                      <input className="field" id="booth-offer" name="offer" placeholder="Products or services you will showcase" required />
                     </Field>
                   </FormGroup>
                   {success}

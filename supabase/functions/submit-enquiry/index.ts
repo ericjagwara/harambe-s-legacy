@@ -18,7 +18,7 @@ const label = (key: string) => key.replace(/_/g, ' ').replace(/^\w/, (c) => c.to
 
 const ACK: Record<EnquiryType, string> = {
   Sponsorship: 'Thank you for your interest in sponsoring Startups Harambe Run 2026. Our partnerships team will contact you with the full proposal and next steps.',
-  Exhibition: 'Thank you for your exhibition or discount listing request. We will confirm availability and send you an invoice.',
+  Exhibition: 'Thank you for your exhibition booth request. We will confirm availability and send you an invoice.',
   Volunteer: 'Thank you for volunteering with Startups Harambe Run 2026. We will contact you with your role and a briefing before run day.',
   Contact: 'Thank you for contacting the Harambe Run team. We have received your message and will reply soon.',
   Updates: 'You are on the Harambe Run 2026 updates list. We will share route news, programme updates and fundraising milestones.',

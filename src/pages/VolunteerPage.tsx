@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
-import { Check } from 'lucide-react'
 import Reveal from '../components/Reveal'
 import { PageHero, PageSection } from '../components/PageLayout'
 import { supabase } from '@/integrations/supabase/client'
@@ -147,13 +146,10 @@ export default function VolunteerPage() {
 
       <PageSection className="bg-white">
         <p className="eyebrow">What volunteers gain</p>
-        <ul className="mt-6 grid gap-x-10 gap-y-4 sm:grid-cols-2">
+        <ul className="mt-5 grid gap-x-12 sm:grid-cols-2">
           {benefits.map((text) => (
-            <li key={text} className="flex items-start gap-3">
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                <Check className="h-3.5 w-3.5" strokeWidth={3} />
-              </span>
-              <p className="text-base leading-7 text-foreground/80">{text}</p>
+            <li key={text} className="border-b border-border py-3.5 text-base leading-7 text-foreground/80">
+              {text}
             </li>
           ))}
         </ul>
@@ -163,10 +159,9 @@ export default function VolunteerPage() {
         <div className="container-site">
           <Reveal>
             <div ref={formTopRef} className="-mx-5 scroll-mt-28 bg-white px-5 py-7 sm:mx-0 sm:p-10">
-              <p className="eyebrow">Sign up</p>
-              <h2 className="mt-3 font-display text-[2.1rem] uppercase leading-none sm:mt-4 sm:text-5xl">Volunteer sign-up form</h2>
-              <p className="mt-4 max-w-3xl text-base leading-7 text-foreground/75">
-                It takes about five minutes. The team reviews every application and contacts you about your role.
+              <h2 className="font-display text-[2rem] uppercase leading-none sm:text-4xl">Sign up to volunteer</h2>
+              <p className="mt-3 max-w-3xl text-base leading-7 text-foreground/70">
+                Six short steps. We review every application and contact you about your role.
               </p>
 
               {done ? (
@@ -183,26 +178,11 @@ export default function VolunteerPage() {
                     <input id="vol-website" name="website" tabIndex={-1} autoComplete="off" />
                   </div>
 
-                  <ol className="flex flex-wrap gap-x-2 gap-y-1.5 font-ui text-[11px] font-black uppercase tracking-[0.14em]">
-                    {steps.map((label, index) => (
-                      <li
-                        key={label}
-                        className={`flex items-center gap-1.5 ${index === step ? 'text-primary' : index < step ? 'text-foreground/50' : 'text-foreground/30'}`}
-                      >
-                        <span
-                          className={`flex h-5 w-5 items-center justify-center rounded-full ${
-                            index <= step ? 'bg-primary text-primary-foreground' : 'bg-border text-foreground/50'
-                          }`}
-                        >
-                          {index < step ? <Check className="h-3 w-3" strokeWidth={3} /> : index + 1}
-                        </span>
-                        <span className="hidden sm:inline">{label}</span>
-                        {index < steps.length - 1 ? <span className="ml-1.5 hidden text-foreground/20 sm:inline">/</span> : null}
-                      </li>
-                    ))}
-                  </ol>
+                  <p className="border-b border-border pb-3 text-sm text-foreground/60" aria-live="polite">
+                    Step {step + 1} of {steps.length}: <span className="font-bold text-foreground">{steps[step]}</span>
+                  </p>
 
-                  <div ref={(el) => (stepRefs.current[0] = el)} hidden={step !== 0}>
+                  <div ref={(el) => { stepRefs.current[0] = el }} hidden={step !== 0}>
                     <Group title="1. Your details">
                       <Field label="Full name" id="v-name">
                         <input className="field" id="v-name" name="name" autoComplete="name" required />
@@ -236,7 +216,7 @@ export default function VolunteerPage() {
                     </Group>
                   </div>
 
-                  <div ref={(el) => (stepRefs.current[1] = el)} hidden={step !== 1}>
+                  <div ref={(el) => { stepRefs.current[1] = el }} hidden={step !== 1}>
                     <Group title="2. How you'd like to help">
                       <fieldset className="min-w-0 sm:col-span-2">
                         <legend className="label">Which volunteer roles interest you? Select all that apply.</legend>
@@ -300,7 +280,7 @@ export default function VolunteerPage() {
                     </Group>
                   </div>
 
-                  <div ref={(el) => (stepRefs.current[2] = el)} hidden={step !== 2}>
+                  <div ref={(el) => { stepRefs.current[2] = el }} hidden={step !== 2}>
                     <Group title="3. Availability">
                       <Choices
                         legend="Can you commit to pre-run activities: weekly in October to early November, and daily in the final week?"
@@ -316,7 +296,7 @@ export default function VolunteerPage() {
                     </Group>
                   </div>
 
-                  <div ref={(el) => (stepRefs.current[3] = el)} hidden={step !== 3}>
+                  <div ref={(el) => { stepRefs.current[3] = el }} hidden={step !== 3}>
                     <Group title="4. Motivation">
                       <Field label="Why do you want to volunteer for #StartupsHarambeRun?" id="v-why" wide>
                         <textarea className="field min-h-28" id="v-why" name="motivation" required />
@@ -333,7 +313,7 @@ export default function VolunteerPage() {
                     </Group>
                   </div>
 
-                  <div ref={(el) => (stepRefs.current[4] = el)} hidden={step !== 4}>
+                  <div ref={(el) => { stepRefs.current[4] = el }} hidden={step !== 4}>
                     <Group title="5. Logistics and safety">
                       <Field label="Run kit or T-shirt size" id="v-size">
                         <select className="field" id="v-size" name="kit_size" required defaultValue="">
@@ -354,8 +334,17 @@ export default function VolunteerPage() {
                     </Group>
                   </div>
 
-                  <div ref={(el) => (stepRefs.current[5] = el)} hidden={step !== 5}>
+                  <div ref={(el) => { stepRefs.current[5] = el }} hidden={step !== 5}>
                     <Group title="6. Consent">
+                      {/* Optional. Volunteers who also run show belief in the Run and are rated as best suited. */}
+                      <Choices legend="Have you paid for your runner ticket? (optional)" name="paid_runner_ticket" options={['Yes', 'No']} wide />
+                      <p className="-mt-2 text-sm leading-6 text-foreground/70 sm:col-span-2">
+                        Volunteers who also run are rated as best suited.{' '}
+                        <a href="/register?for=run" target="_blank" rel="noopener noreferrer" className="font-bold text-primary underline underline-offset-4">
+                          Register to run
+                        </a>{' '}
+                        opens in a new tab, so you keep your answers here.
+                      </p>
                       <label className="flex items-start gap-3 text-base leading-7 sm:col-span-2">
                         <input type="checkbox" name="consent_code_of_conduct" value="Agreed" required className="mt-1.5 h-5 w-5 shrink-0 accent-[hsl(var(--primary))]" />
                         <span>I confirm the information above is accurate, and I agree to the Run's Code of Conduct and volunteer safeguarding guidelines.</span>
@@ -373,20 +362,20 @@ export default function VolunteerPage() {
                     </div>
                   ) : null}
 
-                  <div className="flex items-center justify-between gap-4 border-t border-border pt-5 sm:pt-6">
+                  <div className="flex items-center gap-3 border-t border-border pt-5 sm:justify-between sm:gap-4 sm:pt-6">
                     {step > 0 ? (
-                      <button type="button" onClick={back} className="btn-outline">
+                      <button type="button" onClick={back} className="btn-outline flex-1 sm:flex-none">
                         Back
                       </button>
                     ) : (
-                      <span />
+                      <span className="hidden sm:block" />
                     )}
                     {step < steps.length - 1 ? (
-                      <button type="button" onClick={next} className="btn-primary">
-                        Next: {steps[step + 1]}
+                      <button type="button" onClick={next} className="btn-primary flex-1 sm:flex-none">
+                        Next
                       </button>
                     ) : (
-                      <button className="btn-primary" type="submit" disabled={sending}>
+                      <button className="btn-primary flex-1 sm:flex-none" type="submit" disabled={sending}>
                         {sending ? 'Sending…' : 'Submit application'}
                       </button>
                     )}
@@ -403,8 +392,8 @@ export default function VolunteerPage() {
 
 function Group({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <fieldset className="grid min-w-0 grid-cols-1 gap-4 border-t border-border pt-5 sm:grid-cols-2 sm:gap-5 sm:pt-6">
-      <legend className="float-left mb-1 w-full font-ui text-xs font-black uppercase tracking-[0.2em] text-primary sm:col-span-2">{title}</legend>
+    <fieldset className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
+      <legend className="sr-only">{title}</legend>
       {children}
     </fieldset>
   )

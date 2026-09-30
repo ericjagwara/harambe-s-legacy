@@ -11,6 +11,8 @@ type RegisterPageProps = {
 // /donate opens with Donate already chosen.
 export default function RegisterPage({ donate = false }: RegisterPageProps) {
   const wanted = new URLSearchParams(window.location.search).get('for') as RegistrationTab | null
+  // Volunteering has its own page; old ?for=volunteer links go there.
+  if ((wanted as string) === 'volunteer') window.location.replace('/volunteer')
   const preset = wanted && OPTIONS.includes(wanted) ? wanted : ''
   return <Registration initialTab={donate ? 'donate' : preset} />
 }
