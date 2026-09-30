@@ -4,14 +4,13 @@ import Reveal from '../components/Reveal'
 import { supabase } from '@/integrations/supabase/client'
 import { booths, sectorPackages, sponsorTiers, universityStarts } from '../data'
 
-export type RegistrationTab = 'run' | 'donate' | 'sponsor' | 'booth' | 'volunteer'
+export type RegistrationTab = 'run' | 'donate' | 'sponsor' | 'booth'
 
 const choices: Array<{ key: RegistrationTab; title: string }> = [
   { key: 'run', title: 'Run: register and pay for a running kit' },
   { key: 'donate', title: 'Donate: give any amount' },
   { key: 'sponsor', title: 'Sponsor or partner as an organisation' },
   { key: 'booth', title: 'Exhibit: book a booth or offer a runner discount' },
-  { key: 'volunteer', title: 'Volunteer on run day or on campus' },
 ]
 
 const guides: Record<RegistrationTab, string[]> = {
@@ -34,10 +33,6 @@ const guides: Record<RegistrationTab, string[]> = {
     'Choose an exhibition booth at the finish line, or a featured discount listing for runners.',
     'Nothing is paid here. We confirm availability first, then send you an invoice.',
   ],
-  volunteer: [
-    'Tell us how you would like to help and when you are available.',
-    'We contact you with your role and a briefing before run day.',
-  ],
 }
 
 const exhibitOptions = [
@@ -46,24 +41,16 @@ const exhibitOptions = [
   'Featured SME or corporate discount provider, UGX 100,000',
 ]
 
-const volunteerRoles = [
-  'Route marshal',
-  'Registration and kit pickup',
-  'Media, photos and content',
-  'Mobilising runners on my campus',
-  'First aid (I am trained)',
-  'Wherever I am needed',
-]
-
 const kitSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 
 const distances = ['21 km (half marathon)', '10 km', '5 km', '3 km (fun run)']
 
+// Keep these labels identical to RUNNER_PRICES in blinkpay-deposit, blinkpay-card-start and pickup-desk.
 const runnerCategories = [
   { label: 'Student runner, UGX 15,000', amount: 15000 },
   { label: 'General public runner, UGX 30,000', amount: 30000 },
-  // Keep this label identical to RUNNER_PRICES in blinkpay-deposit, blinkpay-card-start and pickup-desk.
-  { label: 'Startup or SME runner, UGX 100,000 (includes social media mentions and visibility)', amount: 100000 },
+  { label: 'Featured Startup, UGX 60,000 (Offering Discount)', amount: 60000 },
+  { label: 'Featured SME/Corporate, UGX 100,000 (Offering Discount)', amount: 100000 },
 ]
 
 type PayState = 'idle' | 'starting' | 'waiting' | 'success' | 'pending' | 'error'
@@ -125,11 +112,6 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
     if (pollRef.current) window.clearInterval(pollRef.current)
   }, [])
 
-  // Volunteering has its own page with the full application form.
-  useEffect(() => {
-    if (active === 'volunteer' && !fixed) window.location.assign('/volunteer')
-  }, [active, fixed])
-
   // Seconds counter shown while waiting for the payment approval.
   useEffect(() => {
     if (payState !== 'waiting') return
@@ -160,7 +142,7 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
     resetPayment()
   }
 
-  const submit = async (event: FormEvent<HTMLFormElement>, type: 'Sponsorship' | 'Exhibition' | 'Volunteer') => {
+  const submit = async (event: FormEvent<HTMLFormElement>, type: 'Sponsorship' | 'Exhibition') => {
     event.preventDefault()
     const form = event.currentTarget
     const fields: Record<string, string> = {}
@@ -179,9 +161,7 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
     setSubmitted(
       type === 'Sponsorship'
         ? 'Thank you for backing Uganda\'s builders. Our partnerships team will contact you with the full proposal and next steps. A confirmation email is on its way. Nothing has been charged.'
-        : type === 'Exhibition'
-          ? 'Your request is in. We will confirm availability and send you an invoice. A confirmation email is on its way. Nothing has been charged.'
-          : 'Thank you for volunteering. We will contact you with your role and a briefing before run day. A confirmation email is on its way.'
+        : 'Your request is in. We will confirm availability and send you an invoice. A confirmation email is on its way. Nothing has been charged.'
     )
     form.reset()
   }
@@ -300,7 +280,7 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
 
   const busy = payState === 'starting' || payState === 'waiting'
   const student = category.toLowerCase().includes('student')
-  const startup = category.toLowerCase().includes('startup')
+  const businessListing = category.toLowerCase().includes('startup') || category.toLowerCase().includes('sme')
   const runnerPrice = runnerCategories.find((c) => c.label === category)?.amount ?? 30000
   const minutes = `${Math.floor(elapsed / 60)}:${String(elapsed % 60).padStart(2, '0')}`
 
@@ -518,7 +498,7 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
                         ))}
                       </select>
                     </Field>
-                    {startup ? (
+                    {businessListing ? (
                       <>
                         <Field label="Startup or business name" id="startup-name">
                           <input className="field" id="startup-name" name="startup_name" autoComplete="organization" required />
@@ -533,7 +513,7 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
                           />
                         </Field>
                         <p className="text-sm leading-6 text-foreground/70 sm:col-span-2">
-                          Your startup name and logo are used for the social media mentions and visibility included in this package.
+                          Your business name and logo are used for the discount listing, social media mentions and visibility included in this package.
                         </p>
                       </>
                     ) : (
@@ -719,53 +699,6 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
                   <div>
                     <button className="btn-primary w-full sm:w-auto" type="submit" disabled={sending}>
                       {sending ? 'Sending…' : 'Send request'}
-                    </button>
-                  </div>
-                </form>
-              ) : null}
-
-              {active === 'volunteer' ? (
-                <form onSubmit={(event) => submit(event, 'Volunteer')} className="grid grid-cols-1 gap-6 sm:gap-8">
-                  <HoneyPot />
-                  <FormGroup title="About you">
-                    <Field label="Full name" id="vol-name">
-                      <input className="field" id="vol-name" name="name" autoComplete="name" required />
-                    </Field>
-                    <Field label="Email" id="vol-email">
-                      <input className="field" id="vol-email" type="email" name="email" autoComplete="email" required />
-                    </Field>
-                    <Field label="Phone number" id="vol-phone">
-                      <input className="field" id="vol-phone" name="phone" inputMode="tel" autoComplete="tel" required />
-                    </Field>
-                    <Field label="University or organisation (optional)" id="vol-org">
-                      <input className="field" id="vol-org" name="organisation" list="institution-list-vol" />
-                      <datalist id="institution-list-vol">
-                        {universityStarts.map((u) => (
-                          <option key={u} value={u.split(',')[0]} />
-                        ))}
-                      </datalist>
-                    </Field>
-                    <Field label="How would you like to help?" id="vol-role">
-                      <select className="field" id="vol-role" name="choice" required defaultValue="">
-                        <option value="" disabled>Choose a role</option>
-                        {volunteerRoles.map((role) => (
-                          <option key={role}>{role}</option>
-                        ))}
-                      </select>
-                    </Field>
-                    <Field label="When are you available?" id="vol-when">
-                      <select className="field" id="vol-when" name="availability" required defaultValue="">
-                        <option value="" disabled>Choose</option>
-                        <option>Run day only (29 November)</option>
-                        <option>Before the run and on run day</option>
-                      </select>
-                    </Field>
-                  </FormGroup>
-                  {success}
-                  {errorBox}
-                  <div>
-                    <button className="btn-primary w-full sm:w-auto" type="submit" disabled={sending}>
-                      {sending ? 'Sending…' : 'Sign up to volunteer'}
                     </button>
                   </div>
                 </form>

@@ -1,6 +1,6 @@
 import Registration, { type RegistrationTab } from '../sections/Registration'
 
-const OPTIONS: RegistrationTab[] = ['run', 'donate', 'sponsor', 'booth', 'volunteer']
+const OPTIONS: RegistrationTab[] = ['run', 'donate', 'sponsor', 'booth']
 
 type RegisterPageProps = {
   donate?: boolean

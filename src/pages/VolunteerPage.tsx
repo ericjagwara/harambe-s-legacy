@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { Check } from 'lucide-react'
 import Reveal from '../components/Reveal'
 import { PageHero, PageSection } from '../components/PageLayout'
 import { supabase } from '@/integrations/supabase/client'
@@ -6,13 +7,13 @@ import { supabase } from '@/integrations/supabase/client'
 // Volunteer sign-up. Saved in Supabase (Table Editor -> enquiries, type "Volunteer")
 // and emailed to info@haramberun.com by the submit-enquiry function.
 
-const benefits: Array<[string, string]> = [
-  ['Monetary incentives on results', 'Earn based on your mobilisation and sales performance.'],
-  ['Training and mobilisation skills', 'Hands-on coaching in community organising, sales and digital marketing.'],
-  ['Recognition awards at the event', 'Public recognition on run day.'],
-  ['Certificate of achievement', 'A credential for your CV or portfolio.'],
-  ['Performance rewards and in-kind gifts', 'Branded merchandise and prizes for top performers.'],
-  ['Job opportunities and brand ambassadorship', 'A pipeline into paid roles and ongoing brand partnerships with TechBuzz Hub.'],
+const benefits: string[] = [
+  'Earn monetary incentives based on your mobilisation and sales performance.',
+  'Get hands-on training in community organising, sales and digital marketing.',
+  'Receive public recognition and awards on run day.',
+  'Walk away with a certificate of achievement for your CV or portfolio.',
+  'Take home branded merchandise and prizes as a top performer.',
+  'Build a pipeline into paid roles and brand ambassadorship with TechBuzz Hub.',
 ]
 
 const roles = [
@@ -26,6 +27,21 @@ const roles = [
 
 const kitSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 
+const steps = ['Your details', "How you'd like to help", 'Availability', 'Motivation', 'Logistics and safety', 'Consent']
+
+// Checks only the fields inside a given step; focuses and reports the first invalid one.
+function stepIsValid(container: HTMLElement | null) {
+  if (!container) return true
+  const fields = container.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('input, select, textarea')
+  for (const field of fields) {
+    if (!field.checkValidity()) {
+      field.reportValidity()
+      return false
+    }
+  }
+  return true
+}
+
 export default function VolunteerPage() {
   const [adult, setAdult] = useState('')
   const [experience, setExperience] = useState('')
@@ -34,8 +50,11 @@ export default function VolunteerPage() {
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
+  const [step, setStep] = useState(0)
   const noticeRef = useRef<HTMLDivElement | null>(null)
   const roleRef = useRef<HTMLParagraphElement | null>(null)
+  const formTopRef = useRef<HTMLDivElement | null>(null)
+  const stepRefs = useRef<Array<HTMLDivElement | null>>([])
 
   useEffect(() => {
     if (done || error) noticeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -45,15 +64,40 @@ export default function VolunteerPage() {
     if (roleError) roleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }, [roleError])
 
+  const goToStep = (next: number) => {
+    setStep(next)
+    formTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  const next = () => {
+    if (step === 1 && roleError) return
+    if (!stepIsValid(stepRefs.current[step])) return
+    if (step < steps.length - 1) goToStep(step + 1)
+  }
+
+  const back = () => {
+    if (step > 0) goToStep(step - 1)
+  }
+
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
-    const data = new FormData(form)
 
+    // Only the final (Consent) step's fields are validated by the browser on submit,
+    // since earlier steps are hidden with the `hidden` attribute. Re-check everything here.
+    for (let i = 0; i < steps.length; i++) {
+      if (!stepIsValid(stepRefs.current[i])) {
+        goToStep(i)
+        return
+      }
+    }
+
+    const data = new FormData(form)
     const chosen = data.getAll('roles').map(String)
     const other = String(data.get('other_role') ?? '').trim()
     if (chosen.length === 0 && !other) {
       setRoleError('Please choose at least one volunteer role.')
+      goToStep(1)
       return
     }
     setRoleError('')
@@ -79,6 +123,7 @@ export default function VolunteerPage() {
     setAdult('')
     setExperience('')
     setOtherRole(false)
+    setStep(0)
   }
 
   return (
@@ -102,11 +147,13 @@ export default function VolunteerPage() {
 
       <PageSection className="bg-white">
         <p className="eyebrow">What volunteers gain</p>
-        <ul className="mt-6 grid gap-x-10 gap-y-6 sm:grid-cols-2">
-          {benefits.map(([title, text]) => (
-            <li key={title} className="border-t border-border pt-4">
-              <p className="font-display text-xl uppercase leading-tight sm:text-2xl">{title}</p>
-              <p className="mt-2 text-base leading-7 text-foreground/75">{text}</p>
+        <ul className="mt-6 grid gap-x-10 gap-y-4 sm:grid-cols-2">
+          {benefits.map((text) => (
+            <li key={text} className="flex items-start gap-3">
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                <Check className="h-3.5 w-3.5" strokeWidth={3} />
+              </span>
+              <p className="text-base leading-7 text-foreground/80">{text}</p>
             </li>
           ))}
         </ul>
@@ -115,7 +162,7 @@ export default function VolunteerPage() {
       <section id="volunteer-form" className="border-b border-border bg-background pb-8 pt-4 sm:py-12 lg:py-16">
         <div className="container-site">
           <Reveal>
-            <div className="-mx-5 bg-white px-5 py-7 sm:mx-0 sm:p-10">
+            <div ref={formTopRef} className="-mx-5 scroll-mt-28 bg-white px-5 py-7 sm:mx-0 sm:p-10">
               <p className="eyebrow">Sign up</p>
               <h2 className="mt-3 font-display text-[2.1rem] uppercase leading-none sm:mt-4 sm:text-5xl">Volunteer sign-up form</h2>
               <p className="mt-4 max-w-3xl text-base leading-7 text-foreground/75">
@@ -136,158 +183,189 @@ export default function VolunteerPage() {
                     <input id="vol-website" name="website" tabIndex={-1} autoComplete="off" />
                   </div>
 
-                  <Group title="1. Your details">
-                    <Field label="Full name" id="v-name">
-                      <input className="field" id="v-name" name="name" autoComplete="name" required />
-                    </Field>
-                    <Field label="Phone number" id="v-phone">
-                      <input className="field" id="v-phone" name="phone" inputMode="tel" autoComplete="tel" placeholder="0781405551" required />
-                    </Field>
-                    <Field label="Email address" id="v-email">
-                      <input className="field" id="v-email" name="email" type="email" autoComplete="email" required />
-                    </Field>
-                    <Field label="University, institution or organisation (if any)" id="v-org">
-                      <input className="field" id="v-org" name="organisation" />
-                    </Field>
-                    <Field label="City or area of residence" id="v-city">
-                      <input className="field" id="v-city" name="city_or_area" required />
-                    </Field>
-                    <Choices legend="Are you 18 or older?" name="age_18_or_older" options={['Yes', 'No']} required onChange={setAdult} />
-                    {adult === 'No' ? (
-                      <>
-                        <p className="text-sm leading-6 text-foreground/70 sm:col-span-2">
-                          Volunteers under 18 need a parent or guardian's details, in line with the Run's safeguarding policy.
-                        </p>
-                        <Field label="Parent or guardian name" id="v-guardian">
-                          <input className="field" id="v-guardian" name="guardian_name" required />
-                        </Field>
-                        <Field label="Parent or guardian phone number" id="v-guardian-phone">
-                          <input className="field" id="v-guardian-phone" name="guardian_phone" inputMode="tel" required />
-                        </Field>
-                      </>
-                    ) : null}
-                  </Group>
+                  <ol className="flex flex-wrap gap-x-2 gap-y-1.5 font-ui text-[11px] font-black uppercase tracking-[0.14em]">
+                    {steps.map((label, index) => (
+                      <li
+                        key={label}
+                        className={`flex items-center gap-1.5 ${index === step ? 'text-primary' : index < step ? 'text-foreground/50' : 'text-foreground/30'}`}
+                      >
+                        <span
+                          className={`flex h-5 w-5 items-center justify-center rounded-full ${
+                            index <= step ? 'bg-primary text-primary-foreground' : 'bg-border text-foreground/50'
+                          }`}
+                        >
+                          {index < step ? <Check className="h-3 w-3" strokeWidth={3} /> : index + 1}
+                        </span>
+                        <span className="hidden sm:inline">{label}</span>
+                        {index < steps.length - 1 ? <span className="ml-1.5 hidden text-foreground/20 sm:inline">/</span> : null}
+                      </li>
+                    ))}
+                  </ol>
 
-                  <Group title="2. How you'd like to help">
-                    <fieldset className="min-w-0 sm:col-span-2">
-                      <legend className="label">Which volunteer roles interest you? Select all that apply.</legend>
-                      <div className="mt-1 space-y-3">
-                        {roles.map((role) => (
-                          <label key={role} className="flex cursor-pointer items-start gap-3">
+                  <div ref={(el) => (stepRefs.current[0] = el)} hidden={step !== 0}>
+                    <Group title="1. Your details">
+                      <Field label="Full name" id="v-name">
+                        <input className="field" id="v-name" name="name" autoComplete="name" required />
+                      </Field>
+                      <Field label="Phone number" id="v-phone">
+                        <input className="field" id="v-phone" name="phone" inputMode="tel" autoComplete="tel" placeholder="0781405551" required />
+                      </Field>
+                      <Field label="Email address" id="v-email">
+                        <input className="field" id="v-email" name="email" type="email" autoComplete="email" required />
+                      </Field>
+                      <Field label="University, institution or organisation (if any)" id="v-org">
+                        <input className="field" id="v-org" name="organisation" />
+                      </Field>
+                      <Field label="City or area of residence" id="v-city">
+                        <input className="field" id="v-city" name="city_or_area" required />
+                      </Field>
+                      <Choices legend="Are you 18 or older?" name="age_18_or_older" options={['Yes', 'No']} required onChange={setAdult} />
+                      {adult === 'No' ? (
+                        <>
+                          <p className="text-sm leading-6 text-foreground/70 sm:col-span-2">
+                            Volunteers under 18 need a parent or guardian's details, in line with the Run's safeguarding policy.
+                          </p>
+                          <Field label="Parent or guardian name" id="v-guardian">
+                            <input className="field" id="v-guardian" name="guardian_name" required />
+                          </Field>
+                          <Field label="Parent or guardian phone number" id="v-guardian-phone">
+                            <input className="field" id="v-guardian-phone" name="guardian_phone" inputMode="tel" required />
+                          </Field>
+                        </>
+                      ) : null}
+                    </Group>
+                  </div>
+
+                  <div ref={(el) => (stepRefs.current[1] = el)} hidden={step !== 1}>
+                    <Group title="2. How you'd like to help">
+                      <fieldset className="min-w-0 sm:col-span-2">
+                        <legend className="label">Which volunteer roles interest you? Select all that apply.</legend>
+                        <div className="mt-1 space-y-3">
+                          {roles.map((role) => (
+                            <label key={role} className="flex cursor-pointer items-start gap-3">
+                              <input
+                                type="checkbox"
+                                name="roles"
+                                value={role}
+                                onChange={() => setRoleError('')}
+                                className="mt-1 h-[18px] w-[18px] shrink-0 accent-[hsl(var(--primary))]"
+                              />
+                              <span className="text-base leading-6">{role}</span>
+                            </label>
+                          ))}
+                          <label className="flex cursor-pointer items-start gap-3">
                             <input
                               type="checkbox"
-                              name="roles"
-                              value={role}
-                              onChange={() => setRoleError('')}
+                              checked={otherRole}
+                              onChange={(e) => {
+                                setOtherRole(e.target.checked)
+                                setRoleError('')
+                              }}
                               className="mt-1 h-[18px] w-[18px] shrink-0 accent-[hsl(var(--primary))]"
                             />
-                            <span className="text-base leading-6">{role}</span>
+                            <span className="text-base leading-6">Other</span>
                           </label>
-                        ))}
-                        <label className="flex cursor-pointer items-start gap-3">
-                          <input
-                            type="checkbox"
-                            checked={otherRole}
-                            onChange={(e) => {
-                              setOtherRole(e.target.checked)
-                              setRoleError('')
-                            }}
-                            className="mt-1 h-[18px] w-[18px] shrink-0 accent-[hsl(var(--primary))]"
-                          />
-                          <span className="text-base leading-6">Other</span>
-                        </label>
-                        {otherRole ? (
-                          <input className="field sm:max-w-md" name="other_role" aria-label="Other role, please specify" placeholder="Please specify" required />
+                          {otherRole ? (
+                            <input className="field sm:max-w-md" name="other_role" aria-label="Other role, please specify" placeholder="Please specify" required />
+                          ) : null}
+                        </div>
+                        {roleError ? (
+                          <p ref={roleRef} className="mt-3 scroll-mt-28 text-sm font-bold text-accent" role="alert">
+                            {roleError}
+                          </p>
                         ) : null}
-                      </div>
-                      {roleError ? (
-                        <p ref={roleRef} className="mt-3 scroll-mt-28 text-sm font-bold text-accent" role="alert">
-                          {roleError}
-                        </p>
-                      ) : null}
-                    </fieldset>
-                    <Field label="Which university, community or area would you mobilise from?" id="v-from">
-                      <input className="field" id="v-from" name="mobilise_from" required />
-                    </Field>
-                    <Choices
-                      legend="Do you have prior volunteering, mobilisation or event experience?"
-                      name="prior_experience"
-                      options={['Yes', 'No']}
-                      required
-                      onChange={setExperience}
-                    />
-                    {experience === 'Yes' ? (
-                      <Field label="Briefly describe it (optional)" id="v-exp" wide>
-                        <input className="field" id="v-exp" name="experience_details" />
+                      </fieldset>
+                      <Field label="Which university, community or area would you mobilise from?" id="v-from">
+                        <input className="field" id="v-from" name="mobilise_from" required />
                       </Field>
-                    ) : null}
-                    <Field
-                      label="Skills relevant to your chosen role, e.g. content creation, public speaking, fitness coaching, sales (optional)"
-                      id="v-skills"
-                      wide
-                    >
-                      <textarea className="field min-h-24" id="v-skills" name="skills" />
-                    </Field>
-                  </Group>
+                      <Choices
+                        legend="Do you have prior volunteering, mobilisation or event experience?"
+                        name="prior_experience"
+                        options={['Yes', 'No']}
+                        required
+                        onChange={setExperience}
+                      />
+                      {experience === 'Yes' ? (
+                        <Field label="Briefly describe it (optional)" id="v-exp" wide>
+                          <input className="field" id="v-exp" name="experience_details" />
+                        </Field>
+                      ) : null}
+                      <Field
+                        label="Skills relevant to your chosen role, e.g. content creation, public speaking, fitness coaching, sales (optional)"
+                        id="v-skills"
+                        wide
+                      >
+                        <textarea className="field min-h-24" id="v-skills" name="skills" />
+                      </Field>
+                    </Group>
+                  </div>
 
-                  <Group title="3. Availability">
-                    <Choices
-                      legend="Can you commit to pre-run activities: weekly in October to early November, and daily in the final week?"
-                      name="pre_run_commitment"
-                      options={['Yes, fully', 'Partially', 'Not sure yet']}
-                      required
-                      wide
-                    />
-                    <Choices legend="Are you available on run day, Sunday 29 November 2026?" name="available_on_run_day" options={['Yes', 'No']} required wide />
-                    <Field label="Days and times you are generally free to volunteer" id="v-times">
-                      <input className="field" id="v-times" name="preferred_times" placeholder="e.g. weekends, weekday evenings" required />
-                    </Field>
-                  </Group>
+                  <div ref={(el) => (stepRefs.current[2] = el)} hidden={step !== 2}>
+                    <Group title="3. Availability">
+                      <Choices
+                        legend="Can you commit to pre-run activities: weekly in October to early November, and daily in the final week?"
+                        name="pre_run_commitment"
+                        options={['Yes, fully', 'Partially', 'Not sure yet']}
+                        required
+                        wide
+                      />
+                      <Choices legend="Are you available on run day, Sunday 29 November 2026?" name="available_on_run_day" options={['Yes', 'No']} required wide />
+                      <Field label="Days and times you are generally free to volunteer" id="v-times">
+                        <input className="field" id="v-times" name="preferred_times" placeholder="e.g. weekends, weekday evenings" required />
+                      </Field>
+                    </Group>
+                  </div>
 
-                  <Group title="4. Motivation">
-                    <Field label="Why do you want to volunteer for #StartupsHarambeRun?" id="v-why" wide>
-                      <textarea className="field min-h-28" id="v-why" name="motivation" required />
-                    </Field>
-                    <Choices
-                      legend="How did you hear about the Run?"
-                      name="heard_about_us"
-                      options={['Social media', 'A friend or colleague', 'My university', 'A TechBuzz Hub event', 'Other']}
-                      required
-                    />
-                    <Field label="If a friend or mobiliser referred you, who? (optional)" id="v-ref">
-                      <input className="field" id="v-ref" name="referred_by" />
-                    </Field>
-                  </Group>
+                  <div ref={(el) => (stepRefs.current[3] = el)} hidden={step !== 3}>
+                    <Group title="4. Motivation">
+                      <Field label="Why do you want to volunteer for #StartupsHarambeRun?" id="v-why" wide>
+                        <textarea className="field min-h-28" id="v-why" name="motivation" required />
+                      </Field>
+                      <Choices
+                        legend="How did you hear about the Run?"
+                        name="heard_about_us"
+                        options={['Social media', 'A friend or colleague', 'My university', 'A TechBuzz Hub event', 'Other']}
+                        required
+                      />
+                      <Field label="If a friend or mobiliser referred you, who? (optional)" id="v-ref">
+                        <input className="field" id="v-ref" name="referred_by" />
+                      </Field>
+                    </Group>
+                  </div>
 
-                  <Group title="5. Logistics and safety">
-                    <Field label="Run kit or T-shirt size" id="v-size">
-                      <select className="field" id="v-size" name="kit_size" required defaultValue="">
-                        <option value="" disabled>
-                          Choose a size
-                        </option>
-                        {kitSizes.map((size) => (
-                          <option key={size}>{size}</option>
-                        ))}
-                      </select>
-                    </Field>
-                    <Field label="Emergency contact name and phone number" id="v-emergency">
-                      <input className="field" id="v-emergency" name="emergency_contact" placeholder="e.g. Sarah Nakato, 0772000000" required />
-                    </Field>
-                    <Field label="Medical conditions or access needs the Safety and Welfare team should know about (optional)" id="v-medical" wide>
-                      <textarea className="field min-h-20" id="v-medical" name="medical_or_access_needs" />
-                    </Field>
-                  </Group>
+                  <div ref={(el) => (stepRefs.current[4] = el)} hidden={step !== 4}>
+                    <Group title="5. Logistics and safety">
+                      <Field label="Run kit or T-shirt size" id="v-size">
+                        <select className="field" id="v-size" name="kit_size" required defaultValue="">
+                          <option value="" disabled>
+                            Choose a size
+                          </option>
+                          {kitSizes.map((size) => (
+                            <option key={size}>{size}</option>
+                          ))}
+                        </select>
+                      </Field>
+                      <Field label="Emergency contact name and phone number" id="v-emergency">
+                        <input className="field" id="v-emergency" name="emergency_contact" placeholder="e.g. Sarah Nakato, 0772000000" required />
+                      </Field>
+                      <Field label="Medical conditions or access needs the Safety and Welfare team should know about (optional)" id="v-medical" wide>
+                        <textarea className="field min-h-20" id="v-medical" name="medical_or_access_needs" />
+                      </Field>
+                    </Group>
+                  </div>
 
-                  <Group title="6. Consent">
-                    <label className="flex items-start gap-3 text-base leading-7 sm:col-span-2">
-                      <input type="checkbox" name="consent_code_of_conduct" value="Agreed" required className="mt-1.5 h-5 w-5 shrink-0 accent-[hsl(var(--primary))]" />
-                      <span>I confirm the information above is accurate, and I agree to the Run's Code of Conduct and volunteer safeguarding guidelines.</span>
-                    </label>
-                    <label className="flex items-start gap-3 text-base leading-7 sm:col-span-2">
-                      <input type="checkbox" name="consent_contact" value="Agreed" required className="mt-1.5 h-5 w-5 shrink-0 accent-[hsl(var(--primary))]" />
-                      <span>I consent to being contacted by TechBuzz Hub and #StartupsHarambeRun about this application.</span>
-                    </label>
-                  </Group>
+                  <div ref={(el) => (stepRefs.current[5] = el)} hidden={step !== 5}>
+                    <Group title="6. Consent">
+                      <label className="flex items-start gap-3 text-base leading-7 sm:col-span-2">
+                        <input type="checkbox" name="consent_code_of_conduct" value="Agreed" required className="mt-1.5 h-5 w-5 shrink-0 accent-[hsl(var(--primary))]" />
+                        <span>I confirm the information above is accurate, and I agree to the Run's Code of Conduct and volunteer safeguarding guidelines.</span>
+                      </label>
+                      <label className="flex items-start gap-3 text-base leading-7 sm:col-span-2">
+                        <input type="checkbox" name="consent_contact" value="Agreed" required className="mt-1.5 h-5 w-5 shrink-0 accent-[hsl(var(--primary))]" />
+                        <span>I consent to being contacted by TechBuzz Hub and #StartupsHarambeRun about this application.</span>
+                      </label>
+                    </Group>
+                  </div>
 
                   {error ? (
                     <div ref={noticeRef} className="scroll-mt-28 bg-foreground p-6 text-lg leading-8 text-white" role="alert">
@@ -295,10 +373,23 @@ export default function VolunteerPage() {
                     </div>
                   ) : null}
 
-                  <div>
-                    <button className="btn-primary w-full sm:w-auto" type="submit" disabled={sending}>
-                      {sending ? 'Sending…' : 'Submit application'}
-                    </button>
+                  <div className="flex items-center justify-between gap-4 border-t border-border pt-5 sm:pt-6">
+                    {step > 0 ? (
+                      <button type="button" onClick={back} className="btn-outline">
+                        Back
+                      </button>
+                    ) : (
+                      <span />
+                    )}
+                    {step < steps.length - 1 ? (
+                      <button type="button" onClick={next} className="btn-primary">
+                        Next: {steps[step + 1]}
+                      </button>
+                    ) : (
+                      <button className="btn-primary" type="submit" disabled={sending}>
+                        {sending ? 'Sending…' : 'Submit application'}
+                      </button>
+                    )}
                   </div>
                 </form>
               )}

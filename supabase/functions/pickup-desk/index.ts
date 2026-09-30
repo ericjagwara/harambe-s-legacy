@@ -7,7 +7,8 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 const RUNNER_PRICES: Record<string, number> = {
   'Student runner, UGX 15,000': 15000,
   'General public runner, UGX 30,000': 30000,
-  'Startup or SME runner, UGX 100,000 (includes social media mentions and visibility)': 100000,
+  'Featured Startup, UGX 60,000 (Offering Discount)': 60000,
+  'Featured SME/Corporate, UGX 100,000 (Offering Discount)': 100000,
   'Student runner, UGX 30,000': 30000,
   'General public runner, UGX 50,000': 50000,
 }
