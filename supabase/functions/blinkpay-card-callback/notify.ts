@@ -1,7 +1,11 @@
-// Confirmations sent once after a payment succeeds: an SMS through EgoSMS and an email through Resend.
+// Confirmations sent once after a payment succeeds: an SMS through EgoSMS, an email through Resend,
+// and a note posted to the team's WhatsApp group through Blink's WhatsApp Messaging API.
 // SMS secrets: EGOSMS_USERNAME, EGOSMS_PASSWORD (the API password), optional EGOSMS_SENDER_ID.
 // Email secrets: RESEND_API_KEY, optional EMAIL_FROM (default "Harambe Run <info@haramberun.com>";
 // the domain must be verified in Resend). Optional SITE_URL.
+// WhatsApp secrets: BLINKPAY_WA_USERNAME, BLINKPAY_WA_PASSWORD (login for messaging.blink.co.ug;
+// the +256 727 900548 WhatsApp number must already be a member of the target group - the API
+// always posts to whichever group that number/account is linked to on Blink's side).
 // A missing or failing provider never affects the payment; the outcome is saved on the payment record.
 
 // deno-lint-ignore no-explicit-any
@@ -15,6 +19,7 @@ type Payment = {
   email?: string | null
   msisdn?: string | null
   details?: Record<string, unknown> | null
+  is_anonymous?: boolean | null
 }
 
 const EGOSMS_URL = 'https://comms.egosms.co/api/v1/json/'
@@ -91,6 +96,60 @@ async function sendSms(to: string, messages: string[]) {
     }
   } catch (error) {
     return { status: 'error', response: String(error).slice(0, 300) }
+  }
+}
+
+// ---------- WhatsApp group notification ----------
+
+const BLINKPAY_WA_URL = 'https://messaging.blink.co.ug/'
+
+async function blinkWhatsAppLogin() {
+  const username = Deno.env.get('BLINKPAY_WA_USERNAME')?.trim()
+  const password = Deno.env.get('BLINKPAY_WA_PASSWORD')?.trim()
+  if (!username || !password) return null
+  try {
+    const res = await fetch(`${BLINKPAY_WA_URL}api/login/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    })
+    const body = (await res.json().catch(() => null)) as Record<string, unknown> | null
+    if (!res.ok || !body?.success) return null
+    const token = String(body.token ?? '')
+    return token || null
+  } catch {
+    return null
+  }
+}
+
+// Never include the payment reference here: it's the same identifier pickup-desk uses to look
+// someone up and mark their kit collected, with no secondary check - broadcasting it to a group
+// would let anyone claim that registration. Name and amount are already public via the live
+// donor board on the site, so sharing those in the group is fine; the reference is not.
+function whatsappMessage(p: Payment) {
+  const d = (p.details ?? {}) as Record<string, unknown>
+  const who = p.is_anonymous ? 'An anonymous contributor' : String(p.full_name).trim()
+  const what = isRunner(p)
+    ? `registered to run${d.category ? ` (${d.category})` : ''}`
+    : 'donated'
+  return `\u{1F49A} New payment: ${who} ${what} \u2014 ${ugx(p.amount)}.`
+}
+
+async function sendWhatsAppGroupMessage(message: string) {
+  const token = await blinkWhatsAppLogin()
+  if (!token) return { status: 'not_configured' }
+  try {
+    const res = await fetch(`${BLINKPAY_WA_URL}api/whatsapp/group/send/`, {
+      method: 'POST',
+      headers: { Authorization: `Token ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ channel: 'whatsapp', message }),
+    })
+    const body = (await res.json().catch(() => ({}))) as Record<string, unknown>
+    return res.ok && body?.success
+      ? { status: 'sent', provider: 'blink_whatsapp', reference: body.reference ?? null }
+      : { status: 'error', provider: 'blink_whatsapp', http: res.status, summary: body?.message ?? body?.detail ?? null }
+  } catch (error) {
+    return { status: 'error', provider: 'blink_whatsapp', response: String(error).slice(0, 300) }
   }
 }
 
@@ -211,15 +270,17 @@ export async function completePayment(supabase: Supabase, paymentId: string) {
   const { data: p } = await supabase.from('payments').select('*').eq('id', paymentId).single()
   if (!p) return
   const email = await buildEmail(p)
-  const [sms, mail] = await Promise.all([
+  const [sms, mail, whatsapp] = await Promise.all([
     sendSms(String(p.msisdn ?? ''), await buildMessages(p)),
     sendEmail(String(p.email ?? ''), email.subject, email.html, email.text),
+    sendWhatsAppGroupMessage(whatsappMessage(p)),
   ])
   if (sms.status !== 'sent') console.warn('confirmation sms not sent', p.reference, sms)
   if (mail.status !== 'sent') console.warn('confirmation email not sent', p.reference, mail)
+  if (whatsapp.status !== 'sent') console.warn('whatsapp group notification not sent', p.reference, whatsapp)
   const at = new Date().toISOString()
   await supabase
     .from('payments')
-    .update({ details: { ...(p.details ?? {}), sms: { ...sms, at }, email: { ...mail, at } } })
+    .update({ details: { ...(p.details ?? {}), sms: { ...sms, at }, email: { ...mail, at }, whatsapp: { ...whatsapp, at } } })
     .eq('id', paymentId)
 }
