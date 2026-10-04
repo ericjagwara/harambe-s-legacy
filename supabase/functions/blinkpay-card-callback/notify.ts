@@ -103,10 +103,12 @@ async function sendSms(to: string, messages: string[]) {
 
 const BLINKPAY_WA_URL = 'https://messaging.blink.co.ug/'
 
-async function blinkWhatsAppLogin() {
+type LoginResult = { token: string } | { failure: string }
+
+async function blinkWhatsAppLogin(): Promise<LoginResult> {
   const username = Deno.env.get('BLINKPAY_WA_USERNAME')?.trim()
   const password = Deno.env.get('BLINKPAY_WA_PASSWORD')?.trim()
-  if (!username || !password) return null
+  if (!username || !password) return { failure: 'not_configured' }
   try {
     const res = await fetch(`${BLINKPAY_WA_URL}api/login/`, {
       method: 'POST',
@@ -114,11 +116,13 @@ async function blinkWhatsAppLogin() {
       body: JSON.stringify({ username, password }),
     })
     const body = (await res.json().catch(() => null)) as Record<string, unknown> | null
-    if (!res.ok || !body?.success) return null
+    if (!res.ok || !body?.success) return { failure: `login_rejected:${res.status}:${String(body?.error ?? '').slice(0, 120)}` }
     const token = String(body.token ?? '')
-    return token || null
-  } catch {
-    return null
+    return token ? { token } : { failure: 'login_no_token' }
+  } catch (error) {
+    // A connection-level failure (DNS, TLS cert, timeout) lands here - distinct from a bad
+    // username/password, which Blink reports as a normal 401 response above.
+    return { failure: `connect_error:${String(error).slice(0, 200)}` }
   }
 }
 
@@ -136,12 +140,15 @@ function whatsappMessage(p: Payment) {
 }
 
 async function sendWhatsAppGroupMessage(message: string) {
-  const token = await blinkWhatsAppLogin()
-  if (!token) return { status: 'not_configured' }
+  const login = await blinkWhatsAppLogin()
+  if ('failure' in login) {
+    const status = login.failure === 'not_configured' ? 'not_configured' : 'error'
+    return { status, provider: 'blink_whatsapp', summary: login.failure }
+  }
   try {
     const res = await fetch(`${BLINKPAY_WA_URL}api/whatsapp/group/send/`, {
       method: 'POST',
-      headers: { Authorization: `Token ${token}`, 'Content-Type': 'application/json' },
+      headers: { Authorization: `Token ${login.token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ channel: 'whatsapp', message }),
     })
     const body = (await res.json().catch(() => ({}))) as Record<string, unknown>
@@ -149,7 +156,7 @@ async function sendWhatsAppGroupMessage(message: string) {
       ? { status: 'sent', provider: 'blink_whatsapp', reference: body.reference ?? null }
       : { status: 'error', provider: 'blink_whatsapp', http: res.status, summary: body?.message ?? body?.detail ?? null }
   } catch (error) {
-    return { status: 'error', provider: 'blink_whatsapp', response: String(error).slice(0, 300) }
+    return { status: 'error', provider: 'blink_whatsapp', summary: `connect_error:${String(error).slice(0, 200)}` }
   }
 }
 

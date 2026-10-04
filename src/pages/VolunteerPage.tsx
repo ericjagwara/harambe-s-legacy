@@ -18,6 +18,7 @@ const benefits: string[] = [
 const roles = [
   'Community mobiliser champion (organise run meetings)',
   'Social media campaign influencer',
+  'TikTok content creator',
   'Marketing and sales',
   'Workout trainer',
   'Run marshal',
