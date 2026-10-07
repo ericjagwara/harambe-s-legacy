@@ -216,3 +216,19 @@ export const fundFlow = [
     text: 'Angel network grants, investment training and structured syndication opportunities.',
   },
 ]
+
+// Sponsorship proposals, served from public/proposals/.
+export const proposals = [
+  {
+    title: 'Brief sponsorship proposal',
+    summary: 'The run, targets, sponsorship tiers, sector packages and exhibition booths at a glance.',
+    href: '/proposals/harambe-run-2026-brief-sponsorship-proposal.pdf',
+    meta: 'PDF, 5 pages, 0.7 MB',
+  },
+  {
+    title: 'Full sponsorship proposal',
+    summary: 'The complete case: the problem, the intervention, fund flow and every package with its benefits.',
+    href: '/proposals/harambe-run-2026-full-sponsorship-proposal.pdf',
+    meta: 'PDF, 27 pages, 2.4 MB',
+  },
+]

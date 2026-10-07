@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'rea
 import { createPortal } from 'react-dom'
 import Reveal from '../components/Reveal'
 import { supabase } from '@/integrations/supabase/client'
-import { booths, sectorPackages, sponsorTiers, universityStarts } from '../data'
+import { booths, proposals, sectorPackages, sponsorTiers, universityStarts } from '../data'
 
 export type RegistrationTab = 'run' | 'donate' | 'sponsor' | 'booth'
 
@@ -26,7 +26,7 @@ const guides: Record<RegistrationTab, string[]> = {
   ],
   sponsor: [
     'Tell us about your organisation and the package that interests you.',
-    'Nothing is paid here. Our partnerships team sends you the full proposal and an invoice.',
+    'Nothing is paid here. Our partnerships team contacts you with next steps and an invoice.',
     'Every sponsorship tier includes Startup Funding Vehicles corporate membership.',
   ],
   booth: [
@@ -439,6 +439,20 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
                   </li>
                 ))}
               </ol>
+              {active === 'sponsor' ? (
+                <p className="mt-4 text-[15px] leading-6 text-foreground/80 sm:text-base sm:leading-7">
+                  Compare the packages in the{' '}
+                  {proposals.map((proposal, index) => (
+                    <span key={proposal.href}>
+                      {index > 0 ? ' or the ' : ''}
+                      <a href={proposal.href} target="_blank" rel="noopener noreferrer" className="font-bold text-primary underline underline-offset-4">
+                        {proposal.title.toLowerCase()}
+                      </a>
+                    </span>
+                  ))}
+                  . Both open in a new tab.
+                </p>
+              ) : null}
             </div>
             ) : null}
 

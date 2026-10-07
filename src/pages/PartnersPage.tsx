@@ -1,6 +1,6 @@
 import Reveal from '../components/Reveal'
 import { CtaBand, PageHero, PageSection, SectionHeader } from '../components/PageLayout'
-import { booths, partnerLogos, sectorPackages, sponsorTiers } from '../data'
+import { booths, partnerLogos, proposals, sectorPackages, sponsorTiers } from '../data'
 import { pageHref } from '../routes'
 
 export default function PartnersPage() {
@@ -11,6 +11,31 @@ export default function PartnersPage() {
         title="Put your brand behind Uganda's startup economy."
         copy="Sponsorship connects organisations to runners, universities, founders, investors, exhibition audiences and the public fundraising record."
       />
+
+      <PageSection>
+        <SectionHeader
+          eyebrow="Sponsorship proposals"
+          title="Read the proposal."
+          copy="Everything a sponsor or partner needs: the case for the run, the targets and every package with its benefits."
+        />
+        <div className="mt-8 grid gap-x-10 gap-y-8 sm:grid-cols-2">
+          {proposals.map((proposal) => (
+            <div key={proposal.href} className="border-t-2 border-primary pt-5">
+              <h3 className="font-display text-2xl uppercase leading-tight">{proposal.title}</h3>
+              <p className="mt-2 text-base leading-7 text-foreground/75">{proposal.summary}</p>
+              <p className="mt-1 text-sm text-foreground/55">{proposal.meta}</p>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <a href={proposal.href} target="_blank" rel="noopener noreferrer" className="btn-primary">
+                  View
+                </a>
+                <a href={proposal.href} download className="btn-outline">
+                  Download
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </PageSection>
 
       <PageSection className="bg-white">
         <SectionHeader
