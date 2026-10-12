@@ -13,6 +13,7 @@ import RegisterPage from './pages/RegisterPage'
 import ContactPage from './pages/ContactPage'
 import ReceiptPage from './pages/ReceiptPage'
 import PickupPage from './pages/PickupPage'
+import VolunteerAgreementPage from './pages/VolunteerAgreementPage'
 import { isAppPath, legacyHashPath, pageFromPath, routes, type PageKey } from './routes'
 
 function renderPage(page: PageKey) {
@@ -39,6 +40,8 @@ function renderPage(page: PageKey) {
       return <ReceiptPage />
     case 'pickup':
       return <PickupPage />
+    case 'agreement':
+      return <VolunteerAgreementPage />
     case 'home':
     default:
       return <Home />
@@ -95,7 +98,7 @@ export default function App() {
       <div className="print:hidden">
         <Footer />
         {/* Hidden on form pages, where it would cover fields and buttons on phones. */}
-      {['register', 'donate', 'volunteer', 'receipt', 'pickup'].includes(page) ? null : <WhatsAppFloatButton />}
+      {['register', 'donate', 'volunteer', 'receipt', 'pickup', 'agreement'].includes(page) ? null : <WhatsAppFloatButton />}
       </div>
     </div>
   )

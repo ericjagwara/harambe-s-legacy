@@ -10,3 +10,9 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# The volunteer agreement page is unlisted: keep it out of search engines.
+[[headers]]
+  for = "/volunteer-agreement"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

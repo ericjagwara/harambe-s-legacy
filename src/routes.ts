@@ -11,6 +11,7 @@ export type PageKey =
   | 'contact'
   | 'receipt'
   | 'pickup'
+  | 'agreement'
 
 export const routes: Record<PageKey, { path: string; title: string }> = {
   home: { path: '/', title: 'Home' },
@@ -25,6 +26,8 @@ export const routes: Record<PageKey, { path: string; title: string }> = {
   contact: { path: '/contact', title: 'Contact' },
   receipt: { path: '/receipt', title: 'Payment receipt' },
   pickup: { path: '/pickup', title: 'Kit pickup desk' },
+  // Unlisted: not in the menu or footer. Volunteers are sent the link directly.
+  agreement: { path: '/volunteer-agreement', title: 'Volunteer agreement' },
 }
 
 export const pageHref = (page: PageKey) => routes[page].path
