@@ -1,8 +1,9 @@
 // Records a partner hub's signed Memorandum of Understanding (unlisted page /partner-mou) in
 // public.partner_mous, then emails a signed PDF to the partner and a notice to the team
-// (ENQUIRY_NOTIFY_EMAIL, default info@haramberun.com), who countersign for TechBuzz Hub.
+// (ENQUIRY_NOTIFY_EMAIL, default info@haramberun.com). TechBuzz Hub's signature (Mr. Keneth Twesigye) is
+// already applied to every MOU, undated, so the MOU is fully signed as soon as the partner signs.
 // The partner must DRAW their signature: a typed name is not accepted. Staff can read every record in
-// Supabase: Table Editor -> partner_mous. After countersigning, set countersigned_at on the record.
+// Supabase: Table Editor -> partner_mous.
 // Both emails carry the full MOU in the body and a printable PDF attachment, on the TechBuzz Hub letterhead
 // (the image the website serves at /techbuzz-letterhead.jpg).
 // Email secrets: RESEND_API_KEY, optional EMAIL_FROM. Email or PDF failures never lose the signature:
@@ -24,6 +25,10 @@ const MAX_PER_IP_PER_10_MIN = 15
 const MIN_SIGNATURE_IMAGE = 1800 // characters of base64: a blank pad exports far smaller than a real signature
 
 type Attachment = { filename: string; content: string }
+
+// Signature of Mr. Keneth Twesigye (V/CP Coordinator) for TechBuzz Hub: a small transparent PNG, drawn
+// above his name on every MOU. Deliberately undated. Same image as public/assets/ken-signature.png.
+const TECHBUZZ_SIGNATURE_PNG = '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'
 
 async function sendEmail(to: string, subject: string, html: string, plain: string, replyTo: string, attachments?: Attachment[]) {
   const key = Deno.env.get('RESEND_API_KEY')?.trim()
@@ -262,7 +267,7 @@ async function buildPdf(input: PdfInput): Promise<Uint8Array> {
     }
   }
 
-  // Signature blocks, kept together on one page. TechBuzz Hub's side is left for the countersignature.
+  // Signature blocks, kept together on one page. TechBuzz Hub's side carries the pre-applied, undated signature.
   ensure(250)
   y -= 14
   page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_W - MARGIN, y }, thickness: 0.75, color: GREY })
@@ -274,10 +279,13 @@ async function buildPdf(input: PdfInput): Promise<Uint8Array> {
   write('FOR AND ON BEHALF OF TECHBUZZ HUB', { font: bold, size: 8.5, color: GREEN, width: colW })
   write('Mr. Keneth Twesigye', { font: regular, size: 10, color: INK, width: colW }, 1.4)
   write('V/CP Coordinator, Startups Harambe Run 2026', { font: regular, size: 9.5, color: GREY, width: colW }, 1.35)
-  y -= 52
-  page.drawLine({ start: { x: MARGIN, y }, end: { x: MARGIN + colW, y }, thickness: 0.75, color: GREY })
-  write('Signature (countersignature to follow)', { font: regular, size: 8.5, color: GREY, width: colW }, 1.5)
-  write('Date: ____________________', { font: regular, size: 9.5, color: GREY, width: colW }, 1.6)
+  const techbuzzSig = await doc.embedPng(Uint8Array.from(atob(TECHBUZZ_SIGNATURE_PNG), (c) => c.charCodeAt(0)))
+  const techbuzzSize = techbuzzSig.scaleToFit(150, 44)
+  y -= techbuzzSize.height + 8
+  page.drawImage(techbuzzSig, { x: MARGIN, y, width: techbuzzSize.width, height: techbuzzSize.height })
+  page.drawLine({ start: { x: MARGIN, y: y - 2 }, end: { x: MARGIN + colW, y: y - 2 }, thickness: 0.75, color: GREY })
+  y -= 2
+  write('Signature', { font: regular, size: 8.5, color: GREY, width: colW }, 1.5)
   const leftBottom = y
 
   y = blockTop
@@ -448,7 +456,7 @@ Deno.serve(async (req) => {
     const volunteerHtml = wrap(
       'MOU signed',
       `<p style="margin:0">Hi ${esc(first)},</p>
-<p style="margin:14px 0 0">Thank you for co-hosting Startups Harambe Run 2026 with us. This email is your copy of the MOU you signed for ${esc(hubName)}. TechBuzz Hub will countersign it and send you the fully signed copy. Please keep this email.</p>
+<p style="margin:14px 0 0">Thank you for co-hosting Startups Harambe Run 2026 with us. This email is your copy of the MOU you signed for ${esc(hubName)}. It carries TechBuzz Hub's signature, so it is now fully signed. Please keep this email.</p>
 ${details}
 <p style="margin:22px 0 8px;font-weight:bold">MOU you signed</p>
 <div style="white-space:pre-wrap;font-size:13px;line-height:20px;border:1px solid #e3e0d6;background:#faf9f5;padding:14px">${esc(mouText)}</div>
@@ -466,19 +474,19 @@ ${details}
       '',
       mouText,
       '',
-      'TechBuzz Hub will countersign and send you the fully signed copy.',
+      "It carries TechBuzz Hub's signature, so it is now fully signed.",
     ].join('\n')
 
     const teamHtml = wrap(
       'Partner MOU signed',
-      `<p style="margin:0">${esc(hubName)} signed the co-hosting MOU. <strong>It now needs TechBuzz Hub's countersignature</strong> (Mr. Keneth Twesigye). Once countersigned, send the partner the fully signed copy and set countersigned_at on the record.</p>
+      `<p style="margin:0">${esc(hubName)} signed the co-hosting MOU. TechBuzz Hub's signature (Mr. Keneth Twesigye) is already applied, so it is fully signed and needs no further action.</p>
 <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:16px">${row('Reference', reference)}${row('Hub', hubName)}${row('Address', hubAddress)}${row('Signed by', `${repName}, ${repTitle}`)}${row('Email', email)}${row('Phone', phone)}${row('In-charge person', auxName)}${row('In-charge phone', auxPhone)}${row('In-charge email', auxEmail)}${row('Signed', when)}${row('MOU version', mouVersion)}${row('IP address', ip)}</table>
 <p style="margin:22px 0 8px;font-weight:bold">MOU signed</p>
 <div style="white-space:pre-wrap;font-size:13px;line-height:20px;border:1px solid #e3e0d6;background:#faf9f5;padding:14px">${esc(mouText)}</div>
 <p style="margin:12px 0 0;font-size:13px;color:#5b6b63">${esc(pdfBase64 ? 'A printable PDF of the signed MOU is attached. ' : 'Their drawn signature is attached as signature.png. ')}The record is also stored in Supabase (partner_mous). Reply to this email to contact ${esc(first)} directly.</p>`,
     )
     const teamText = [
-      `${hubName} signed the co-hosting MOU. It now needs TechBuzz Hub's countersignature.`,
+      `${hubName} signed the co-hosting MOU. TechBuzz Hub's signature is already applied; no further action needed.`,
       '',
       `Reference: ${reference}`,
       `Hub: ${hubName}`,
@@ -497,7 +505,7 @@ ${details}
     const team = Deno.env.get('ENQUIRY_NOTIFY_EMAIL')?.trim() || 'info@haramberun.com'
     const [partnerMail, teamMail] = await Promise.all([
       sendEmail(email, `Your signed MOU: Harambe Run 2026 (${reference})`, volunteerHtml, volunteerText, 'info@haramberun.com', attachments),
-      sendEmail(team, `Partner MOU signed, needs countersignature: ${hubName}`, teamHtml, teamText, email, attachments),
+      sendEmail(team, `Partner MOU signed: ${hubName}`, teamHtml, teamText, email, attachments),
     ])
     if (partnerMail.status !== 'sent' || teamMail.status !== 'sent') {
       console.warn('partner mou email not sent', reference, partnerMail, teamMail)

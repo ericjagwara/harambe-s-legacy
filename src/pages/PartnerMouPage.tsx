@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react'
-import { Download, Printer } from 'lucide-react'
+import { Download } from 'lucide-react'
+import { asset } from '../data'
 import { PageHero } from '../components/PageLayout'
 import SignaturePad from '../components/SignaturePad'
 import { supabase } from '@/integrations/supabase/client'
@@ -9,7 +10,8 @@ import { MOU_VERSION, buildMou, mouToText, type Mou } from '../data/partnerMou'
 // (meta tag below plus an X-Robots-Tag header in netlify.toml). Partner hubs get the link directly.
 // The partner signs by DRAWING their signature (a typed name is not accepted as a signature).
 // Signatures are saved by the sign-partner-mou function (Supabase: partner_mous) and a signed PDF
-// is emailed to the partner and to the team, who countersign for TechBuzz Hub.
+// is emailed to the partner and to the team. TechBuzz Hub's signature (Mr. Keneth Twesigye) is already
+// applied, undated, so the MOU is fully signed as soon as the partner signs.
 
 const tidy = (value: string) => value.trim().replace(/\s+/g, ' ')
 const MIN_INK = 600 // inked pixels needed on the 900x260 pad; a stray dot or short line is not a signature
@@ -168,8 +170,7 @@ export default function PartnerMouPage() {
                     Thank you, {signed.repName.split(/\s+/)[0]}. Your reference is <strong>{signed.reference || 'pending'}</strong>.{' '}
                     {signed.emailed
                       ? `A signed copy has been emailed to ${signed.email}.`
-                      : 'We could not email you a copy, so please download or print this page and keep your reference.'}{' '}
-                    TechBuzz Hub will countersign and send you the fully signed copy.
+                      : 'We could not email you a copy, so please download the signed PDF here and keep your reference.'}
                   </p>
                   <div className="mt-5 flex flex-wrap gap-3">
                     {signed.pdf ? (
@@ -178,10 +179,6 @@ export default function PartnerMouPage() {
                         Download signed PDF
                       </button>
                     ) : null}
-                    <button type="button" onClick={() => window.print()} className="btn-gold">
-                      <Printer className="mr-2 h-4 w-4" />
-                      Print
-                    </button>
                   </div>
                 </div>
                 <Letter mou={buildMou({ hubName: signed.hubName, hubAddress: signed.hubAddress, date: signed.date })}>
@@ -285,7 +282,7 @@ export default function PartnerMouPage() {
                   </div>
 
                   <p className="mt-8 text-sm leading-6 text-muted-foreground">
-                    We record the details above, your drawn signature, the time of signing and basic device details (IP address and browser) as evidence that you signed. The MOU takes effect on the date of the last signature, once TechBuzz Hub has countersigned.
+                    We record the details above, your drawn signature, the time of signing and basic device details (IP address and browser) as evidence that you signed. TechBuzz Hub's signature is already applied, so the MOU takes effect on the date you sign it.
                   </p>
                 </Block>
 
@@ -383,7 +380,7 @@ function Letter({ mou, children }: { mou: Mou; children?: ReactNode }) {
   )
 }
 
-// Both parties' signature blocks. TechBuzz Hub countersigns after the partner has signed.
+// Both parties' signature blocks. TechBuzz Hub's signature is pre-applied and undated.
 function SignatureTable({
   mou,
   partner,
@@ -403,7 +400,9 @@ function SignatureTable({
             <br />
             {mou.hubCounterparty.title}
           </p>
-          <div className="mt-3 flex h-20 items-center border-b border-foreground/40 text-sm italic text-muted-foreground">Countersignature to follow</div>
+          <div className="mt-3 border-b border-foreground/40 pb-1">
+            <img src={asset('ken-signature.png')} alt={`Signature of ${mou.hubCounterparty.name}`} className="h-16 w-auto max-w-full" />
+          </div>
         </div>
         <div>
           <p className="label">For and on behalf of the Partner Hub</p>

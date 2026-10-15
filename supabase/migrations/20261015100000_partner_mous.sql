@@ -1,7 +1,7 @@
 -- Digitally signed partner hub MOUs, from the unlisted /partner-mou page.
 -- Written only by the sign-partner-mou edge function; the public cannot read or write it.
--- Staff read it in Supabase: Table Editor -> partner_mous. After TechBuzz Hub countersigns,
--- fill in countersigned_at / countersigned_by.
+-- Staff read it in Supabase: Table Editor -> partner_mous. TechBuzz Hub's signature is pre-applied by the
+-- function, so countersigned_at / countersigned_by are not used (kept for records signed by hand).
 create table if not exists public.partner_mous (
   id uuid primary key default gen_random_uuid(),
   reference text not null unique,
