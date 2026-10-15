@@ -4,6 +4,7 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { completePayment } from './notify.ts'
+import { reportSaleToGoAffPro } from './goaffpro.ts'
 
 const ok = () => new Response('ok', { headers: corsHeaders })
 
@@ -84,7 +85,10 @@ Deno.serve(async (req) => {
       })
       .eq('id', payment.id)
 
-    if (nextStatus === 'SUCCESSFUL') await completePayment(supabase, payment.id)
+    if (nextStatus === 'SUCCESSFUL') {
+      await completePayment(supabase, payment.id)
+      await reportSaleToGoAffPro(supabase, payment.reference)
+    }
     return ok()
   } catch (error) {
     console.error('blinkpay-card-callback error', error)

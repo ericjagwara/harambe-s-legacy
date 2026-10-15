@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react'
-import { Check, Printer } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { Printer } from 'lucide-react'
+import SignaturePad from '../components/SignaturePad'
 import { PageHero } from '../components/PageLayout'
 import { supabase } from '@/integrations/supabase/client'
 import {
@@ -24,7 +25,7 @@ type Signed = {
   emailed: boolean
   name: string
   email: string
-  role: string
+  roles: string[]
   typed: string
   image: string | null
 }
@@ -46,8 +47,12 @@ export default function VolunteerAgreementPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
-  const [roleChoice, setRoleChoice] = useState('')
+  // A volunteer can take on several roles.
+  const [chosenRoles, setChosenRoles] = useState<string[]>([])
+  const [otherOn, setOtherOn] = useState(false)
   const [otherRole, setOtherRole] = useState('')
+  const [roleError, setRoleError] = useState('')
+  const roleRef = useRef<HTMLFieldSetElement | null>(null)
   const [typed, setTyped] = useState('')
   const [image, setImage] = useState<string | null>(null)
   const [consents, setConsents] = useState({ adult: false, agreement: false, confidentiality: false, esign: false })
@@ -78,13 +83,29 @@ export default function VolunteerAgreementPage() {
     if (signed) signedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, [signed])
 
-  const role = roleChoice === 'Other' ? (otherRole.trim() ? `Other: ${otherRole.trim()}` : '') : roleChoice
-  const agreement = useMemo(() => buildAgreement(name, role), [name, role])
+  const roles = useMemo(
+    () => [...chosenRoles, ...(otherOn && otherRole.trim() ? [`Other: ${tidy(otherRole)}`] : [])],
+    [chosenRoles, otherOn, otherRole],
+  )
+  const role = roles.join('; ')
+  const agreement = useMemo(() => buildAgreement(name, roles), [name, roles])
+
+  const toggleRole = (option: string) => {
+    setRoleError('')
+    setChosenRoles((current) => (current.includes(option) ? current.filter((r) => r !== option) : [...current, option]))
+  }
   const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
+
+    if (roles.length === 0) {
+      setRoleError('Please choose at least one volunteer role.')
+      roleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      return
+    }
+    setRoleError('')
 
     if (normalise(typed) !== normalise(name)) {
       setSignatureError('Your typed signature must match your full name above.')
@@ -125,7 +146,7 @@ export default function VolunteerAgreementPage() {
       emailed: Boolean(result.emailed),
       name: tidy(name),
       email: email.trim(),
-      role,
+      roles,
       typed: tidy(typed),
       image,
     })
@@ -162,14 +183,14 @@ export default function VolunteerAgreementPage() {
                     Print or save a copy
                   </button>
                 </div>
-                <Letter agreement={buildAgreement(signed.name, signed.role)}>
+                <Letter agreement={buildAgreement(signed.name, signed.roles)}>
                   <div className="mt-8 grid gap-6 border-t border-border pt-6 sm:grid-cols-2">
                     <div>
                       <p className="label">Signed by the Volunteer</p>
                       {signed.image ? <img src={signed.image} alt="Drawn signature" className="mb-2 h-20 w-auto max-w-full" /> : null}
                       <p className="font-serif text-3xl italic leading-tight">{signed.typed}</p>
                       <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                        {signed.name} · {signed.role}
+                        {signed.name} · {signed.roles.join('; ')}
                         <br />
                         Signed electronically on {when(signed.signedAt)} (EAT)
                         {signed.reference ? ` · Ref ${signed.reference}` : ''}
@@ -208,22 +229,50 @@ export default function VolunteerAgreementPage() {
                       required
                     />
                   </Field>
-                  <Field label="Your volunteer role" id="a-role">
-                    <select className="field" id="a-role" value={roleChoice} onChange={(e) => setRoleChoice(e.target.value)} required>
-                      <option value="" disabled>
-                        Choose your role
-                      </option>
+                  <fieldset ref={roleRef} className="min-w-0 sm:col-span-2">
+                    <legend className="label">Your volunteer roles. Select all that apply.</legend>
+                    <div className="mt-1 space-y-3">
                       {volunteerRoles.map((option) => (
-                        <option key={option}>{option}</option>
+                        <label key={option} className="flex cursor-pointer items-start gap-3">
+                          <input
+                            type="checkbox"
+                            checked={chosenRoles.includes(option)}
+                            onChange={() => toggleRole(option)}
+                            className="mt-1 h-[18px] w-[18px] shrink-0 accent-[hsl(var(--primary))]"
+                          />
+                          <span className="text-base leading-6">{option}</span>
+                        </label>
                       ))}
-                      <option>Other</option>
-                    </select>
-                  </Field>
-                  {roleChoice === 'Other' ? (
-                    <Field label="Please specify your role" id="a-role-other" wide>
-                      <input className="field" id="a-role-other" value={otherRole} onChange={(e) => setOtherRole(e.target.value)} required />
-                    </Field>
-                  ) : null}
+                      <label className="flex cursor-pointer items-start gap-3">
+                        <input
+                          type="checkbox"
+                          checked={otherOn}
+                          onChange={(e) => {
+                            setOtherOn(e.target.checked)
+                            setRoleError('')
+                          }}
+                          className="mt-1 h-[18px] w-[18px] shrink-0 accent-[hsl(var(--primary))]"
+                        />
+                        <span className="text-base leading-6">Other</span>
+                      </label>
+                      {otherOn ? (
+                        <input
+                          className="field sm:max-w-md"
+                          id="a-role-other"
+                          value={otherRole}
+                          onChange={(e) => setOtherRole(e.target.value)}
+                          aria-label="Other role, please specify"
+                          placeholder="Please specify"
+                          required
+                        />
+                      ) : null}
+                    </div>
+                    {roleError ? (
+                      <p className="mt-3 text-sm font-bold text-accent" role="alert">
+                        {roleError}
+                      </p>
+                    ) : null}
+                  </fieldset>
                 </Block>
 
                 <Block title="2. Read the agreement" single>
@@ -387,96 +436,5 @@ function Letter({ agreement, children }: { agreement: Agreement; children?: Reac
       <p className="mt-4 text-sm leading-6 text-muted-foreground">{agreement.issuedBy}</p>
       {children}
     </article>
-  )
-}
-
-// Optional drawn signature. Fixed internal resolution, scaled to the box with CSS, so no resize handling is needed.
-const PAD_WIDTH = 900
-const PAD_HEIGHT = 260
-
-function SignaturePad({ onChange }: { onChange: (png: string | null) => void }) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const drawing = useRef(false)
-  const [hasInk, setHasInk] = useState(false)
-
-  const position = (event: ReactPointerEvent<HTMLCanvasElement>) => {
-    const canvas = event.currentTarget
-    const rect = canvas.getBoundingClientRect()
-    return {
-      x: ((event.clientX - rect.left) / rect.width) * canvas.width,
-      y: ((event.clientY - rect.top) / rect.height) * canvas.height,
-    }
-  }
-
-  const start = (event: ReactPointerEvent<HTMLCanvasElement>) => {
-    const ctx = event.currentTarget.getContext('2d')
-    if (!ctx) return
-    event.currentTarget.setPointerCapture(event.pointerId)
-    drawing.current = true
-    const { x, y } = position(event)
-    ctx.lineWidth = 4
-    ctx.lineCap = 'round'
-    ctx.lineJoin = 'round'
-    ctx.strokeStyle = '#0b2e22'
-    ctx.beginPath()
-    ctx.moveTo(x, y)
-    ctx.lineTo(x + 0.01, y) // a tap leaves a dot
-    ctx.stroke()
-    ctx.beginPath()
-    ctx.moveTo(x, y)
-  }
-
-  const move = (event: ReactPointerEvent<HTMLCanvasElement>) => {
-    if (!drawing.current) return
-    const ctx = event.currentTarget.getContext('2d')
-    if (!ctx) return
-    const { x, y } = position(event)
-    ctx.lineTo(x, y)
-    ctx.stroke()
-    ctx.beginPath()
-    ctx.moveTo(x, y)
-  }
-
-  const end = (event: ReactPointerEvent<HTMLCanvasElement>) => {
-    if (!drawing.current) return
-    drawing.current = false
-    setHasInk(true)
-    onChange(event.currentTarget.toDataURL('image/png'))
-  }
-
-  const clear = () => {
-    const canvas = canvasRef.current
-    const ctx = canvas?.getContext('2d')
-    if (!canvas || !ctx) return
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    setHasInk(false)
-    onChange(null)
-  }
-
-  return (
-    <div>
-      <canvas
-        ref={canvasRef}
-        width={PAD_WIDTH}
-        height={PAD_HEIGHT}
-        aria-label="Signature drawing area"
-        className="block aspect-[900/260] w-full cursor-crosshair touch-none border border-dashed border-border bg-background"
-        onPointerDown={start}
-        onPointerMove={move}
-        onPointerUp={end}
-        onPointerCancel={end}
-      />
-      <div className="mt-2 flex items-center justify-between gap-4">
-        <p className="text-sm text-muted-foreground">Use your finger or mouse. Your typed name above is what makes the signature valid.</p>
-        <button type="button" onClick={clear} disabled={!hasInk} className="btn-outline px-3 py-2 disabled:cursor-not-allowed disabled:opacity-40">
-          Clear
-        </button>
-      </div>
-      {hasInk ? (
-        <p className="mt-2 inline-flex items-center gap-1.5 text-sm font-bold text-primary">
-          <Check className="h-4 w-4" strokeWidth={3} /> Signature captured
-        </p>
-      ) : null}
-    </div>
   )
 }

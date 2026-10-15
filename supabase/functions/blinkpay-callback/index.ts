@@ -1,6 +1,7 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { completePayment } from './notify.ts'
+import { reportSaleToGoAffPro } from './goaffpro.ts'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
@@ -22,7 +23,10 @@ Deno.serve(async (req) => {
       .update({ status: nextStatus, details: { ...(payment.details ?? {}), callback: body }, updated_at: new Date().toISOString() })
       .eq('id', payment.id)
 
-    if (nextStatus === 'SUCCESSFUL') await completePayment(supabase, payment.id)
+    if (nextStatus === 'SUCCESSFUL') {
+      await completePayment(supabase, payment.id)
+      await reportSaleToGoAffPro(supabase, payment.reference)
+    }
 
     return new Response('ok', { headers: corsHeaders })
   } catch (error) {

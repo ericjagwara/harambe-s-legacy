@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Mail, MapPin, MessageCircle, Send } from 'lucide-react'
+import { getReferral } from '@/lib/referral'
 import { supabase } from '@/integrations/supabase/client'
 import Reveal from '../components/Reveal'
 import { PageHero, PageSection } from '../components/PageLayout'
@@ -20,7 +21,7 @@ export default function ContactPage() {
     setSending(true)
     setError('')
     setSent(false)
-    const { error: fnError } = await supabase.functions.invoke('submit-enquiry', { body: { type: 'Contact', fields: { ...fields, choice: fields.topic } } })
+    const { error: fnError } = await supabase.functions.invoke('submit-enquiry', { body: { type: 'Contact', fields: { ...fields, choice: fields.topic }, referral_code: getReferral() } })
     setSending(false)
     if (fnError) {
       const body = await (fnError as { context?: Response }).context?.json?.().catch(() => null)

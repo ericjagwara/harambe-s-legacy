@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   try {
-    const body = await req.json().catch(() => null) as { type?: string; fields?: Record<string, unknown> } | null
+    const body = await req.json().catch(() => null) as { type?: string; fields?: Record<string, unknown>; referral_code?: unknown } | null
     const type = String(body?.type ?? '') as EnquiryType
     const fields = body?.fields && typeof body.fields === 'object' ? body.fields : null
     if (!TYPES.includes(type) || !fields) return json({ error: 'Invalid request.' }, 400)
@@ -74,13 +74,15 @@ Deno.serve(async (req) => {
       const v = text(value, 2000)
       if (v) details[key.slice(0, 60)] = v
     }
+    const refCode = String(body?.referral_code ?? '').trim().toLowerCase()
+    const referralCode = /^[a-z0-9._-]{1,64}$/.test(refCode) ? refCode : null
     const organisation = text(fields.organisation, 200) || null
     const choice = text(fields.choice, 200) || null
 
     const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
     const { data: saved, error } = await supabase
       .from('enquiries')
-      .insert({ type, name, organisation, email, phone: phone || null, choice, details })
+      .insert({ type, name, organisation, email, phone: phone || null, choice, details, referral_code: referralCode })
       .select('id')
       .single()
     if (error) {
@@ -89,7 +91,7 @@ Deno.serve(async (req) => {
     }
 
     // Emails are best effort; the enquiry is already saved.
-    const rows = [['Type', type], ['Name', name], ['Organisation', organisation], ['Email', email], ['Phone', phone], ['Choice', choice],
+    const rows = [['Type', type], ['Referred by (affiliate)', referralCode], ['Name', name], ['Organisation', organisation], ['Email', email], ['Phone', phone], ['Choice', choice],
       ...Object.entries(details).map(([k, v]) => [label(k), v])]
       .filter(([, v]) => v)
       .map(([k, v]) => `<tr><td style="padding:6px 12px 6px 0;color:#5b6b63;font-size:13px;vertical-align:top">${esc(k)}</td><td style="padding:6px 0;font-size:14px">${esc(v).replace(/\n/g, '<br>')}</td></tr>`)

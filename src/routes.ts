@@ -12,6 +12,7 @@ export type PageKey =
   | 'receipt'
   | 'pickup'
   | 'agreement'
+  | 'mou'
 
 export const routes: Record<PageKey, { path: string; title: string }> = {
   home: { path: '/', title: 'Home' },
@@ -28,6 +29,8 @@ export const routes: Record<PageKey, { path: string; title: string }> = {
   pickup: { path: '/pickup', title: 'Kit pickup desk' },
   // Unlisted: not in the menu or footer. Volunteers are sent the link directly.
   agreement: { path: '/volunteer-agreement', title: 'Volunteer agreement' },
+  // Unlisted too: partner hubs are sent the link directly.
+  mou: { path: '/partner-mou', title: 'Partner MOU' },
 }
 
 export const pageHref = (page: PageKey) => routes[page].path

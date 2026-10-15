@@ -50,6 +50,12 @@ async function receiptKey(reference: string) {
   return Array.from(sig.slice(0, 8), (b) => alphabet[b % alphabet.length]).join('')
 }
 
+// Affiliate (volunteer) referral code from the link the person arrived on.
+const cleanRef = (value: unknown) => {
+  const code = String(value ?? '').trim().toLowerCase()
+  return /^[a-z0-9._-]{1,64}$/.test(code) ? code : null
+}
+
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
 
@@ -97,6 +103,7 @@ Deno.serve(async (req) => {
         amount,
         is_anonymous: isAnonymous,
         details,
+        referral_code: cleanRef(body.referral_code),
       })
       .select()
       .single()

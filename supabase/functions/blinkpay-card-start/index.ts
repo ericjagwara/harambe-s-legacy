@@ -18,6 +18,12 @@ const RUNNER_PRICES: Record<string, number> = {
   'General public runner, UGX 50,000': 30000,
 }
 
+// Affiliate (volunteer) referral code from the link the person arrived on.
+const cleanRef = (value: unknown) => {
+  const code = String(value ?? '').trim().toLowerCase()
+  return /^[a-z0-9._-]{1,64}$/.test(code) ? code : null
+}
+
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
 
@@ -108,6 +114,7 @@ Deno.serve(async (req) => {
       amount,
       is_anonymous: isAnonymous,
       details: { ...details, method: 'card', card_token: cardToken },
+      referral_code: cleanRef(body.referral_code),
     })
     if (insertError) {
       console.error('card payment insert failed', insertError)

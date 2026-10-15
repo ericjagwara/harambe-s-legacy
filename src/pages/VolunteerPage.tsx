@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import Reveal from '../components/Reveal'
 import { PageHero, PageSection } from '../components/PageLayout'
+import { getReferral } from '@/lib/referral'
 import { supabase } from '@/integrations/supabase/client'
 
 // Volunteer sign-up. Saved in Supabase (Table Editor -> enquiries, type "Volunteer")
@@ -111,7 +112,7 @@ export default function VolunteerPage() {
 
     setSending(true)
     setError('')
-    const { error: fnError } = await supabase.functions.invoke('submit-enquiry', { body: { type: 'Volunteer', fields } })
+    const { error: fnError } = await supabase.functions.invoke('submit-enquiry', { body: { type: 'Volunteer', fields, referral_code: getReferral() } })
     setSending(false)
     if (fnError) {
       const body = await (fnError as { context?: Response }).context?.json?.().catch(() => null)

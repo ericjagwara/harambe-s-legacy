@@ -1,6 +1,7 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { completePayment } from './notify.ts'
+import { reportSaleToGoAffPro } from './goaffpro.ts'
 
 const BLINKPAY_URL = (Deno.env.get('BLINKPAY_API_URL') ?? 'https://payments-dev.blink.co.ug/api/').replace(/\/?$/, '/')
 
@@ -38,6 +39,8 @@ Deno.serve(async (req) => {
     if (!payment) return json({ error: 'Payment not found.' }, 404)
 
     if (payment.status === 'SUCCESSFUL' || payment.status === 'FAILED') {
+      // Retries an affiliate sale that failed earlier; does nothing if it was already sent.
+      if (payment.status === 'SUCCESSFUL') await reportSaleToGoAffPro(supabase, payment.reference)
       return json({ status: payment.status, reference: payment.reference })
     }
 
@@ -47,7 +50,10 @@ Deno.serve(async (req) => {
     const status = String(result.status ?? payment.status).toUpperCase()
     if (status !== payment.status) {
       await supabase.from('payments').update({ status, updated_at: new Date().toISOString() }).eq('id', payment.id)
-      if (status === 'SUCCESSFUL') await completePayment(supabase, payment.id)
+      if (status === 'SUCCESSFUL') {
+        await completePayment(supabase, payment.id)
+        await reportSaleToGoAffPro(supabase, payment.reference)
+      }
     }
 
     return json({ status, reference: payment.reference })

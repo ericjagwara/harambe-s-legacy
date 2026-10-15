@@ -11,6 +11,12 @@
   to = "/index.html"
   status = 200
 
+# The partner MOU page is unlisted too.
+[[headers]]
+  for = "/partner-mou"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
 # The volunteer agreement page is unlisted: keep it out of search engines.
 [[headers]]
   for = "/volunteer-agreement"

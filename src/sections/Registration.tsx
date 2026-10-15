@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import Reveal from '../components/Reveal'
+import { getReferral } from '@/lib/referral'
 import { supabase } from '@/integrations/supabase/client'
 import { booths, proposals, sectorPackages, sponsorTiers, universityStarts } from '../data'
 
@@ -150,7 +151,7 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
     setSending(true)
     setFormError('')
     setSubmitted('')
-    const { error } = await supabase.functions.invoke('submit-enquiry', { body: { type, fields } })
+    const { error } = await supabase.functions.invoke('submit-enquiry', { body: { type, fields, referral_code: getReferral() } })
     setSending(false)
     if (error) {
       setFormError(await functionError(error, 'We could not send your details. Please try again, or email info@haramberun.com.'))
@@ -218,6 +219,7 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
       purpose,
       isAnonymous: String(data.get('display') ?? '').toLowerCase().includes('anonymous'),
       details: extras,
+      referral_code: getReferral(),
     }
 
     setPayState('starting')

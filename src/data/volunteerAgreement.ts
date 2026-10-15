@@ -33,9 +33,18 @@ export type Agreement = {
   issuedBy: string
 }
 
-export function buildAgreement(rawName: string, rawRole: string): Agreement {
+// "A", "A and B", "A, B and C".
+export function joinRoles(roles: string[]): string {
+  if (roles.length <= 1) return roles[0] ?? ''
+  return `${roles.slice(0, -1).join(', ')} and ${roles[roles.length - 1]}`
+}
+
+// A volunteer may take on several roles; pass them as a list (a single string still works).
+export function buildAgreement(rawName: string, rawRoles: string | string[]): Agreement {
   const name = rawName.trim().replace(/\s+/g, ' ') || '[your full name]'
-  const role = rawRole.trim() || '[your chosen role]'
+  const roleList = (Array.isArray(rawRoles) ? rawRoles : [rawRoles]).map((r) => r.trim()).filter(Boolean)
+  const role = joinRoles(roleList) || '[your chosen role]'
+  const plural = roleList.length > 1
 
   return {
     letterhead: [
@@ -46,7 +55,7 @@ export function buildAgreement(rawName: string, rawRole: string): Agreement {
     title: 'Startups Harambe Run 2026 Volunteer Agreement',
     intro:
       `This agreement is made between ${name} (“the Volunteer”) and TechBuzz Hub, as convener of the Startups Harambe Run 2026 (“the Run”) under the Startup Funding Vehicles (SFV) initiative. ` +
-      `It confirms the Volunteer’s place on the Run’s volunteer team in the role of ${role}, and sets out the responsibilities and expectations below, in line with the Run’s Code of Conduct and volunteer safeguarding guidelines.`,
+      `It confirms the Volunteer’s place on the Run’s volunteer team in ${plural ? 'the roles' : 'the role'} of ${role}, and sets out the responsibilities and expectations below, in line with the Run’s Code of Conduct and volunteer safeguarding guidelines.`,
     sections: [
       {
         heading: 'Role Purpose',
@@ -57,13 +66,13 @@ export function buildAgreement(rawName: string, rawRole: string): Agreement {
       {
         heading: 'Objective',
         paragraphs: [
-          'To mobilise runners, support run-day operations and represent the Run positively within your chosen role, as briefed by the Organising Committee.',
+          `To mobilise runners, support run-day operations and represent the Run positively within your chosen ${plural ? 'roles' : 'role'}, as briefed by the Organising Committee.`,
         ],
       },
       {
         heading: 'Duties and Responsibilities',
         items: [
-          'Carry out the duties of your chosen role as briefed by the Organising Committee and your team lead.',
+          `Carry out the duties of your chosen ${plural ? 'roles' : 'role'} as briefed by the Organising Committee and your team lead.`,
           'Attend volunteer briefings and team meetings as scheduled, and take part in pre-run activities and on run day (Sunday, 29 November 2026) according to the availability you confirmed.',
           'Represent the Run respectfully in person and online, and use its name, logo and messages only as approved by the Organising Committee.',
           'Use the Run’s official channels for registrations, payments and donations, and do not collect money on the Run’s behalf in any other way unless the Organising Committee has authorised you in writing.',
@@ -78,7 +87,7 @@ export function buildAgreement(rawName: string, rawRole: string): Agreement {
           'By signing, you make a confidentiality and conflict-of-interest declaration, agree to attend briefings and team meetings as scheduled, and agree to uphold the Run’s Code of Conduct and safeguarding guidelines throughout planning, execution and handover.',
           'Volunteering is voluntary and does not create an employment relationship. Any incentives, recognition or merchandise are as communicated separately by the Organising Committee.',
         ],
-        note: 'Role-specific note: the duties above apply to all volunteer roles. Details specific to your role will be confirmed by your team lead and the Organising Committee.',
+        note: `Role-specific note: the duties above apply to all volunteer roles. Details specific to your ${plural ? 'roles' : 'role'} will be confirmed by your team lead and the Organising Committee.`,
       },
     ],
     closing: 'The Run takes place on Sunday, 29 November 2026 at Makerere University Freedom Square.',

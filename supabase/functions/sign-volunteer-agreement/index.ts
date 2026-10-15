@@ -328,7 +328,7 @@ Deno.serve(async (req) => {
     const fullName = text(body.fullName, 160).replace(/\s+/g, ' ')
     const email = text(body.email, 200)
     const phone = text(body.phone, 40)
-    const role = text(body.role, 200)
+    const role = text(body.role, 600) // one or more roles, separated by "; "
     const typedSignature = text(body.typedSignature, 160).replace(/\s+/g, ' ')
     const agreementVersion = text(body.agreementVersion, 40)
     const agreementText = String(body.agreementText ?? '').trim()
@@ -413,6 +413,7 @@ Deno.serve(async (req) => {
       minute: '2-digit',
     })} (EAT)`
     const first = fullName.split(' ')[0]
+    const roleShort = role.length > 70 ? `${role.slice(0, 67)}...` : role
     // Printable signed PDF for both the volunteer and the team. If it cannot be made, the emails still
     // carry the full text, plus the drawn signature as a plain image.
     let pdfBase64: string | null = null
@@ -491,7 +492,7 @@ ${attachedNote ? `<p style="margin:10px 0 0;font-size:13px;color:#5b6b63">${esc(
     const team = Deno.env.get('ENQUIRY_NOTIFY_EMAIL')?.trim() || 'info@haramberun.com'
     const [volunteerMail, teamMail] = await Promise.all([
       sendEmail(email, `Your signed volunteer agreement: Harambe Run 2026 (${reference})`, volunteerHtml, volunteerText, 'info@haramberun.com', attachments),
-      sendEmail(team, `Volunteer agreement signed: ${fullName} (${role})`, teamHtml, teamText, email, attachments),
+      sendEmail(team, `Volunteer agreement signed: ${fullName} (${roleShort})`, teamHtml, teamText, email, attachments),
     ])
     if (volunteerMail.status !== 'sent' || teamMail.status !== 'sent') {
       console.warn('volunteer agreement email not sent', reference, volunteerMail, teamMail)
@@ -501,7 +502,8 @@ ${attachedNote ? `<p style="margin:10px 0 0;font-size:13px;color:#5b6b63">${esc(
       .update({ emails: { volunteer: volunteerMail.status, team: teamMail.status, pdf: pdfBase64 ? 'attached' : 'failed' } })
       .eq('id', saved.id)
 
-    return json({ ok: true, reference, signedAt, emailed: volunteerMail.status === 'sent' })
+    // The signed PDF is returned too, so the website can offer the same file that is emailed.
+    return json({ ok: true, reference, signedAt, emailed: volunteerMail.status === 'sent', pdf: pdfBase64 })
   } catch (error) {
     console.error('sign-volunteer-agreement error', error)
     return json({ error: 'Something went wrong. Please try again, or email info@haramberun.com.' }, 500)
