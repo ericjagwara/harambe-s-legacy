@@ -150,7 +150,7 @@ export function buildMou({ hubName, hubAddress, date }: MouPartner): Mou {
         heading: 'Term and Termination',
         clauses: [
           { no: '9.1', text: 'This MOU takes effect on the date of the last signature and remains in force until the completion of the Run’s winding up and handover (by 13 December 2026), unless renewed for the next edition.' },
-          { no: '9.2', text: 'Either Party may end this MOU by giving fourteen (7) days’ written notice.' },
+          { no: '9.2', text: 'Either Party may end this MOU by giving fourteen (14) days’ written notice.' },
           { no: '9.3', text: 'Either Party may end this MOU immediately if the other materially breaches the Guiding Principles, including misuse of funds, misuse of the brand or harm to participants.' },
         ],
       },
