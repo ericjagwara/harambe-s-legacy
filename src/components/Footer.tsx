@@ -112,7 +112,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 border-t border-white/12 pt-6">
-          <p className="mb-3 font-ui text-[10px] font-bold uppercase tracking-[0.18em] text-white/55">Platinum sponsor</p>
+          <p className="mb-3 font-ui text-[10px] font-bold uppercase tracking-[0.18em] text-white/55">Platinum sponsors</p>
           <div className="flex flex-wrap gap-2 sm:gap-3">
             {platinumSponsors.map((logo) => (
               <div key={logo.name} className="flex h-24 w-44 items-center justify-center bg-white p-3 sm:h-28 sm:w-52">

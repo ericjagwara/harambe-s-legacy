@@ -83,7 +83,7 @@ function postToBlink(url: string, fields: Record<string, string>) {
 type RegistrationProps = {
   initialTab?: RegistrationTab | ''
   // Show only this form, with its own heading and no "What would you like to do?" dropdown.
-  fixed?: { tab: RegistrationTab; eyebrow: string; title: string; intro: string }
+  fixed?: { tab: RegistrationTab; eyebrow: string; title: string; intro: string; compact?: boolean }
 }
 
 export default function Registration({ initialTab = '', fixed }: RegistrationProps) {
@@ -411,7 +411,11 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
             {fixed ? (
               <>
                 <p className="eyebrow">{fixed.eyebrow}</p>
-                <h1 className="mt-3 font-display text-[2.1rem] uppercase leading-none sm:mt-4 sm:text-5xl">{fixed.title}</h1>
+                {fixed.compact ? (
+                  <h2 className="mt-3 font-display text-[2.1rem] uppercase leading-none sm:mt-4 sm:text-5xl">{fixed.title}</h2>
+                ) : (
+                  <h1 className="mt-3 font-display text-[2.1rem] uppercase leading-none sm:mt-4 sm:text-5xl">{fixed.title}</h1>
+                )}
                 <p className="mt-4 max-w-3xl text-base leading-7 text-foreground/75 sm:text-lg sm:leading-8">{fixed.intro}</p>
               </>
             ) : (
@@ -445,7 +449,7 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
               </>
             )}
 
-            {active !== '' ? (
+            {active !== '' && !fixed?.compact ? (
             <div className="mt-6 border-t border-border pt-5 sm:mt-10 sm:pt-8">
               <p className="label">How it works</p>
               <ol className="mt-2 max-w-3xl space-y-1.5 text-[15px] leading-6 text-foreground/80 sm:mt-3 sm:space-y-2 sm:text-base sm:leading-7">

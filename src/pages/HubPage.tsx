@@ -55,7 +55,7 @@ export default function HubPage({ slug }: { slug: string }) {
 
   return (
     <>
-      <div className="bg-white">
+      <div className="bg-white pt-10 sm:pt-14">
         {hub.banner ? (
           <img
             src={hub.banner}
@@ -76,7 +76,7 @@ export default function HubPage({ slug }: { slug: string }) {
 
       <section className="border-b border-border bg-background pt-8 sm:pt-12">
         <div className="container-site">
-          <div className="grid gap-4 bg-white p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
+          <div className="bg-white p-6 sm:p-8">
             <div>
               <p className="label">Raised through this page</p>
               <p className="mt-2 font-display text-4xl leading-none sm:text-5xl">{stats ? ugx(stats.raised) : '—'}</p>
@@ -96,16 +96,6 @@ export default function HubPage({ slug }: { slug: string }) {
                 </p>
               ) : null}
             </div>
-            <div className="lg:max-w-xs">
-              <p className="text-base leading-7 text-foreground/80">Want to run too? Buy your running kit and be part of run day on Sunday 29 November 2026.</p>
-              <a
-                href="/register?for=run"
-                onClick={() => trackEvent('kit_click')}
-                className="btn-gold mt-3 inline-flex w-full justify-center sm:w-auto"
-              >
-                Run with us: buy a kit
-              </a>
-            </div>
           </div>
         </div>
       </section>
@@ -113,11 +103,23 @@ export default function HubPage({ slug }: { slug: string }) {
       <Registration
         fixed={{
           tab: 'donate',
+          compact: true,
           eyebrow: `Give through ${hub.name}`,
-          title: 'Donate to the Startups Harambe Fund',
-          intro: `Your gift supports university startup programmes, startup funding and angel investor training. Give any amount by mobile money or Visa card. Your donation is counted for ${hub.name}.`,
+          title: 'Give now',
+          intro: 'Any amount, by mobile money or Visa card.',
         }}
       />
+
+      <section className="bg-background pb-12 sm:pb-16">
+        <div className="container-site">
+          <div className="flex flex-col gap-4 bg-white p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+            <p className="max-w-xl text-base leading-7 text-foreground/80">Want to run too? Buy your running kit and join us on Sunday 29 November 2026.</p>
+            <a href="/register?for=run" onClick={() => trackEvent('kit_click')} className="btn-gold inline-flex w-full justify-center sm:w-auto">
+              Run with us: buy a kit
+            </a>
+          </div>
+        </div>
+      </section>
     </>
   )
 }

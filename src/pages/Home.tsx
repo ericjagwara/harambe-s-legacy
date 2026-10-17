@@ -135,9 +135,9 @@ export default function Home() {
 
       <PageSection className="bg-white">
         <SectionHeader
-          eyebrow="Platinum sponsor"
-          title="Lead champion of the run."
-          copy="Our Platinum sponsor leads the Ugandan startup ecosystem with us in 2026."
+          eyebrow="Platinum sponsors"
+          title="Platinum sponsors of the run."
+          copy="Organisations standing at the top level of the Startups Harambe Run 2026."
         />
         <div className="mt-10 flex flex-wrap justify-center gap-4">
           {platinumSponsors.map((logo) => (
