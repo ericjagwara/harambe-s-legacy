@@ -1,6 +1,6 @@
 import Reveal from '../components/Reveal'
 import { CtaBand, PageHero, PageSection, SectionHeader } from '../components/PageLayout'
-import { booths, partnerLogos, platinumSponsors, proposals, sectorPackages, sponsorTiers } from '../data'
+import { booths, coHostLogos, partnerLogos, platinumSponsors, proposals, sectorPackages, sponsorTiers } from '../data'
 import { pageHref } from '../routes'
 
 export default function PartnersPage() {
@@ -52,13 +52,28 @@ export default function PartnersPage() {
         </div>
       </PageSection>
 
+      <PageSection>
+        <SectionHeader
+          eyebrow="Event co-hosts"
+          title="Co-hosting the run with TechBuzz Hub."
+          copy="Innovation hubs mobilising founders, investors and students for the Startups Harambe Run 2026."
+        />
+        <div className="mt-10 flex flex-wrap justify-center gap-3 sm:gap-4">
+          {coHostLogos.map((logo) => (
+            <div key={logo.name} className="logo-tile w-[calc(50%-0.375rem)] sm:w-56">
+              <img src={logo.src} alt={`${logo.name} logo`} className="max-h-16 max-w-full object-contain sm:max-h-20" />
+            </div>
+          ))}
+        </div>
+      </PageSection>
+
       <PageSection className="bg-white">
         <SectionHeader
           eyebrow="Current ecosystem"
           title="Partners already on the course."
           copy="Organisations already backing the pipeline across investment, training and startup support."
         />
-        <div className="mt-10 grid grid-cols-3 gap-3 sm:gap-4 lg:grid-cols-6">
+        <div className="mt-10 grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4 lg:grid-cols-7">
           {partnerLogos.map((logo) => (
             <div key={logo.name} className="logo-tile">
               <img src={logo.src} alt={`${logo.name} logo`} className="max-h-12 max-w-full object-contain" />

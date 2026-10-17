@@ -10,6 +10,8 @@ type Receipt = {
   purpose: string
   name: string
   amount: number
+  kitAmount?: number | null
+  donationAmount?: number | null
   category: string | null
   start: string | null
   distance?: string | null
@@ -237,6 +239,12 @@ export default function ReceiptPage() {
             <dl className="grid gap-x-8 gap-y-5 p-6 sm:grid-cols-2 sm:p-8">
               <Item label="Reference" value={receipt.reference} strong />
               <Item label="Amount" value={ugx(receipt.amount)} strong />
+              {receipt.kitAmount && receipt.donationAmount ? (
+                <>
+                  <Item label="Running kit" value={ugx(receipt.kitAmount)} />
+                  <Item label="Donation to the Startups Harambe Fund" value={ugx(receipt.donationAmount)} />
+                </>
+              ) : null}
               <Item label="Name" value={receipt.name} />
               {receipt.phone ? <Item label={card ? 'Phone number' : 'Mobile money number'} value={receipt.phone} /> : null}
               <Item label="Paid with" value={card ? 'Visa card' : 'Mobile money'} />

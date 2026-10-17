@@ -315,7 +315,7 @@ export default function DashboardPage() {
 
             <Card title="Partner hubs">
               <Table
-                head={['Hub', 'Page visits', 'Kit button clicks', 'Donations paid', 'Donations (UGX)', 'Kits started', 'Kits paid', 'Kits (UGX)', 'Total (UGX)']}
+                head={['Hub', 'Page visits', 'Kits chosen', 'Donations paid', 'Donations (UGX)', 'Kits started', 'Kits paid', 'Kits (UGX)', 'Total (UGX)']}
                 rows={hubRows.map((h) => [
                   <a key="n" className="font-bold text-primary underline underline-offset-4" href={`/hubs/${h.hub}`} target="_blank" rel="noopener noreferrer">
                     {hubName(h.hub)}
@@ -331,7 +331,7 @@ export default function DashboardPage() {
                 ])}
               />
               <p className="mt-3 text-xs leading-5 text-foreground/60">
-                A supporter is counted for the hub whose page they opened last, for 7 days. Kits and donations are counted once paid.
+                A supporter is counted for the hub whose page they opened last, for 7 days. Kits and donations are counted once paid; a kit and donation paid together are split into each.
               </p>
             </Card>
 

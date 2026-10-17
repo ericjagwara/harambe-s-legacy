@@ -42,12 +42,12 @@ const exhibitOptions = [
   ...booths.map((booth) => `${booth.name}, ${booth.size}, ${booth.price}`),
 ]
 
-const kitSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+export const kitSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 
-const distances = ['21 km (half marathon)', '10 km', '5 km', '3 km (fun run)']
+export const distances = ['21 km (half marathon)', '10 km', '5 km', '3 km (fun run)']
 
 // Keep these labels identical to RUNNER_PRICES in blinkpay-deposit, blinkpay-card-start and pickup-desk.
-const runnerCategories = [
+export const runnerCategories = [
   { label: 'Student runner, UGX 20,000', amount: 20000 },
   { label: 'General public runner, UGX 30,000', amount: 30000 },
   { label: 'Featured Startup, UGX 60,000 (Offering Discount)', amount: 60000 },

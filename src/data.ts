@@ -10,6 +10,14 @@ export const platinumSponsors = [
   { name: 'Makerere University', src: asset('sponsor-makerere-university.webp') },
 ]
 
+// Hubs that co-host the run with TechBuzz Hub. Add Live Traces here once its logo is in.
+export const coHostLogos = [
+  { name: 'Einstein Rising', src: asset('cohost-einstein-rising.webp') },
+  { name: 'Founders Lounge UG', src: asset('cohost-founders-lounge-uganda.webp') },
+  { name: 'Hive Colab', src: asset('cohost-hive-colab.webp') },
+  { name: 'Finding XY', src: asset('cohost-finding-xy.webp') },
+]
+
 export const partnerLogos = [
   { name: 'AFBAN', src: asset('partner-afban.png') },
   { name: 'Fie Consult', src: asset('partner-fie-consult.png') },
@@ -17,6 +25,7 @@ export const partnerLogos = [
   { name: 'KONN', src: asset('partner-konnect.png') },
   { name: 'Offisar', src: asset('offisar-logo-1-p01-01-2000x938.png') },
   { name: 'Ortus Africa Capital', src: asset('partner-ortus-africa.png') },
+  { name: 'Startup Uganda', src: asset('partner-startup-uganda.webp') },
 ]
 
 export const heroStats = [

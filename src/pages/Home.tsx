@@ -2,7 +2,7 @@ import { ArrowRight } from 'lucide-react'
 import Reveal from '../components/Reveal'
 import Countdown from '../components/Countdown'
 import { CtaBand, MetricGrid, PageSection, SectionHeader } from '../components/PageLayout'
-import { asset, heroStats, partnerLogos, platinumSponsors, programCards } from '../data'
+import { asset, coHostLogos, heroStats, partnerLogos, platinumSponsors, programCards } from '../data'
 import { pageHref } from '../routes'
 
 export default function Home() {
@@ -150,11 +150,26 @@ export default function Home() {
 
       <PageSection>
         <SectionHeader
+          eyebrow="Event co-hosts"
+          title="Co-hosting the run with TechBuzz Hub."
+          copy="Innovation hubs mobilising founders, investors and students for the Startups Harambe Run 2026."
+        />
+        <div className="mt-10 flex flex-wrap justify-center gap-3 sm:gap-4">
+          {coHostLogos.map((logo) => (
+            <div key={logo.name} className="logo-tile w-[calc(50%-0.375rem)] sm:w-56">
+              <img src={logo.src} alt={`${logo.name} logo`} className="max-h-16 max-w-full object-contain sm:max-h-20" />
+            </div>
+          ))}
+        </div>
+      </PageSection>
+
+      <PageSection>
+        <SectionHeader
           eyebrow="Partners"
           title="Ecosystem builders behind the run."
           copy="Partner visibility spans the route, runner kits, startup programs, exhibition village and public fundraising record."
         />
-        <div className="mt-10 grid grid-cols-3 gap-3 sm:gap-4 lg:grid-cols-6">
+        <div className="mt-10 grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4 lg:grid-cols-7">
           {partnerLogos.map((logo) => (
             <div key={logo.name} className="logo-tile">
               <img src={logo.src} alt={`${logo.name} logo`} className="max-h-12 max-w-full object-contain" />

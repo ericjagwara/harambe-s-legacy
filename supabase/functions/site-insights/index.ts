@@ -98,7 +98,7 @@ Deno.serve(async (req) => {
       // Money that went through this hub's page, paid only. Hidden test contributions are left out.
       const { data, error } = await supabase
         .from('payments')
-        .select('amount, purpose, contributions(hidden)')
+        .select('amount, purpose, details, contributions(hidden)')
         .eq('status', 'SUCCESSFUL')
         .eq('details->>hub', hub)
       if (error) throw error
@@ -108,7 +108,10 @@ Deno.serve(async (req) => {
         if (row.contributions?.hidden) continue
         raised += Number(row.amount)
         if (row.purpose === 'Donation') donations += 1
-        else kits += 1
+        else {
+          kits += 1
+          if (Number(row.details?.extra_donation) > 0) donations += 1
+        }
       }
       return json({ raised, donations, kits })
     }

@@ -52,7 +52,7 @@ function toRow(p: any) {
     distance: details.distance ?? null,
     startup: details.startup_name ?? null,
     amount: Number(p.amount),
-    expectedAmount: category ? RUNNER_PRICES[category] ?? null : null,
+    expectedAmount: category && RUNNER_PRICES[category] != null ? RUNNER_PRICES[category] + (Number(details.extra_donation) || 0) : null,
     paidAt: p.status === 'SUCCESSFUL' ? (details.callback?.completion_date ?? p.updated_at) : null,
     collectedAt: p.collected_at,
     collectedBy: p.collected_by,

@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
-import Registration from '../sections/Registration'
+import HubGiveForm from '../components/HubGiveForm'
 import { supabase } from '@/integrations/supabase/client'
 import { hubBySlug } from '../data/hubs'
 import { captureHub } from '@/lib/hub'
-import { trackEvent } from '@/lib/analytics'
 import { pageHref } from '../routes'
 
 const ugx = (amount: number) => `UGX ${Math.round(amount).toLocaleString('en-UG')}`
@@ -100,26 +99,7 @@ export default function HubPage({ slug }: { slug: string }) {
         </div>
       </section>
 
-      <Registration
-        fixed={{
-          tab: 'donate',
-          compact: true,
-          eyebrow: `Give through ${hub.name}`,
-          title: 'Give now',
-          intro: 'Any amount, by mobile money or Visa card.',
-        }}
-      />
-
-      <section className="bg-background pb-12 sm:pb-16">
-        <div className="container-site">
-          <div className="flex flex-col gap-4 bg-white p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
-            <p className="max-w-xl text-base leading-7 text-foreground/80">Want to run too? Buy your running kit and join us on Sunday 29 November 2026.</p>
-            <a href="/register?for=run" onClick={() => trackEvent('kit_click')} className="btn-gold inline-flex w-full justify-center sm:w-auto">
-              Run with us: buy a kit
-            </a>
-          </div>
-        </div>
-      </section>
+      <HubGiveForm hubSlug={hub.slug} hubName={hub.name} />
     </>
   )
 }

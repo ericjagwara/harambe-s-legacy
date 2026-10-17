@@ -74,6 +74,10 @@ Deno.serve(async (req) => {
       purpose: p.purpose,
       name: p.full_name,
       amount: p.amount,
+      // Set only for hub payments that carry an extra donation on top of the kit.
+      kitAmount: Number(details.extra_donation) > 0 ? Number(details.kit_price) || null : null,
+      donationAmount: Number(details.extra_donation) > 0 ? Number(details.extra_donation) : null,
+      hub: details.hub ?? null,
       category: details.category ?? null,
       start: details.start ?? null,
       distance: details.distance ?? null,

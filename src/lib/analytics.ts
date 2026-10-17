@@ -1,5 +1,6 @@
 // Our own simple site analytics (no cookies, nothing sent to third parties). Events go to the site-insights function.
 import { getHub } from './hub'
+import { hubBySlug } from '../data/hubs'
 
 const VID = 'harambe_vid'
 const SID = 'harambe_sid'
@@ -55,7 +56,8 @@ export function trackEvent(event: 'pageview' | 'form_start' | 'kit_click' | 'pay
         /* ignore */
       }
     }
-    const hubInPath = path.match(/^\/hubs\/([a-z0-9-]+)$/)?.[1]
+    const pathHub = path.match(/^\/hubs\/([a-z0-9-]+)$/)?.[1]
+    const hubInPath = pathHub && hubBySlug(pathHub) ? pathHub : undefined
     fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/site-insights`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },

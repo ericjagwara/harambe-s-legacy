@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
     const phone = normalisePhone(String(body.phone ?? ''))
     const email = body.email ? clean(String(body.email), 200) : ''
     const isAnonymous = Boolean(body.isAnonymous)
-    const details = (body.details && typeof body.details === 'object' ? body.details : {}) as Record<string, unknown>
+    const details = { ...((body.details && typeof body.details === 'object' ? body.details : {}) as Record<string, unknown>) }
 
     if (!fullName) return json({ error: 'Please enter your name.' }, 400)
     if (purpose !== 'Runner registration' && purpose !== 'Donation') return json({ error: 'Missing payment purpose.' }, 400)
@@ -93,6 +93,21 @@ Deno.serve(async (req) => {
       const price = RUNNER_PRICES[String(details.category ?? '')]
       if (!price) return json({ error: 'Please choose a runner category.' }, 400)
       amount = price
+      // Partner hub pages only: an optional extra donation on top of the kit, paid in the same payment.
+      // The browser never sets the amounts stored with the payment; they are set here.
+      delete details.kit_price
+      delete details.extra_donation
+      if (/^[a-z0-9-]{1,40}$/.test(String(details.hub ?? ''))) {
+        const extra = Math.round(Number(body.extraDonation ?? 0))
+        if (!Number.isFinite(extra) || extra < 0 || extra > 50_000_000 || (extra > 0 && extra < 500)) {
+          return json({ error: 'Enter an extra donation between UGX 500 and UGX 50,000,000, or leave it out.' }, 400)
+        }
+        if (extra > 0) {
+          details.kit_price = price
+          details.extra_donation = extra
+          amount = price + extra
+        }
+      }
     } else {
       amount = Math.round(Number(body.amount))
       if (!Number.isFinite(amount) || amount < 500 || amount > 50_000_000) return json({ error: 'Enter an amount between UGX 500 and UGX 50,000,000.' }, 400)
