@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { ArrowUpRight } from 'lucide-react'
-import { asset, partnerLogos } from '../data'
+import { asset, partnerLogos, platinumSponsors } from '../data'
 import { supabase } from '@/integrations/supabase/client'
 import { pageHref, type PageKey } from '../routes'
 
@@ -55,7 +55,7 @@ export default function Footer() {
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
             <div className="inline-flex bg-white px-4 py-3">
-              <img src={asset('brand-logo.webp')} alt="Startup Harambe, run by SFV" className="h-10 w-auto object-contain" />
+              <img src={asset('brand-logo-harambe-run.webp')} alt="Capital Startups Harambe Run" className="h-14 w-auto object-contain" />
             </div>
             <p className="mt-6 max-w-xl text-sm leading-7 text-white/72">
               #StartupsHarambeRun unlocks capital by funding student businesses and startups, training investors and forming investor networks.
@@ -111,7 +111,18 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 border-y border-white/12 py-6">
+        <div className="mt-12 border-t border-white/12 pt-6">
+          <p className="mb-3 font-ui text-[10px] font-bold uppercase tracking-[0.18em] text-white/55">Platinum sponsor</p>
+          <div className="flex flex-wrap gap-2 sm:gap-3">
+            {platinumSponsors.map((logo) => (
+              <div key={logo.name} className="flex h-24 w-44 items-center justify-center bg-white p-3 sm:h-28 sm:w-52">
+                <img src={logo.src} alt={`${logo.name} logo`} className="max-h-full max-w-full object-contain" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-6 border-y border-white/12 py-6">
           <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:grid-cols-6">
             {partnerLogos.map((logo) => (
               <div key={logo.name} className="flex h-14 items-center justify-center bg-white p-2 sm:h-20 sm:p-4">

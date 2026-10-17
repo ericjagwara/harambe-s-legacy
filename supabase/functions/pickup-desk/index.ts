@@ -5,6 +5,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 
 // Current prices, plus the earlier labels so registrations made before the price change still check correctly.
 const RUNNER_PRICES: Record<string, number> = {
+  'Student runner, UGX 20,000': 20000,
   'Student runner, UGX 15,000': 15000,
   'General public runner, UGX 30,000': 30000,
   'Featured Startup, UGX 60,000 (Offering Discount)': 60000,

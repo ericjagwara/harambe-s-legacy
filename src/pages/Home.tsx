@@ -2,7 +2,7 @@ import { ArrowRight } from 'lucide-react'
 import Reveal from '../components/Reveal'
 import Countdown from '../components/Countdown'
 import { CtaBand, MetricGrid, PageSection, SectionHeader } from '../components/PageLayout'
-import { asset, heroStats, partnerLogos, programCards } from '../data'
+import { asset, heroStats, partnerLogos, platinumSponsors, programCards } from '../data'
 import { pageHref } from '../routes'
 
 export default function Home() {
@@ -129,6 +129,21 @@ export default function Home() {
                 </div>
               </article>
             </Reveal>
+          ))}
+        </div>
+      </PageSection>
+
+      <PageSection className="bg-white">
+        <SectionHeader
+          eyebrow="Platinum sponsor"
+          title="Lead champion of the run."
+          copy="Our Platinum sponsor leads the Ugandan startup ecosystem with us in 2026."
+        />
+        <div className="mt-10 flex flex-wrap justify-center gap-4">
+          {platinumSponsors.map((logo) => (
+            <div key={logo.name} className="flex h-44 w-full max-w-sm items-center justify-center bg-white p-5 shadow-[0_1px_24px_-12px_hsl(var(--foreground)/0.35)] sm:h-52">
+              <img src={logo.src} alt={`${logo.name} logo`} className="max-h-full max-w-full object-contain" />
+            </div>
           ))}
         </div>
       </PageSection>

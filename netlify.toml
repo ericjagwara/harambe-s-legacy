@@ -22,3 +22,15 @@
   for = "/volunteer-agreement"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+# Partner hub pages are for sharing links, not for search results.
+[[headers]]
+  for = "/hubs/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"
+
+# The private dashboard must never be indexed.
+[[headers]]
+  for = "/dashboard"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

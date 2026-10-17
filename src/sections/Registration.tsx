@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'rea
 import { createPortal } from 'react-dom'
 import Reveal from '../components/Reveal'
 import { getReferral } from '@/lib/referral'
+import { getHub } from '@/lib/hub'
+import { trackEvent } from '@/lib/analytics'
 import { supabase } from '@/integrations/supabase/client'
 import { booths, proposals, sectorPackages, sponsorTiers, universityStarts } from '../data'
 
@@ -46,7 +48,7 @@ const distances = ['21 km (half marathon)', '10 km', '5 km', '3 km (fun run)']
 
 // Keep these labels identical to RUNNER_PRICES in blinkpay-deposit, blinkpay-card-start and pickup-desk.
 const runnerCategories = [
-  { label: 'Student runner, UGX 15,000', amount: 15000 },
+  { label: 'Student runner, UGX 20,000', amount: 20000 },
   { label: 'General public runner, UGX 30,000', amount: 30000 },
   { label: 'Featured Startup, UGX 60,000 (Offering Discount)', amount: 60000 },
   { label: 'Featured SME/Corporate, UGX 100,000 (Offering Discount)', amount: 100000 },
@@ -99,6 +101,7 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
   const [formError, setFormError] = useState('')
   const pollRef = useRef<number | null>(null)
   const noticeRef = useRef<HTMLDivElement | null>(null)
+  const formStarted = useRef<string>('')
 
   useEffect(() => {
     setActive(fixed?.tab ?? initialTab)
@@ -184,6 +187,9 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
     }
 
     const extras: Record<string, string> = {}
+    // Partner hub tag (set by a hub's own page, remembered for 7 days). Stored in the payment's details.
+    const hubTag = getHub()
+    if (hubTag) extras.hub = hubTag
     data.forEach((value, key) => {
       if (typeof value === 'string' && value.trim() !== '' && !['name', 'phone', 'amount'].includes(key)) {
         extras[key] = value
@@ -222,6 +228,7 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
       referral_code: getReferral(),
     }
 
+    trackEvent('pay_attempt', { purpose, method })
     setPayState('starting')
     setPayMessage('')
     setCharged(amount)
@@ -388,7 +395,15 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
   ) : null
 
   return (
-    <section id="register" className="relative border-b border-border bg-background pb-8 pt-4 sm:py-12 lg:py-16">
+    <section
+      id="register"
+      className="relative border-b border-border bg-background pb-8 pt-4 sm:py-12 lg:py-16"
+      onFocusCapture={() => {
+        if (formStarted.current === active) return
+        formStarted.current = active
+        if (active === 'run' || active === 'donate') trackEvent('form_start', { form: active })
+      }}
+    >
       {overlay}
       <div className="container-site">
         <Reveal>

@@ -51,9 +51,9 @@ export default function Header({ currentPage }: HeaderProps) {
         <div className="container-site flex h-16 items-center justify-between gap-5 sm:h-20">
           <a href={pageHref('home')} className="flex min-w-0 items-center" aria-label="Startups Harambe Run home">
             <img
-              src={asset('brand-logo.webp')}
-              alt="Startup Harambe, run by SFV"
-              className="h-9 w-auto object-contain sm:h-12"
+              src={asset('brand-logo-harambe-run.webp')}
+              alt="Capital Startups Harambe Run"
+              className="h-11 w-auto object-contain sm:h-14"
             />
           </a>
 

@@ -15,9 +15,13 @@ import ReceiptPage from './pages/ReceiptPage'
 import PickupPage from './pages/PickupPage'
 import VolunteerAgreementPage from './pages/VolunteerAgreementPage'
 import PartnerMouPage from './pages/PartnerMouPage'
-import { isAppPath, legacyHashPath, pageFromPath, routes, type PageKey } from './routes'
+import HubPage from './pages/HubPage'
+import DashboardPage from './pages/DashboardPage'
+import { trackEvent } from './lib/analytics'
+import { hubBySlug } from './data/hubs'
+import { hubSlugFromPath, isAppPath, legacyHashPath, pageFromPath, routes, type PageKey } from './routes'
 
-function renderPage(page: PageKey) {
+function renderPage(page: PageKey, path: string) {
   switch (page) {
     case 'runners':
       return <RunnersPage />
@@ -45,6 +49,10 @@ function renderPage(page: PageKey) {
       return <VolunteerAgreementPage />
     case 'mou':
       return <PartnerMouPage />
+    case 'hub':
+      return <HubPage slug={hubSlugFromPath(path)} />
+    case 'dashboard':
+      return <DashboardPage />
     case 'home':
     default:
       return <Home />
@@ -52,15 +60,16 @@ function renderPage(page: PageKey) {
 }
 
 export default function App() {
-  const [page, setPage] = useState<PageKey>(() => {
+  const [path, setPath] = useState<string>(() => {
     const legacy = legacyHashPath(window.location.hash)
     if (legacy) window.history.replaceState(null, '', legacy)
-    return pageFromPath(window.location.pathname)
+    return window.location.pathname
   })
+  const page = pageFromPath(path)
 
   useEffect(() => {
     const syncRoute = () => {
-      setPage(pageFromPath(window.location.pathname))
+      setPath(window.location.pathname)
       window.scrollTo({ top: 0, behavior: 'instant' })
     }
 
@@ -88,20 +97,29 @@ export default function App() {
     }
   }, [])
 
+  // One visit event per page shown.
   useEffect(() => {
-    document.title = page === 'home' ? 'Startups Harambe Run 2026' : `${routes[page].title} | Startups Harambe Run 2026`
-  }, [page])
+    trackEvent('pageview')
+  }, [path])
+
+  useEffect(() => {
+    const hubName = page === 'hub' ? hubBySlug(hubSlugFromPath(path))?.name : undefined
+    document.title =
+      page === 'home'
+        ? 'Startups Harambe Run 2026'
+        : `${hubName ? `${hubName} x TechBuzz Hub` : routes[page].title} | Startups Harambe Run 2026`
+  }, [page, path])
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="print:hidden">
         <Header currentPage={page} />
       </div>
-      <main className="pt-[6.5rem] sm:pt-[7.5rem] print:pt-0">{renderPage(page)}</main>
+      <main className="pt-[6.5rem] sm:pt-[7.5rem] print:pt-0">{renderPage(page, path)}</main>
       <div className="print:hidden">
         <Footer />
         {/* Hidden on form pages, where it would cover fields and buttons on phones. */}
-      {['register', 'donate', 'volunteer', 'receipt', 'pickup', 'agreement', 'mou'].includes(page) ? null : <WhatsAppFloatButton />}
+      {['register', 'donate', 'volunteer', 'receipt', 'pickup', 'agreement', 'mou', 'dashboard', 'hub'].includes(page) ? null : <WhatsAppFloatButton />}
       </div>
     </div>
   )

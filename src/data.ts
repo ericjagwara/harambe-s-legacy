@@ -6,6 +6,10 @@ export const organizerLogos = [
   { name: 'Makerere University', src: asset('startupsharamberun-2026-sponsorship-p13-04-313x148.png') },
 ]
 
+export const platinumSponsors = [
+  { name: 'Makerere University', src: asset('sponsor-makerere-university.webp') },
+]
+
 export const partnerLogos = [
   { name: 'AFBAN', src: asset('partner-afban.png') },
   { name: 'Fie Consult', src: asset('partner-fie-consult.png') },
@@ -98,7 +102,7 @@ export const safetyNotes = [
 export const ticketTypes = [
   {
     name: 'Student runner',
-    price: 'UGX 15,000',
+    price: 'UGX 20,000',
     detail: 'Valid student ID checked at kit pickup. Choose 21 km, 10 km, 5 km or 3 km.',
   },
   {

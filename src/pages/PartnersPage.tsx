@@ -1,6 +1,6 @@
 import Reveal from '../components/Reveal'
 import { CtaBand, PageHero, PageSection, SectionHeader } from '../components/PageLayout'
-import { booths, partnerLogos, proposals, sectorPackages, sponsorTiers } from '../data'
+import { booths, partnerLogos, platinumSponsors, proposals, sectorPackages, sponsorTiers } from '../data'
 import { pageHref } from '../routes'
 
 export default function PartnersPage() {
@@ -32,6 +32,21 @@ export default function PartnersPage() {
                   Download
                 </a>
               </div>
+            </div>
+          ))}
+        </div>
+      </PageSection>
+
+      <PageSection>
+        <SectionHeader
+          eyebrow="Platinum sponsor"
+          title="Lead champion of the run."
+          copy="Our Platinum sponsor leads the Ugandan startup ecosystem with us in 2026."
+        />
+        <div className="mt-10 flex flex-wrap justify-center gap-4">
+          {platinumSponsors.map((logo) => (
+            <div key={logo.name} className="flex h-44 w-full max-w-sm items-center justify-center bg-white p-5 shadow-[0_1px_24px_-12px_hsl(var(--foreground)/0.35)] sm:h-52">
+              <img src={logo.src} alt={`${logo.name} logo`} className="max-h-full max-w-full object-contain" />
             </div>
           ))}
         </div>
