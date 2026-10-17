@@ -12,6 +12,7 @@ export const platinumSponsors = [
 
 // Hubs that co-host the run with TechBuzz Hub. Add Live Traces here once its logo is in.
 export const coHostLogos = [
+  { name: 'TechBuzz Hub', src: asset('cohost-techbuzz-hub.webp') },
   { name: 'Einstein Rising', src: asset('cohost-einstein-rising.webp') },
   { name: 'Founders Lounge UG', src: asset('cohost-founders-lounge-uganda.webp') },
   { name: 'Hive Colab', src: asset('cohost-hive-colab.webp') },

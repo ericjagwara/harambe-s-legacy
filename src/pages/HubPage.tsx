@@ -65,7 +65,7 @@ export default function HubPage({ slug }: { slug: string }) {
           />
         ) : (
           <div className="container-site py-12 sm:py-16">
-            <p className="eyebrow">Event co-hosts: TechBuzz Hub and {hub.name}</p>
+            <p className="eyebrow">Event co-host: {hub.name}</p>
             <h2 className="mt-4 font-display text-4xl uppercase leading-none text-primary sm:text-6xl">Startups Harambe Fund</h2>
             <p className="mt-3 font-display text-2xl uppercase leading-none text-foreground sm:text-3xl">with {hub.name}</p>
             <p className="mt-6 max-w-4xl text-base leading-7 text-foreground/80 sm:text-lg sm:leading-8">{INTRO}</p>

@@ -151,7 +151,7 @@ export default function Home() {
       <PageSection>
         <SectionHeader
           eyebrow="Event co-hosts"
-          title="Co-hosting the run with TechBuzz Hub."
+          title="Hosting the run together."
           copy="Innovation hubs mobilising founders, investors and students for the Startups Harambe Run 2026."
         />
         <div className="mt-10 flex flex-wrap justify-center gap-3 sm:gap-4">
