@@ -15,6 +15,7 @@ import ReceiptPage from './pages/ReceiptPage'
 import PickupPage from './pages/PickupPage'
 import VolunteerAgreementPage from './pages/VolunteerAgreementPage'
 import PartnerMouPage from './pages/PartnerMouPage'
+import MobiliserMouPage from './pages/MobiliserMouPage'
 import HubPage from './pages/HubPage'
 import DashboardPage from './pages/DashboardPage'
 import { trackEvent } from './lib/analytics'
@@ -49,6 +50,8 @@ function renderPage(page: PageKey, path: string) {
       return <VolunteerAgreementPage />
     case 'mou':
       return <PartnerMouPage />
+    case 'mobiliser':
+      return <MobiliserMouPage />
     case 'hub':
       return <HubPage slug={hubSlugFromPath(path)} />
     case 'dashboard':
@@ -119,7 +122,7 @@ export default function App() {
       <div className="print:hidden">
         <Footer />
         {/* Hidden on form pages, where it would cover fields and buttons on phones. */}
-      {['register', 'donate', 'volunteer', 'receipt', 'pickup', 'agreement', 'mou', 'dashboard', 'hub'].includes(page) ? null : <WhatsAppFloatButton />}
+      {['register', 'donate', 'volunteer', 'receipt', 'pickup', 'agreement', 'mou', 'mobiliser', 'dashboard', 'hub'].includes(page) ? null : <WhatsAppFloatButton />}
       </div>
     </div>
   )
