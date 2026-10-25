@@ -7,10 +7,10 @@ const navItems: Array<[PageKey, string]> = [
   ['runners', 'Runners'],
   ['route', 'Route'],
   ['volunteer', 'Volunteer'],
-  ['poster', 'Make a poster'],
   ['partners', 'Partners'],
   ['results', 'Statistics'],
   ['contact', 'Contact'],
+  ['poster', 'Make a poster'],
 ]
 
 type HeaderProps = {
