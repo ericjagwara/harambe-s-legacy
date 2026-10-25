@@ -161,6 +161,12 @@ export default function ReceiptPage() {
                   </a>
                 </div>
               ) : null}
+              <div className="mt-6 border-t border-border pt-6">
+                <p className="text-base leading-7 text-foreground/80">Tell everyone you will be there. Make your own poster in a minute and share it.</p>
+                <a href={`/poster?name=${encodeURIComponent(receipt?.name ?? '')}`} className="btn-primary mt-4 inline-flex">
+                  Make your “I’ll be there” poster
+                </a>
+              </div>
             </div>
           </div>
         ) : null}
@@ -292,6 +298,9 @@ export default function ReceiptPage() {
             <button type="button" className="btn-primary" onClick={() => window.print()}>
               Save or print receipt
             </button>
+            <a href={`/poster?name=${encodeURIComponent(receipt.name)}`} className="btn-gold">
+              Make your “I’ll be there” poster
+            </a>
             {runner && !justPaid ? (
               <a href={WHATSAPP_GROUP_LINK} target="_blank" rel="noopener noreferrer" className="btn-gold">
                 Join the WhatsApp group

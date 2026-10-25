@@ -172,6 +172,9 @@ export default function VolunteerPage() {
                   <p className="mt-3 text-lg leading-8">
                     Thank you for volunteering. We will contact you about your role and next steps. A confirmation email is on its way.
                   </p>
+                  <a href="/poster" className="btn-gold mt-5 inline-flex">
+                    Make your “I’ll be there” poster
+                  </a>
                 </div>
               ) : (
                 <form onSubmit={submit} className="mt-8 grid grid-cols-1 gap-6 sm:gap-8">

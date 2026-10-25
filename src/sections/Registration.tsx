@@ -385,6 +385,9 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
     <div ref={noticeRef} className="scroll-mt-28 bg-primary p-6 text-primary-foreground" role="status">
       <p className="font-ui text-[11px] font-black uppercase tracking-[0.22em] text-secondary">Received</p>
       <p className="mt-3 text-lg leading-8">{submitted}</p>
+      <a href="/poster" className="btn-gold mt-5 inline-flex">
+        Make your “I’ll be there” poster
+      </a>
     </div>
   ) : null
 

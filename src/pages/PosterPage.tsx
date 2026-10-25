@@ -5,8 +5,8 @@ import { supabase } from '@/integrations/supabase/client'
 import { asset } from '../data'
 import { ACTIVITIES, TAGLINES, TEMPLATES, drawPoster, loadFonts, loadImage, posterBlob, type PosterTemplate } from '../lib/posterCanvas'
 
-// "I will be there" poster. Built in the visitor's browser (their photo is not uploaded). To download it they confirm
-// their email with a short code; the finished poster is then also emailed to them (Supabase function: poster).
+// "I will be there" poster. Built in the visitor's browser (their photo is not uploaded). One tap downloads it and
+// the finished poster is also emailed to them (Supabase function: poster).
 
 async function functionError(error: unknown, fallback: string) {
   const context = (error as { context?: Response } | null)?.context
@@ -36,18 +36,21 @@ function Block({ title, children }: { title: string; children: ReactNode }) {
 
 export default function PosterPage() {
   const [template, setTemplate] = useState<PosterTemplate>('green')
-  const [name, setName] = useState('')
+  const [name, setName] = useState(() => {
+    try {
+      return (new URLSearchParams(window.location.search).get('name') ?? '').slice(0, 40)
+    } catch {
+      return ''
+    }
+  })
   const [activity, setActivity] = useState('5 km')
   const [tagline, setTagline] = useState(TAGLINES[0])
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [photoError, setPhotoError] = useState('')
   const [email, setEmail] = useState('')
-  const [consent, setConsent] = useState(false)
-  const [stage, setStage] = useState<'edit' | 'code' | 'done'>('edit')
-  const [code, setCode] = useState('')
+  const [stage, setStage] = useState<'edit' | 'done'>('edit')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const [info, setInfo] = useState('')
   const [emailed, setEmailed] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const photoRef = useRef<HTMLImageElement | null>(null)
@@ -110,36 +113,7 @@ export default function PosterPage() {
 
   const label = useMemo(() => ACTIVITIES.find((a) => a.value === activity)?.label ?? '', [activity])
 
-  const sendCode = async () => {
-    setError('')
-    setInfo('')
-    if (name.trim().length < 2) return setError('Please add your name first.')
-    if (!photoRef.current) return setError('Please add your photo first.')
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return setError('Please enter a valid email address.')
-    if (!consent) return setError('Please tick the box to continue.')
-    setBusy(true)
-    const { error: fnError } = await supabase.functions.invoke('poster', { body: { action: 'send-code', email: email.trim() } })
-    setBusy(false)
-    if (fnError) return setError(await functionError(fnError, 'We could not send the code. Please try again.'))
-    setStage('code')
-    setInfo(`We sent a 6-digit code to ${email.trim()}. It works for 10 minutes.`)
-  }
-
-  const verify = async () => {
-    setError('')
-    if (!canvasRef.current) return
-    setBusy(true)
-    const image = canvasRef.current.toDataURL('image/jpeg', 0.9)
-    const { data, error: fnError } = await supabase.functions.invoke('poster', {
-      body: { action: 'verify', email: email.trim(), code: code.trim(), name: name.trim(), activity: label, template, tagline, image },
-    })
-    setBusy(false)
-    if (fnError) return setError(await functionError(fnError, 'That did not work. Please check the code and try again.'))
-    setEmailed(Boolean((data as { emailed?: boolean })?.emailed))
-    setStage('done')
-  }
-
-  const download = async () => {
+  const savePng = async () => {
     if (!canvasRef.current) return
     const blob = await posterBlob(canvasRef.current, 'image/png')
     const url = URL.createObjectURL(blob)
@@ -150,7 +124,26 @@ export default function PosterPage() {
     setTimeout(() => URL.revokeObjectURL(url), 10_000)
   }
 
-  const locked = stage !== 'edit'
+  // One tap: the poster downloads straight away, and a copy is emailed in the background.
+  const getPoster = async () => {
+    setError('')
+    if (name.trim().length < 2) return setError('Please add your name first.')
+    if (!photoRef.current) return setError('Please add your photo first.')
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return setError('Please enter a valid email address so we can send you a copy.')
+    if (!canvasRef.current) return
+    setBusy(true)
+    await savePng()
+    setStage('done')
+    const image = canvasRef.current.toDataURL('image/jpeg', 0.9)
+    const { data, error: fnError } = await supabase.functions.invoke('poster', {
+      body: { action: 'send', email: email.trim(), name: name.trim(), activity: label, template, tagline, image },
+    })
+    setBusy(false)
+    setEmailed(!fnError && Boolean((data as { emailed?: boolean })?.emailed))
+    if (fnError) setError(await functionError(fnError, 'Your poster has downloaded, but we could not email a copy just now.'))
+  }
+
+  const locked = false
   const share = `I'll be there at the Startups Harambe Run on Sunday 29 November! Join me: https://haramberun.com #StartupsHarambeRun`
 
   return (
@@ -217,58 +210,36 @@ export default function PosterPage() {
                   <>
                     <Field label="Your email address" id="p-email">
                       <input className="field" id="p-email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                      <p className="mt-2 text-sm text-muted-foreground">We email a short code to confirm it is you, then send your finished poster.</p>
                     </Field>
-                    <label className="flex cursor-pointer items-start gap-3">
-                      <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1 h-[18px] w-[18px] shrink-0 accent-[hsl(var(--primary))]" />
-                      <span className="text-base leading-6">
-                        I am happy for Harambe Run to keep my name and email and email me this poster. We do not keep your photo.
-                      </span>
-                    </label>
                     <div>
-                      <button type="button" className="btn-primary w-full sm:w-auto" onClick={sendCode} disabled={busy}>
-                        {busy ? 'Sending…' : 'Email me a code'}
+                      <button type="button" className="btn-primary w-full sm:w-auto" onClick={getPoster} disabled={busy}>
+                        {busy ? 'Making your poster…' : 'Get my poster'}
                       </button>
                     </div>
+                    <p className="text-sm leading-6 text-muted-foreground">
+                      Your poster downloads straight away and we email you a copy. We keep your name and email, not your photo.
+                    </p>
                   </>
-                ) : null}
-
-                {stage === 'code' ? (
-                  <>
-                    <Field label="Enter the 6-digit code" id="p-code">
-                      <input className="field sm:max-w-xs" id="p-code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} />
-                    </Field>
-                    <div className="flex flex-wrap items-center gap-3">
-                      <button type="button" className="btn-primary" onClick={verify} disabled={busy || code.length !== 6}>
-                        {busy ? 'Checking…' : 'Get my poster'}
-                      </button>
-                      <button type="button" className="font-ui text-xs font-bold uppercase tracking-[0.14em] underline underline-offset-4" onClick={() => { setStage('edit'); setCode(''); setInfo('') }}>
-                        Use a different email
-                      </button>
-                    </div>
-                  </>
-                ) : null}
-
-                {stage === 'done' ? (
+                ) : (
                   <div className="grid gap-4">
                     <p className="text-lg leading-8">
-                      You are in!{' '}
-                      {emailed ? `We have emailed your poster to ${email.trim()}.` : 'Download your poster below.'}
+                      You are in! Your poster has downloaded.{' '}
+                      {emailed ? `We have also emailed a copy to ${email.trim()}.` : 'Check your downloads folder.'}
                     </p>
                     <div className="flex flex-wrap gap-3">
-                      <button type="button" className="btn-gold" onClick={download}>
+                      <button type="button" className="btn-gold" onClick={savePng}>
                         <Download className="mr-2 h-4 w-4" />
-                        Download poster
+                        Download again
                       </button>
                       <a className="btn-primary" href={`https://wa.me/?text=${encodeURIComponent(share)}`} target="_blank" rel="noopener noreferrer">
                         Share on WhatsApp
                       </a>
                     </div>
-                    <p className="text-sm text-muted-foreground">Post it with #StartupsHarambeRun and tag a friend to run with you. Ready to run? <a className="font-bold underline underline-offset-4" href="/register?for=run">Get your kit</a>.</p>
+                    <p className="text-sm text-muted-foreground">
+                      Post it with #StartupsHarambeRun and tag a friend to run with you. Ready to run? <a className="font-bold underline underline-offset-4" href="/register?for=run">Get your kit</a>.
+                    </p>
                   </div>
-                ) : null}
-
-                {info ? <p className="text-base leading-7 text-foreground/80">{info}</p> : null}
+                )}
                 {error ? (
                   <p className="bg-foreground p-4 text-base leading-7 text-white" role="alert">
                     {error}

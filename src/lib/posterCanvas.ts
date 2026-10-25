@@ -235,7 +235,7 @@ export function drawPoster(canvas: HTMLCanvasElement, input: PosterInput) {
   const rows: Array<['calendar' | 'runner' | 'pin', string]> = [
     ['calendar', 'Sun 29 November 2026'],
     ['runner', act.label],
-    ['pin', 'Freedom Square, Kampala'],
+    ['pin', 'Makerere University,\nFreedom Square'],
   ]
   rows.forEach(([kind, label], i) => {
     const y = 600 + i * 78
@@ -243,11 +243,17 @@ export function drawPoster(canvas: HTMLCanvasElement, input: PosterInput) {
     ctx.fillStyle = L.text
     ctx.font = `700 33px ${FONT}`
     let size = 33
-    while (ctx.measureText(label).width > 385 && size > 20) {
+    while (Math.max(...label.split('\n').map((l) => ctx.measureText(l).width)) > 385 && size > 20) {
       size -= 1
       ctx.font = `700 ${size}px ${FONT}`
     }
-    ctx.fillText(label, 172, y + 12)
+    if (label.includes('\n')) {
+      const [l1, l2] = label.split('\n')
+      ctx.fillText(l1, 172, y - 4)
+      ctx.fillText(l2, 172, y + 32)
+    } else {
+      ctx.fillText(label, 172, y + 12)
+    }
   })
 
   // Photo in a ring, bottom right.
