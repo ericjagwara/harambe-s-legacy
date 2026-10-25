@@ -14,6 +14,7 @@ export type PageKey =
   | 'agreement'
   | 'mou'
   | 'mobiliser'
+  | 'poster'
   | 'hub'
   | 'dashboard'
 
@@ -35,6 +36,7 @@ export const routes: Record<PageKey, { path: string; title: string }> = {
   // Unlisted too: partner hubs are sent the link directly.
   mou: { path: '/partner-mou', title: 'Partner MOU' },
   mobiliser: { path: '/mobiliser-mou', title: 'Resource Mobiliser MOU' },
+  poster: { path: '/poster', title: 'I will be there poster' },
   // Hub pages live at /hubs/<name> (see hubSlugFromPath); '/hubs' alone is only a placeholder.
   hub: { path: '/hubs', title: 'Partner hub' },
   // Private: password protected, not linked anywhere.

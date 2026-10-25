@@ -18,12 +18,13 @@ type HubRow = {
   kits_paid: number
   kits_amount: number
   raised: number
+  unique_ips?: number
 }
 type Report = {
   days: number
   generated_at: string
-  traffic: { sessions: number; visitors: number; pageviews: number }
-  daily: Array<{ date: string; visits: number; pageviews: number; attempts: number; paid: number; paid_amount: number }>
+  traffic: { sessions: number; visitors: number; pageviews: number; unique_ips?: number }
+  daily: Array<{ date: string; visits: number; unique_ips?: number; pageviews: number; attempts: number; paid: number; paid_amount: number }>
   funnel: { sessions: number; form_page_sessions: number; form_start_sessions: number; pay_attempt_sessions: number; payments_created: number; payments_paid: number }
   payments: Payment[]
   categories: Row[]
@@ -110,18 +111,18 @@ function BarList({ rows, format = num, empty = 'Nothing yet.' }: { rows: Array<{
   )
 }
 
-function Bars({ data, field, format }: { data: Report['daily']; field: 'visits' | 'paid_amount'; format: (n: number) => string }) {
-  const max = Math.max(1, ...data.map((d) => d[field]))
-  const total = data.reduce((sum, d) => sum + d[field], 0)
+function Bars({ data, field, format, total: given }: { data: Report['daily']; field: 'visits' | 'paid_amount' | 'unique_ips'; format: (n: number) => string; total?: number }) {
+  const max = Math.max(1, ...data.map((d) => d[field] ?? 0))
+  const total = given ?? data.reduce((sum, d) => sum + (d[field] ?? 0), 0)
   return (
     <div>
       <p className="mb-3 text-sm text-foreground/70">Total in view: <strong>{format(total)}</strong></p>
       <div className="flex h-36 items-end gap-[2px]" role="img" aria-label="Daily chart">
         {data.map((d) => (
           <div key={d.date} className="group relative flex-1" style={{ height: '100%' }}>
-            <div className="absolute inset-x-0 bottom-0 bg-primary/85 group-hover:bg-secondary" style={{ height: `${d[field] > 0 ? Math.max(3, (d[field] / max) * 100) : 0}%` }} />
+            <div className="absolute inset-x-0 bottom-0 bg-primary/85 group-hover:bg-secondary" style={{ height: `${(d[field] ?? 0) > 0 ? Math.max(3, ((d[field] ?? 0) / max) * 100) : 0}%` }} />
             <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 hidden -translate-x-1/2 whitespace-nowrap bg-foreground px-2 py-1 text-xs text-white group-hover:block">
-              {d.date}: {format(d[field])}
+              {d.date}: {format(d[field] ?? 0)}
             </div>
           </div>
         ))}
@@ -297,7 +298,8 @@ export default function DashboardPage() {
 
         {report ? (
           <div className="mt-8 grid gap-4">
-            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+              <Stat label="Unique IP addresses" value={num(report.traffic.unique_ips ?? 0)} note="Different connections that visited. Counted from the day this was switched on." />
               <Stat label="Visits" value={num(report.traffic.sessions)} note={`${num(report.traffic.visitors)} people, ${num(report.traffic.pageviews)} page views`} />
               <Stat label="Money received" value={ugx(sums.total)} note={`${ugx(sums.kits.amount)} kits, ${ugx(sums.gifts.amount)} donations`} />
               <Stat label="Kits paid" value={num(sums.kits.paid)} note={`${num(sums.kits.attempts)} started, ${pct(sums.kits.paid, sums.kits.attempts)} completed`} />
@@ -308,6 +310,9 @@ export default function DashboardPage() {
               <Card title="Visits per day">
                 <Bars data={report.daily} field="visits" format={num} />
               </Card>
+              <Card title="Unique IP addresses per day">
+                <Bars data={report.daily} field="unique_ips" format={num} total={report.traffic.unique_ips ?? 0} />
+              </Card>
               <Card title="Money received per day">
                 <Bars data={report.daily} field="paid_amount" format={ugx} />
               </Card>
@@ -315,12 +320,13 @@ export default function DashboardPage() {
 
             <Card title="Partner hubs">
               <Table
-                head={['Hub', 'Page visits', 'Kits chosen', 'Donations paid', 'Donations (UGX)', 'Kits started', 'Kits paid', 'Kits (UGX)', 'Total (UGX)']}
+                head={['Hub', 'Page visits', 'Unique IPs', 'Kits chosen', 'Donations paid', 'Donations (UGX)', 'Kits started', 'Kits paid', 'Kits (UGX)', 'Total (UGX)']}
                 rows={hubRows.map((h) => [
                   <a key="n" className="font-bold text-primary underline underline-offset-4" href={`/hubs/${h.hub}`} target="_blank" rel="noopener noreferrer">
                     {hubName(h.hub)}
                   </a>,
                   num(h.visits),
+                  num(h.unique_ips ?? 0),
                   num(h.kit_clicks),
                   `${num(h.donations_paid)} of ${num(h.donation_attempts)}`,
                   num(h.donations_amount),

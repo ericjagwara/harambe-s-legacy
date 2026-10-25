@@ -40,6 +40,16 @@ function deviceOf(ua: string) {
   return 'Desktop'
 }
 
+// Visitors are counted by IP address, but the address itself is never stored: only a keyed one-way hash
+// (HMAC-SHA256 with ANALYTICS_SALT, or the service key if that secret is not set). The same IP always gives
+// the same hash, so unique visitors can be counted, but the hash cannot be turned back into the address.
+async function hashIp(ip: string) {
+  const secret = Deno.env.get('ANALYTICS_SALT') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(`ip:${secret}`), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+  const sig = new Uint8Array(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(ip)))
+  return Array.from(sig.slice(0, 12), (b) => b.toString(16).padStart(2, '0')).join('')
+}
+
 async function sameSecret(a: string, b: string) {
   const enc = new TextEncoder()
   const [ha, hb] = await Promise.all([crypto.subtle.digest('SHA-256', enc.encode(a)), crypto.subtle.digest('SHA-256', enc.encode(b))])
@@ -73,7 +83,9 @@ Deno.serve(async (req) => {
         if (v) cleanMeta[key] = v
       }
 
+      const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim()
       const { error } = await supabase.from('site_events').insert({
+        ip_hash: ip ? await hashIp(ip) : null,
         session_id: sessionId,
         visitor_id: text(body.visitor, 64),
         event,
