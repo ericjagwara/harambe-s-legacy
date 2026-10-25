@@ -337,10 +337,11 @@ export function drawPoster(canvas: HTMLCanvasElement, input: PosterInput) {
   // Footer.
   icon(ctx, 'globe', 120, 1006, L.blob, '#ffffff')
   ctx.fillStyle = L.text
-  ctx.font = `800 32px ${FONT}`
-  ctx.fillText('haramberun.com', 172, 1004)
-  ctx.font = `600 23px ${FONT}`
-  ctx.fillText('#StartupsHarambeRun', 172, 1038)
+  ctx.font = `600 22px ${FONT}`
+  ctx.fillText('Run with us. Register now:', 172, 993)
+  ctx.fillStyle = L.accent
+  ctx.font = `800 34px ${FONT}`
+  ctx.fillText('haramberun.com/register', 172, 1033)
 }
 
 export function posterBlob(canvas: HTMLCanvasElement, type: 'image/png' | 'image/jpeg', quality = 0.9) {

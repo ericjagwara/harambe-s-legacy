@@ -144,7 +144,7 @@ export default function PosterPage() {
   }
 
   const locked = false
-  const share = `I'll be there at the Startups Harambe Run on Sunday 29 November! Join me: https://haramberun.com #StartupsHarambeRun`
+  const share = `I'll be there at the Startups Harambe Run on Sunday 29 November! Register and run with me: https://haramberun.com/register #StartupsHarambeRun #CapitalHarambeRun`
 
   return (
     <>
