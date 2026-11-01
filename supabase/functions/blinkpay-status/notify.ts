@@ -45,6 +45,8 @@ const ugx = (amount: number) => `UGX ${Number(amount).toLocaleString('en-US')}`
 const fit = (message: string) => (message.length <= 160 ? message : `${message.slice(0, 157)}...`)
 const firstName = (p: Payment) => String(p.full_name).trim().split(/\s+/)[0]
 const isRunner = (p: Payment) => p.purpose === 'Runner registration'
+// Featured Startup / SME packages are listings. Without an added running ticket there is no kit to collect.
+const isListingOnly = (p: Payment) => String(p.details?.category ?? '').startsWith('Featured') && !p.details?.ticket_category
 const isStudent = (p: Payment) => String(p.details?.category ?? '').toLowerCase().includes('student')
 
 // ---------- SMS ----------
@@ -52,6 +54,9 @@ const isStudent = (p: Payment) => String(p.details?.category ?? '').toLowerCase(
 export async function buildMessages(p: Payment) {
   const first = firstName(p).slice(0, 10)
   const receipt = `Receipt: ${siteHost()}/receipt/${p.reference}?k=${await receiptKey(p.reference)}`
+  if (isRunner(p) && isListingOnly(p)) {
+    return [fit(`Harambe Run: ${first}, ${ugx(p.amount)} paid. Ref ${p.reference}. Your featured listing is confirmed. ${receipt}`)]
+  }
   if (isRunner(p)) {
     return [
       fit(`Harambe Run: ${first}, ${ugx(p.amount)} paid. Ref ${p.reference}. Bring this SMS${isStudent(p) ? ' + student ID' : ''} to kit pickup. ${receipt}`),
@@ -134,7 +139,7 @@ function whatsappMessage(p: Payment) {
   const d = (p.details ?? {}) as Record<string, unknown>
   const who = p.is_anonymous ? 'An anonymous contributor' : String(p.full_name).trim()
   const what = isRunner(p)
-    ? `registered to run${d.category ? ` (${d.category})` : ''}`
+    ? `${isListingOnly(p) ? 'took a featured listing' : 'registered to run'}${d.category ? ` (${d.category})` : ''}`
     : 'donated'
   return `\u{1F49A} New payment: ${who} ${what} \u2014 ${ugx(p.amount)}.`
 }
@@ -174,20 +179,25 @@ export async function buildEmail(p: Payment) {
   const receiptUrl = `${siteUrl()}/receipt/${p.reference}?k=${await receiptKey(p.reference)}`
   const d = (p.details ?? {}) as Record<string, unknown>
   const runner = isRunner(p)
-  const subject = runner
+  const subject = runner && isListingOnly(p)
+    ? `Your featured listing at Harambe Run 2026 is confirmed (${p.reference})`
+    : runner
     ? `Your place at Harambe Run 2026 is confirmed (${p.reference})`
     : `Thank you for your donation to Harambe Run 2026 (${p.reference})`
 
-  const intro = runner
+  const listingOnly = runner && isListingOnly(p)
+  const intro = listingOnly
+    ? `Hi ${esc(firstName(p))}, your payment is received and your featured listing for Harambe Run 2026 is confirmed. Our team will be in touch about your listing.`
+    : runner
     ? `Hi ${esc(firstName(p))}, your payment is received and your place at Harambe Run 2026 is confirmed. See you on Sunday 29 November 2026.`
     : `Hi ${esc(firstName(p))}, thank you for your donation. Your gift funds startup programmes in universities, catalytic funds for startups and angel investor training.`
 
-  const pickup = runner
+  const pickup = runner && !listingOnly
     ? `<p style="margin:24px 0 0;padding:16px;background:#f4f2ec;color:#0b2e22;font-size:15px;line-height:22px"><strong>Kit pickup:</strong> show this email, your receipt or the confirmation SMS${isStudent(p) ? ', together with your valid student ID,' : ''} at the kit pickup desk.</p>`
     : ''
 
-  const whatsapp = runner
-    ? `<p style="margin:24px 0 0;font-size:15px;line-height:22px;color:#0b2e22">Join the runners' WhatsApp group for updates and your start-point briefing: <a href="https://${WHATSAPP_GROUP}" style="color:#00563a;font-weight:bold">${WHATSAPP_GROUP}</a></p>`
+  const whatsapp = runner && !listingOnly
+    ? `<p style="margin:24px 0 0;font-size:15px;line-height:22px;color:#0b2e22">Join the runners' WhatsApp group for updates and your route briefing: <a href="https://${WHATSAPP_GROUP}" style="color:#00563a;font-weight:bold">${WHATSAPP_GROUP}</a></p>`
     : ''
 
   const html = `<!doctype html><html><body style="margin:0;padding:0;background:#f4f2ec;font-family:Arial,Helvetica,sans-serif">
@@ -195,7 +205,7 @@ export async function buildEmail(p: Payment) {
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff">
 <tr><td style="background:#00563a;padding:24px 28px">
 <p style="margin:0;color:#e1a524;font-size:11px;letter-spacing:3px;font-weight:bold;text-transform:uppercase">Startups Harambe Run 2026</p>
-<p style="margin:10px 0 0;color:#ffffff;font-size:24px;font-weight:bold;text-transform:uppercase">${runner ? 'Registration confirmed' : 'Donation received'}</p>
+<p style="margin:10px 0 0;color:#ffffff;font-size:24px;font-weight:bold;text-transform:uppercase">${listingOnly ? 'Listing confirmed' : runner ? 'Registration confirmed' : 'Donation received'}</p>
 </td></tr>
 <tr><td style="padding:28px">
 <p style="margin:0;font-size:15px;line-height:22px;color:#0b2e22">${intro}</p>
@@ -204,6 +214,7 @@ ${row('Reference', p.reference)}
 ${row('Amount paid', ugx(p.amount))}
 ${row('Name', p.full_name)}
 ${runner ? row('Category', d.category) : ''}
+${runner && d.ticket_category ? row('Running ticket', d.ticket_category) : ''}
 ${runner ? row('Startup', d.startup_name) : ''}
 ${runner ? row('Distance', d.distance) : ''}
 ${runner ? row('Starting point', d.start) : ''}
@@ -219,21 +230,22 @@ ${whatsapp}
 </table></td></tr></table></body></html>`
 
   const text = [
-    runner ? 'Registration confirmed' : 'Donation received',
+    listingOnly ? 'Listing confirmed' : runner ? 'Registration confirmed' : 'Donation received',
     '',
     intro.replace(/&#39;/g, "'").replace(/&amp;/g, '&'),
     '',
     `Reference: ${p.reference}`,
     `Amount paid: ${ugx(p.amount)}`,
     runner && d.category ? `Category: ${d.category}` : '',
+    runner && d.ticket_category ? `Running ticket: ${d.ticket_category}` : '',
     runner && d.startup_name ? `Startup: ${d.startup_name}` : '',
     runner && d.distance ? `Distance: ${d.distance}` : '',
     runner && d.start ? `Starting point: ${d.start}` : '',
     runner && d.kit_size ? `Kit size: ${d.kit_size}` : '',
     '',
-    runner ? `Kit pickup: show this email, your receipt or the SMS${isStudent(p) ? ' and your student ID' : ''}.` : '',
+    runner && !listingOnly ? `Kit pickup: show this email, your receipt or the SMS${isStudent(p) ? ' and your student ID' : ''}.` : '',
     `Receipt: ${receiptUrl}`,
-    runner ? `Runners' WhatsApp group: https://${WHATSAPP_GROUP}` : '',
+    runner && !listingOnly ? `Runners' WhatsApp group: https://${WHATSAPP_GROUP}` : '',
     '',
     'Harambe. Run. Fund. Job Creation. Tell a friend!',
   ]

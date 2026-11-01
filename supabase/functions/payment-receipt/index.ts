@@ -79,6 +79,11 @@ Deno.serve(async (req) => {
       donationAmount: Number(details.extra_donation) > 0 ? Number(details.extra_donation) : null,
       hub: details.hub ?? null,
       category: details.category ?? null,
+      // Featured listings: the package, and an optional running ticket bought with it.
+      ticketCategory: details.ticket_category ?? null,
+      packageAmount: Number(details.ticket_price) > 0 ? Number(details.package_price) || null : null,
+      ticketAmount: Number(details.ticket_price) > 0 ? Number(details.ticket_price) : null,
+      listingOnly: String(details.category ?? '').startsWith('Featured') && !details.ticket_category,
       start: details.start ?? null,
       distance: details.distance ?? null,
       startup: details.startup_name ?? null,

@@ -32,8 +32,8 @@ export const partnerLogos = [
 export const heroStats = [
   { value: 'UGX 3.75B', label: 'fundraising target' },
   { value: '5,000+', label: 'expected participants' },
-  { value: '10', label: 'start points' },
-  { value: '1', label: 'Makerere finish line' },
+  { value: '4', label: 'race distances' },
+  { value: '1', label: 'start and finish line' },
 ]
 
 export const missionStats = [
@@ -92,21 +92,12 @@ export const universityStarts = [
   'Universal Technology and Management University',
 ]
 
-export const neighborhoodStarts = [
-  'Ntinda traffic lights',
-  'Kalerwe Market',
-  'Bwaise station, Bombo Road',
-  'Namungoona roundabout',
-  'Kabuusu Junction',
-  'Busega roundabout',
-  'Entebbe Road roundabout',
-]
 
 export const safetyNotes = [
-  'Route marshals stationed at start points and key junctions',
+  'Route marshals stationed at key junctions and water points',
   'Ambulance and first aid cover along the official routes',
   'Police route clearance and traffic coordination',
-  'Signed convergence protocol at Makerere University Freedom Square Pitch',
+  'Every distance starts and finishes at Makerere University Freedom Square',
 ]
 
 export const ticketTypes = [
@@ -121,9 +112,9 @@ export const ticketTypes = [
     detail: 'Open to everyone. Choose 21 km, 10 km, 5 km or 3 km.',
   },
   {
-    name: 'Startup or SME runner',
-    price: 'UGX 100,000',
-    detail: 'Run for your startup or business. Includes social media mentions and visibility, with your startup name and logo.',
+    name: 'Featured listing',
+    price: 'UGX 60,000+',
+    detail: 'For startups (UGX 60,000) and SMEs or corporates (UGX 100,000) offering a discount. Includes social media mentions and visibility with your name and logo. A running ticket is optional.',
   },
   {
     name: 'Virtual donor',

@@ -4,7 +4,7 @@ import { asset, kitImages, kitItems, ticketTypes } from '../data'
 import { pageHref } from '../routes'
 
 const runnerSteps = [
-  'Choose your category: student, general public, or startup and SME.',
+  'Choose your category: student or general public. Startups and SMEs can also take a featured listing, with a running ticket if they like.',
   'Pick your distance: 21 km, 10 km, 5 km or 3 km.',
   'Collect your kit at the kit pickup desk with your receipt or SMS.',
   'Run on Sunday 29 November and finish at Makerere University.',
@@ -37,7 +37,7 @@ export default function RunnersPage() {
                 <h3 className="mt-5 font-display text-3xl uppercase leading-none text-foreground">{ticket.name}</h3>
                 <p className="mt-5 font-display text-4xl uppercase leading-none text-primary">{ticket.price}</p>
                 <p className="mt-4 flex-1 text-sm leading-6 text-muted-foreground">{ticket.detail}</p>
-                <a href={ticket.price === 'Open pledge' ? pageHref('donate') : `${pageHref('register')}?for=run`} className="btn-primary mt-7 w-full">
+                <a href={ticket.price === 'Open pledge' ? pageHref('donate') : ticket.name === 'Featured listing' ? `${pageHref('register')}?for=featured` : `${pageHref('register')}?for=run`} className="btn-primary mt-7 w-full">
                   {ticket.price === 'Open pledge' ? 'Donate' : 'Select category'}
                 </a>
               </article>

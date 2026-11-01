@@ -16,6 +16,10 @@ const RUNNER_PRICES: Record<string, number> = {
   'General public runner, UGX 50,000': 30000,
 }
 
+// Listing packages (not running tickets) and the one running ticket they can add.
+const FEATURED_PACKAGES = new Set(['Featured Startup, UGX 60,000 (Offering Discount)', 'Featured SME/Corporate, UGX 100,000 (Offering Discount)'])
+const TICKET_CATEGORY = 'General public runner, UGX 30,000'
+
 async function blinkpay(payload: Record<string, unknown>) {
   const res = await fetch(BLINKPAY_URL, {
     method: 'POST',
@@ -84,11 +88,27 @@ Deno.serve(async (req) => {
       const price = RUNNER_PRICES[String(details.category ?? '')]
       if (!price) return json({ error: 'Please choose a runner category.' }, 400)
       amount = price
+      // Featured Startup and Featured SME/Corporate are listing packages, not running tickets. They may add one
+      // general running ticket in the same payment. The browser never sets these amounts; they are set here.
+      const featured = FEATURED_PACKAGES.has(String(details.category))
+      delete details.package_price
+      delete details.ticket_price
+      if (featured && details.ticket_category === TICKET_CATEGORY) {
+        details.package_price = price
+        details.ticket_price = RUNNER_PRICES[TICKET_CATEGORY]
+        amount = price + RUNNER_PRICES[TICKET_CATEGORY]
+      } else {
+        delete details.ticket_category
+        if (featured) {
+          delete details.kit_size
+          delete details.distance
+        }
+      }
       // Partner hub pages only: an optional extra donation on top of the kit, paid in the same payment.
       // The browser never sets the amounts stored with the payment; they are set here.
       delete details.kit_price
       delete details.extra_donation
-      if (/^[a-z0-9-]{1,40}$/.test(String(details.hub ?? ''))) {
+      if (!featured && /^[a-z0-9-]{1,40}$/.test(String(details.hub ?? ''))) {
         const extra = Math.round(Number(body.extraDonation ?? 0))
         if (!Number.isFinite(extra) || extra < 0 || extra > 50_000_000 || (extra > 0 && extra < 500)) {
           return json({ error: 'Enter an extra donation between UGX 500 and UGX 50,000,000, or leave it out.' }, 400)

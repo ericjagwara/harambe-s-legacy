@@ -12,6 +12,8 @@ type Row = {
   start: string | null
   distance?: string | null
   startup?: string | null
+  ticket?: string | null
+  listingOnly?: boolean
   amount: number
   expectedAmount: number | null
   paidAt: string | null
@@ -196,7 +198,10 @@ export default function PickupPage() {
                       {row.startup ? ` · ${row.startup}` : ''}
                       {row.start ? ` · ${row.start}` : ''}
                     </p>
-                    {paid && runner && !row.collectedAt ? (
+                    {paid && runner && row.listingOnly ? (
+                      <p className="mt-3 font-ui text-xs font-black uppercase tracking-[0.18em] text-foreground">Featured listing only: no running kit to hand over</p>
+                    ) : null}
+                    {paid && runner && !row.listingOnly && !row.collectedAt ? (
                       <p className="mt-3 font-ui text-xs font-black uppercase tracking-[0.18em] text-foreground">
                         {student
                           ? 'Check their student ID shows this name before handing over'

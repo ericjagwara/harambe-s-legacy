@@ -4,6 +4,13 @@ import { asset, coHostLogos, partnerLogos, platinumSponsors } from '../data'
 import { supabase } from '@/integrations/supabase/client'
 import { pageHref, type PageKey } from '../routes'
 
+const legalLinks: Array<[PageKey, string]> = [
+  ['privacy', 'Privacy'],
+  ['cookies', 'Cookies'],
+  ['terms', 'Terms'],
+  ['refunds', 'Refunds'],
+]
+
 const eventLinks: Array<[PageKey, string]> = [
   ['runners', 'Runners'],
   ['route', 'Route'],
@@ -148,6 +155,11 @@ export default function Footer() {
           <p>TechBuzz Hub and Startup Funding Vehicles</p>
           <p>Kampala, Uganda</p>
         </div>
+        <nav aria-label="Legal" className="mt-4 flex flex-wrap gap-x-6 gap-y-2 border-t border-white/12 pt-4 font-ui text-[10px] font-bold uppercase tracking-[0.18em] text-white/70">
+          {legalLinks.map(([page, label]) => (
+            <a key={page} href={pageHref(page)} className="transition-colors hover:text-secondary">{label}</a>
+          ))}
+        </nav>
       </div>
     </footer>
   )

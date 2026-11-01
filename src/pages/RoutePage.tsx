@@ -1,21 +1,21 @@
 import { Flag } from 'lucide-react'
 import Reveal from '../components/Reveal'
 import { CtaBand, MetricGrid, PageHero, PageSection, SectionHeader } from '../components/PageLayout'
-import { safetyNotes } from '../data'
+import { asset, safetyNotes } from '../data'
 
 const routeFacts = [
   { value: '4', label: 'race distances' },
-  { value: '10', label: 'start points' },
-  { value: '1', label: 'finish line at Makerere' },
+  { value: '1', label: 'start and finish line' },
+  { value: '4', label: 'route maps' },
   { value: '29 Nov', label: 'run day, 2026' },
 ]
 
-// Start point locations are announced closer to run day; only the count is shown for now.
+// Every distance starts and finishes at Makerere University Freedom Square.
 const distances = [
-  { km: '21 km', name: 'Half marathon', note: 'For experienced runners.' },
-  { km: '10 km', name: '10K run', note: 'A strong challenge for regular runners.' },
-  { km: '5 km', name: '5K run', note: 'Popular with students and first-time racers.' },
-  { km: '3 km', name: 'Fun run', note: 'Walk, jog or run. Open to everyone.' },
+  { km: '21 km', name: 'Half Marathon', note: 'Out through Kawempe, Ntinda and Kyambogo, back along Jinja Road and Nakasero.', map: 'route-21k.webp' },
+  { km: '10 km', name: 'Road Race', note: 'Makerere Kavule, Kubbiri and Kamwokya, then back via Uganda Museum and Wandegeya.', map: 'route-10k.webp' },
+  { km: '5 km', name: 'Fun Run', note: 'A loop around Makerere Hill via Wandegeya, Kikoni and the Western Gate.', map: 'route-5k.webp' },
+  { km: '3 km', name: 'Inclusive Run', note: 'For persons with disabilities. Two flat, paved 1.5 km laps inside the campus, anticlockwise.', map: 'route-3k.webp' },
 ]
 
 export default function RoutePage() {
@@ -23,23 +23,34 @@ export default function RoutePage() {
     <>
       <PageHero
         eyebrow="Distances and route"
-        title="Every road points to Makerere."
-        copy="Choose 21 km, 10 km, 5 km or 3 km. Runners set off from 10 start points across Kampala, at university campuses, institutions and community locations, and finish together at Makerere University Freedom Square. Start points and final routes are shared with registered runners before run day."
+        title="One start. One finish. Four routes."
+        copy="Choose 21 km, 10 km, 5 km or the 3 km inclusive run. Every distance starts and finishes at Freedom Square, Makerere University. Full route maps are below."
       />
 
       <PageSection className="bg-white">
         <SectionHeader
           eyebrow="Race distances"
-          title="Four distances. One finish line."
-          copy="Pick the distance that suits you when you register. Every distance finishes at Makerere University Freedom Square."
+          title="Four distances. One start and finish line."
+          copy="Pick the distance that suits you when you register. Every distance starts and finishes at Freedom Square, Makerere University."
         />
-        <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <div className="mt-10 grid gap-6 sm:grid-cols-2">
           {distances.map((distance, index) => (
             <Reveal key={distance.km} delay={index * 70}>
-              <article className="h-full bg-background p-5 sm:p-7">
-                <p className="font-display text-4xl uppercase leading-none text-primary sm:text-5xl">{distance.km}</p>
-                <h3 className="mt-4 font-display text-xl uppercase leading-none sm:text-2xl">{distance.name}</h3>
+              <article className="h-full bg-background p-5 sm:p-6">
+                <div className="flex items-baseline gap-3">
+                  <p className="font-display text-4xl uppercase leading-none text-primary sm:text-5xl">{distance.km}</p>
+                  <h3 className="font-display text-xl uppercase leading-none sm:text-2xl">{distance.name}</h3>
+                </div>
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">{distance.note}</p>
+                <a href={asset(distance.map)} target="_blank" rel="noreferrer" className="mt-4 block" aria-label={`Open the ${distance.km} ${distance.name} route map`}>
+                  <img
+                    src={asset(distance.map)}
+                    alt={`Route map for the ${distance.km} ${distance.name}, starting and finishing at Freedom Square, Makerere University`}
+                    loading="lazy"
+                    className="w-full border border-border bg-white"
+                  />
+                </a>
+                <p className="mt-2 text-xs font-bold uppercase tracking-[0.12em] text-foreground/55">Tap the map to open it full size</p>
               </article>
             </Reveal>
           ))}
@@ -56,7 +67,7 @@ export default function RoutePage() {
               <p className="eyebrow">Route safety</p>
               <h2 className="section-title-dark mt-4">Cleared, marshalled and supported.</h2>
               <p className="mt-5 text-base leading-7 text-white/68">
-                Route operations are planned around official clearance, medical cover and a managed convergence protocol at the finish line.
+                Route operations are planned around official clearance, medical cover and marshals at every key junction and water point.
               </p>
             </div>
           </Reveal>

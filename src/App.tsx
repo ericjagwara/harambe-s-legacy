@@ -17,6 +17,7 @@ import VolunteerAgreementPage from './pages/VolunteerAgreementPage'
 import PartnerMouPage from './pages/PartnerMouPage'
 import MobiliserMouPage from './pages/MobiliserMouPage'
 import PosterPage from './pages/PosterPage'
+import PolicyPage from './pages/PolicyPage'
 import HubPage from './pages/HubPage'
 import DashboardPage from './pages/DashboardPage'
 import { trackEvent } from './lib/analytics'
@@ -55,6 +56,11 @@ function renderPage(page: PageKey, path: string) {
       return <MobiliserMouPage />
     case 'poster':
       return <PosterPage />
+    case 'privacy':
+    case 'cookies':
+    case 'terms':
+    case 'refunds':
+      return <PolicyPage slug={page} />
     case 'hub':
       return <HubPage slug={hubSlugFromPath(path)} />
     case 'dashboard':

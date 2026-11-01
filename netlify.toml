@@ -5,6 +5,12 @@
 [build.environment]
   NODE_VERSION = "20"
 
+# The SFV hub moved from a long address to /hubs/sfv.
+[[redirects]]
+  from = "/hubs/startup-funding-vehicles"
+  to = "/hubs/sfv"
+  status = 301
+
 # Serve the app for every page path, so /results or /register opened directly or shared as a link loads correctly.
 [[redirects]]
   from = "/*"

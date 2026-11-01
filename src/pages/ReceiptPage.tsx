@@ -13,6 +13,10 @@ type Receipt = {
   kitAmount?: number | null
   donationAmount?: number | null
   category: string | null
+  ticketCategory?: string | null
+  packageAmount?: number | null
+  ticketAmount?: number | null
+  listingOnly?: boolean
   start: string | null
   distance?: string | null
   startup?: string | null
@@ -121,6 +125,7 @@ export default function ReceiptPage() {
   const runner = receipt?.purpose === 'Runner registration'
   const student = Boolean(receipt?.category?.toLowerCase().includes('student'))
   const card = receipt?.method === 'card'
+  const listingOnly = Boolean(receipt?.listingOnly)
   // Arrived here from a payment that has now gone through: show the success page.
   const justPaid = paid && (arrivedPaid || cardReturn === 'returned')
 
@@ -133,7 +138,9 @@ export default function ReceiptPage() {
             <h1 className="page-title mt-4">Payment successful</h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-foreground/80">
               {runner
-                ? `Thank you, ${receipt.name.split(/\s+/)[0]}. Your place at Harambe Run 2026 is confirmed. See you on Sunday 29 November.`
+                ? listingOnly
+                  ? `Thank you, ${receipt.name.split(/\s+/)[0]}. Your featured listing for Harambe Run 2026 is confirmed. Our team will be in touch about your listing.`
+                  : `Thank you, ${receipt.name.split(/\s+/)[0]}. Your place at Harambe Run 2026 is confirmed. See you on Sunday 29 November.`
                 : `Thank you, ${receipt.name.split(/\s+/)[0]}. Your donation is counted on the live fundraising board.`}
             </p>
             <div className="mt-8 bg-white p-6 sm:p-8">
@@ -145,16 +152,16 @@ export default function ReceiptPage() {
                   This page is your receipt. Save or print it below, or reopen it any time at{' '}
                   <strong className="break-words">haramberun.com/receipt/{receipt.reference}</strong>.
                 </li>
-                {runner ? (
+                {runner && !listingOnly ? (
                   <li>
                     At kit pickup, show this receipt, the email or the SMS{student ? ', with your valid student ID' : ''}.
                   </li>
                 ) : null}
               </ul>
-              {runner ? (
+              {runner && !listingOnly ? (
                 <div className="mt-6 border-t border-border pt-6">
                   <p className="text-base leading-7 text-foreground/80">
-                    Join the runners' WhatsApp group for updates and your start-point briefing. Harambe. Run. Fund. Job Creation. Tell a friend!
+                    Join the runners' WhatsApp group for updates and your route briefing. Harambe. Run. Fund. Job Creation. Tell a friend!
                   </p>
                   <a href={WHATSAPP_GROUP_LINK} target="_blank" rel="noopener noreferrer" className="btn-gold mt-4">
                     Join the WhatsApp group
@@ -251,6 +258,12 @@ export default function ReceiptPage() {
                   <Item label="Donation to the Startups Harambe Fund" value={ugx(receipt.donationAmount)} />
                 </>
               ) : null}
+              {receipt.packageAmount && receipt.ticketAmount ? (
+                <>
+                  <Item label="Featured listing" value={ugx(receipt.packageAmount)} />
+                  <Item label="Running ticket" value={ugx(receipt.ticketAmount)} />
+                </>
+              ) : null}
               <Item label="Name" value={receipt.name} />
               {receipt.phone ? <Item label={card ? 'Phone number' : 'Mobile money number'} value={receipt.phone} /> : null}
               <Item label="Paid with" value={card ? 'Visa card' : 'Mobile money'} />
@@ -262,7 +275,7 @@ export default function ReceiptPage() {
               {receipt.receiptNumber ? <Item label={card ? 'Card transaction ID' : 'Network receipt number'} value={receipt.receiptNumber} /> : null}
             </dl>
 
-            {runner && paid ? (
+            {runner && paid && !listingOnly ? (
               <div className="border-t border-border p-6 sm:p-8">
                 {receipt.collected ? (
                   <p className="font-ui text-sm font-black uppercase tracking-[0.18em] text-foreground">

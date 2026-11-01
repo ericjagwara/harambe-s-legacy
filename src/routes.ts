@@ -16,6 +16,10 @@ export type PageKey =
   | 'mobiliser'
   | 'poster'
   | 'hub'
+  | 'privacy'
+  | 'cookies'
+  | 'terms'
+  | 'refunds'
   | 'dashboard'
 
 export const routes: Record<PageKey, { path: string; title: string }> = {
@@ -37,6 +41,10 @@ export const routes: Record<PageKey, { path: string; title: string }> = {
   mou: { path: '/partner-mou', title: 'Partner MOU' },
   mobiliser: { path: '/mobiliser-mou', title: 'Resource Mobiliser MOU' },
   poster: { path: '/poster', title: 'I will be there poster' },
+  privacy: { path: '/privacy', title: 'Privacy Policy' },
+  cookies: { path: '/cookies', title: 'Cookie Policy' },
+  terms: { path: '/terms', title: 'Terms and Conditions' },
+  refunds: { path: '/refunds', title: 'Refund and Cancellation Policy' },
   // Hub pages live at /hubs/<name> (see hubSlugFromPath); '/hubs' alone is only a placeholder.
   hub: { path: '/hubs', title: 'Partner hub' },
   // Private: password protected, not linked anywhere.
@@ -77,5 +85,6 @@ export function legacyHashPath(hash: string): string | null {
 // Hub name from a path like /hubs/einstein-rising
 export function hubSlugFromPath(pathname: string): string {
   const match = pathname.match(/^\/hubs\/([^/?#]+)/)
-  return match ? decodeURIComponent(match[1]).toLowerCase() : ''
+  const slug = match ? decodeURIComponent(match[1]).toLowerCase() : ''
+  return slug === 'startup-funding-vehicles' ? 'sfv' : slug // the first SFV link keeps working
 }

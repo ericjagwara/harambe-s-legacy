@@ -7,10 +7,11 @@ import { trackEvent } from '@/lib/analytics'
 import { supabase } from '@/integrations/supabase/client'
 import { booths, proposals, sectorPackages, sponsorTiers, universityStarts } from '../data'
 
-export type RegistrationTab = 'run' | 'donate' | 'sponsor' | 'booth'
+export type RegistrationTab = 'run' | 'featured' | 'donate' | 'sponsor' | 'booth'
 
 const choices: Array<{ key: RegistrationTab; title: string }> = [
-  { key: 'run', title: 'Run - Register to run / Offer discounts' },
+  { key: 'run', title: 'Run - Register to run' },
+  { key: 'featured', title: 'Featured listing - Startups and SMEs offering discounts' },
   { key: 'donate', title: 'Donate - Give any amount' },
   { key: 'sponsor', title: 'Sponsor - Partner as an organisation' },
   { key: 'booth', title: 'Exhibit - Book a booth and exhibit' },
@@ -21,6 +22,11 @@ const guides: Record<RegistrationTab, string[]> = {
     'Fill in your details, your run and an emergency contact.',
     'Pay for your running kit by mobile money or Visa card.',
     'You get a receipt on screen, by SMS and by email. Show it at kit pickup. Run day is Sunday 29 November 2026.',
+  ],
+  featured: [
+    'Tell us about your startup or business and choose the Featured Startup or Featured SME/Corporate package.',
+    'Want to run too? Tick the box to add a running ticket to the same payment. Otherwise it is a listing only, with no running kit.',
+    'Pay by mobile money or Visa card. You get a receipt on screen, by SMS and by email, and our team follows up about your discount listing.',
   ],
   donate: [
     'Enter your details and the amount you want to give.',
@@ -44,15 +50,21 @@ const exhibitOptions = [
 
 export const kitSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 
-export const distances = ['21 km (half marathon)', '10 km', '5 km', '3 km (fun run)']
+export const distances = ['21 km (half marathon)', '10 km (road race)', '5 km (fun run)', '3 km (inclusive run, persons with disabilities)']
 
 // Keep these labels identical to RUNNER_PRICES in blinkpay-deposit, blinkpay-card-start and pickup-desk.
 export const runnerCategories = [
   { label: 'Student runner, UGX 20,000', amount: 20000 },
   { label: 'General public runner, UGX 30,000', amount: 30000 },
+]
+
+// Listing packages. Keep these labels identical to RUNNER_PRICES in the payment functions.
+export const featuredPackages = [
   { label: 'Featured Startup, UGX 60,000 (Offering Discount)', amount: 60000 },
   { label: 'Featured SME/Corporate, UGX 100,000 (Offering Discount)', amount: 100000 },
 ]
+// The one running ticket a featured listing can add (same label and price as the general public runner).
+export const featuredTicket = { label: 'General public runner, UGX 30,000', amount: 30000 }
 
 type PayState = 'idle' | 'starting' | 'waiting' | 'success' | 'pending' | 'error'
 type PayMethod = 'mobile' | 'card'
@@ -97,6 +109,8 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
   const [elapsed, setElapsed] = useState(0)
   const [method, setMethod] = useState<PayMethod>('mobile')
   const [category, setCategory] = useState(runnerCategories[0].label)
+  const [pkg, setPkg] = useState(featuredPackages[0].label)
+  const [addTicket, setAddTicket] = useState(false)
   const [sending, setSending] = useState(false)
   const [formError, setFormError] = useState('')
   const pollRef = useRef<number | null>(null)
@@ -287,8 +301,8 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
 
   const busy = payState === 'starting' || payState === 'waiting'
   const student = category.toLowerCase().includes('student')
-  const businessListing = category.toLowerCase().includes('startup') || category.toLowerCase().includes('sme')
   const runnerPrice = runnerCategories.find((c) => c.label === category)?.amount ?? 30000
+  const featuredTotal = (featuredPackages.find((c) => c.label === pkg)?.amount ?? 60000) + (addTicket ? featuredTicket.amount : 0)
   const minutes = `${Math.floor(elapsed / 60)}:${String(elapsed % 60).padStart(2, '0')}`
 
   const payNotice =
@@ -404,7 +418,7 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
       onFocusCapture={() => {
         if (formStarted.current === active) return
         formStarted.current = active
-        if (active === 'run' || active === 'donate') trackEvent('form_start', { form: active })
+        if (active === 'run' || active === 'featured' || active === 'donate') trackEvent('form_start', { form: active })
       }}
     >
       {overlay}
@@ -534,34 +548,14 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
                         ))}
                       </select>
                     </Field>
-                    {businessListing ? (
-                      <>
-                        <Field label="Startup or business name" id="startup-name">
-                          <input className="field" id="startup-name" name="startup_name" autoComplete="organization" required />
-                        </Field>
-                        <Field label="Logo (optional, PNG, JPG or SVG, up to 2 MB)" id="startup-logo">
-                          <input
-                            className="field py-2.5 file:mr-3 file:border-0 file:bg-background file:px-3 file:py-1.5 file:font-ui file:text-xs file:font-bold file:uppercase file:tracking-[0.12em] file:text-foreground"
-                            id="startup-logo"
-                            name="startup_logo"
-                            type="file"
-                            accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                          />
-                        </Field>
-                        <p className="text-sm leading-6 text-foreground/70 sm:col-span-2">
-                          Your business name and logo are used for the discount listing, social media mentions and visibility included in this package.
-                        </p>
-                      </>
-                    ) : (
-                      <Field label={student ? 'University or institution' : 'Organisation or institution (optional)'} id="institution">
-                        <input className="field" id="institution" name="institution" list="institution-list" required={student} />
-                        <datalist id="institution-list">
-                          {universityStarts.map((u) => (
-                            <option key={u} value={u.split(',')[0]} />
-                          ))}
-                        </datalist>
-                      </Field>
-                    )}
+                    <Field label={student ? 'University or institution' : 'Organisation or institution (optional)'} id="institution">
+                      <input className="field" id="institution" name="institution" list="institution-list" required={student} />
+                      <datalist id="institution-list">
+                        {universityStarts.map((u) => (
+                          <option key={u} value={u.split(',')[0]} />
+                        ))}
+                      </datalist>
+                    </Field>
                     {student ? (
                       <p className="text-sm leading-6 text-foreground/70 sm:col-span-2">
                         Student rate: bring your valid student ID to kit pickup. No upload is needed now.
@@ -603,6 +597,130 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
                   <div>
                     <button className="btn-primary w-full sm:w-auto" type="submit" disabled={busy}>
                       {method === 'card' ? 'Continue to card payment' : `Pay UGX ${runnerPrice.toLocaleString('en-UG')} and confirm my place`}
+                    </button>
+                    <p className="mt-3 text-sm leading-6 text-foreground/70">{chargesNote}</p>
+                  </div>
+                </form>
+              ) : null}
+
+              {active === 'featured' ? (
+                <form onSubmit={(event) => pay(event, 'Runner registration', () => featuredTotal)} className="grid grid-cols-1 gap-6 sm:gap-8">
+                  <FormGroup title="Your listing">
+                    <Field label="Package" id="featured-package">
+                      <select className="field" id="featured-package" name="category" required value={pkg} onChange={(e) => setPkg(e.target.value)}>
+                        {featuredPackages.map((c) => (
+                          <option key={c.label}>{c.label}</option>
+                        ))}
+                      </select>
+                    </Field>
+                    <Field label="Startup or business name" id="startup-name">
+                      <input className="field" id="startup-name" name="startup_name" autoComplete="organization" required />
+                    </Field>
+                    <Field label="Logo (optional, PNG, JPG or SVG, up to 2 MB)" id="startup-logo">
+                      <input
+                        className="field py-2.5 file:mr-3 file:border-0 file:bg-background file:px-3 file:py-1.5 file:font-ui file:text-xs file:font-bold file:uppercase file:tracking-[0.12em] file:text-foreground"
+                        id="startup-logo"
+                        name="startup_logo"
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                      />
+                    </Field>
+                    <p className="text-sm leading-6 text-foreground/70 sm:col-span-2">
+                      Your business name and logo are used for the discount listing, social media mentions and visibility included in this package.
+                    </p>
+                  </FormGroup>
+
+                  <FormGroup title="Contact person">
+                    <Field label="Full name" id="featured-name">
+                      <input className="field" id="featured-name" name="name" autoComplete="name" required />
+                    </Field>
+                    <Field label="Email (your receipt is sent here)" id="featured-email">
+                      <input className="field" id="featured-email" type="email" name="email" autoComplete="email" required />
+                    </Field>
+                  </FormGroup>
+
+                  <label className="flex items-start gap-3 bg-background p-4 text-base leading-7">
+                    <input
+                      type="checkbox"
+                      checked={addTicket}
+                      onChange={(e) => setAddTicket(e.target.checked)}
+                      className="mt-1.5 h-5 w-5 shrink-0 accent-[hsl(var(--primary))]"
+                    />
+                    <span>
+                      <strong>Add a running ticket</strong> (+ UGX {featuredTicket.amount.toLocaleString('en-UG')}). Optional. Without it this is a listing only, with no running kit.
+                    </span>
+                  </label>
+
+                  {addTicket ? (
+                    <>
+                      <input type="hidden" name="ticket_category" value={featuredTicket.label} />
+                      <FormGroup title="Your run">
+                        <Field label="Gender" id="featured-gender">
+                          <select className="field" id="featured-gender" name="gender" required defaultValue="">
+                            <option value="" disabled>Choose</option>
+                            <option>Female</option>
+                            <option>Male</option>
+                            <option>Prefer not to say</option>
+                          </select>
+                        </Field>
+                        <Field label="Date of birth" id="featured-dob">
+                          <input className="field max-w-full appearance-none" id="featured-dob" type="date" name="date_of_birth" min="1930-01-01" max="2014-12-31" required />
+                        </Field>
+                        <Field label="Distance" id="featured-distance">
+                          <select className="field" id="featured-distance" name="distance" required defaultValue="">
+                            <option value="" disabled>Choose a distance</option>
+                            {distances.map((distance) => (
+                              <option key={distance}>{distance}</option>
+                            ))}
+                          </select>
+                        </Field>
+                        <Field label="Running kit size" id="featured-kit">
+                          <select className="field" id="featured-kit" name="kit_size" required defaultValue="">
+                            <option value="" disabled>Choose a size</option>
+                            {kitSizes.map((size) => (
+                              <option key={size}>{size}</option>
+                            ))}
+                          </select>
+                        </Field>
+                      </FormGroup>
+
+                      <FormGroup title="Next of kin (emergency contact)">
+                        <Field label="Full name" id="featured-nok-name">
+                          <input className="field" id="featured-nok-name" name="next_of_kin_name" required />
+                        </Field>
+                        <Field label="Relationship" id="featured-nok-relationship">
+                          <input className="field" id="featured-nok-relationship" name="next_of_kin_relationship" placeholder="Parent, sibling, spouse, friend" required />
+                        </Field>
+                        <Field label="Phone number" id="featured-nok-phone">
+                          <input className="field" id="featured-nok-phone" name="next_of_kin_phone" inputMode="tel" placeholder="0772000000" required />
+                        </Field>
+                        <Field label="Medical conditions or allergies (optional)" id="featured-medical">
+                          <input className="field" id="featured-medical" name="medical_notes" placeholder="e.g. asthma, none" />
+                        </Field>
+                      </FormGroup>
+                    </>
+                  ) : null}
+
+                  <FormGroup title="Payment">
+                    {methodPicker}
+                    <Field label={method === 'card' ? 'Your phone number (your SMS receipt is sent here)' : 'Mobile money number (the payment prompt comes here)'} id="featured-phone">
+                      <input className="field" id="featured-phone" name="phone" inputMode="tel" autoComplete="tel" placeholder="0781405551" required />
+                    </Field>
+                  </FormGroup>
+
+                  <label className="flex items-start gap-3 text-base leading-7">
+                    <input type="checkbox" name="consent" value="Agreed" required className="mt-1.5 h-5 w-5 shrink-0 accent-[hsl(var(--primary))]" />
+                    <span>
+                      I confirm the details above are correct and that my business name, logo and photos or videos from the event may be used to promote Harambe Run.
+                      {addTicket ? ' I am also fit to take part and run at my own risk.' : ''}
+                    </span>
+                  </label>
+
+                  {payNotice}
+
+                  <div>
+                    <button className="btn-primary w-full sm:w-auto" type="submit" disabled={busy}>
+                      {method === 'card' ? 'Continue to card payment' : `Pay UGX ${featuredTotal.toLocaleString('en-UG')} and confirm my listing`}
                     </button>
                     <p className="mt-3 text-sm leading-6 text-foreground/70">{chargesNote}</p>
                   </div>

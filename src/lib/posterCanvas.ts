@@ -15,9 +15,9 @@ export const TEMPLATES: Array<{ key: PosterTemplate; label: string; swatch: stri
 
 export const ACTIVITIES = [
   { value: '21 km', big: '21 KM', top: "I'LL BE RUNNING", sub: 'THE HALF MARATHON', label: 'Running the 21 km half marathon' },
-  { value: '10 km', big: '10 KM', top: "I'LL BE RUNNING", sub: '', label: 'Running the 10 km' },
-  { value: '5 km', big: '5 KM', top: "I'LL BE RUNNING", sub: '', label: 'Running the 5 km' },
-  { value: '3 km', big: '3 KM', top: "I'LL BE RUNNING", sub: 'THE FUN RUN', label: 'Running the 3 km fun run' },
+  { value: '10 km', big: '10 KM', top: "I'LL BE RUNNING", sub: 'THE ROAD RACE', label: 'Running the 10 km road race' },
+  { value: '5 km', big: '5 KM', top: "I'LL BE RUNNING", sub: 'THE FUN RUN', label: 'Running the 5 km fun run' },
+  { value: '3 km', big: '3 KM', top: "I'LL BE RUNNING", sub: 'THE INCLUSIVE RUN', label: 'Running the 3 km inclusive run' },
   { value: 'cheering', big: 'CHEERING!', top: "I'LL BE", sub: 'FROM THE SIDELINES', label: 'Cheering from the sidelines' },
   { value: 'volunteering', big: 'HELPING!', top: "I'LL BE", sub: 'AS A VOLUNTEER', label: 'Volunteering on the day' },
 ]
