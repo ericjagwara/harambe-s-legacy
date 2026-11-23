@@ -11,10 +11,10 @@ export const hubs: Hub[] = [
   { slug: 'finding-xy', name: 'Finding XY', banner: asset('hub-finding-xy.webp') },
   { slug: 'live-traces', name: 'Live Traces', banner: asset('hub-live-traces.webp') },
   { slug: 'sfv', name: 'Startup Funding Vehicles', banner: asset('hub-startup-funding-vehicles.webp') },
-  { slug: 'sina', name: 'SINA Uganda', banner: null },
+  { slug: 'sina', name: 'SINA Uganda', banner: asset('hub-sina.jpg') },
   { slug: 'uiw', name: 'Uganda Innovation Week', banner: null },
-  { slug: 'neta', name: 'NETA Uganda', banner: null },
-  { slug: 'gew', name: 'Global Entrepreneurship Week Uganda', banner: null },
+  { slug: 'neta', name: 'NETA Uganda', banner: asset('hub-neta-uganda.jpg') },
+  { slug: 'gew', name: 'Global Entrepreneurship Week Uganda', banner: asset('hub-gew.jpg') },
 ]
 
 export const hubBySlug = (slug: string) => hubs.find((hub) => hub.slug === slug)
