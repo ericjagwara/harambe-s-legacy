@@ -4,6 +4,7 @@ import { getReferral } from '@/lib/referral'
 import { supabase } from '@/integrations/supabase/client'
 import Reveal from '../components/Reveal'
 import { PageHero, PageSection } from '../components/PageLayout'
+import { pageHref } from '../routes'
 
 export default function ContactPage() {
   const [sent, setSent] = useState(false)
@@ -66,8 +67,9 @@ export default function ContactPage() {
                 <div className="flex gap-4 bg-white/[0.07] p-5">
                   <MapPin className="mt-1 h-5 w-5 shrink-0 text-secondary" />
                   <div>
-                    <p className="font-ui text-[11px] font-bold uppercase tracking-[0.18em]">Finish line</p>
-                    <p className="mt-2 text-sm leading-6 text-white/68">Makerere University Freedom Square Pitch, Kampala, Uganda.</p>
+                    <p className="font-ui text-[11px] font-bold uppercase tracking-[0.18em]">Race location</p>
+                    <p className="mt-2 text-sm leading-6 text-white/68">Makerere University, Kampala, Uganda.</p>
+                    <a href={pageHref('route')} className="mt-2 inline-block text-sm text-white underline underline-offset-4">View the course map</a>
                   </div>
                 </div>
               </div>

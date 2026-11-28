@@ -1,62 +1,52 @@
-import { Flag } from 'lucide-react'
+import { ExternalLink, Flag } from 'lucide-react'
 import Reveal from '../components/Reveal'
-import { CtaBand, MetricGrid, PageHero, PageSection, SectionHeader } from '../components/PageLayout'
+import { CtaBand, PageSection } from '../components/PageLayout'
 import { asset, safetyNotes } from '../data'
 
-const routeFacts = [
-  { value: '4', label: 'race distances' },
-  { value: '1', label: 'start and finish line' },
-  { value: '4', label: 'route maps' },
-  { value: '29 Nov', label: 'run day, 2026' },
-]
-
-// Every distance starts and finishes at Makerere University Freedom Square.
-const distances = [
-  { km: '21 km', name: 'Half Marathon', note: 'Out through Kawempe, Ntinda and Kyambogo, back along Jinja Road and Nakasero.', map: 'route-21k.webp' },
-  { km: '10 km', name: 'Road Race', note: 'Makerere Kavule, Kubbiri and Kamwokya, then back via Uganda Museum and Wandegeya.', map: 'route-10k.webp' },
-  { km: '5 km', name: 'Fun Run', note: 'A loop around Makerere Hill via Wandegeya, Kikoni and the Western Gate.', map: 'route-5k.webp' },
-  { km: '3 km', name: 'Inclusive Run', note: 'For persons with disabilities. Two flat, paved 1.5 km laps inside the campus, anticlockwise.', map: 'route-3k.webp' },
-]
+const routeMap = asset('makerere-club-route.jpg')
 
 export default function RoutePage() {
   return (
     <>
-      <PageHero
-        eyebrow="Distances and route"
-        title="One start. One finish. Four routes."
-        copy="Choose 21 km, 10 km, 5 km or the 3 km inclusive run. Every distance starts and finishes at Freedom Square, Makerere University. Full route maps are below."
-      />
-
       <PageSection className="bg-white">
-        <SectionHeader
-          eyebrow="Race distances"
-          title="Four distances. One start and finish line."
-          copy="Pick the distance that suits you when you register. Every distance starts and finishes at Freedom Square, Makerere University."
-        />
-        <div className="mt-10 grid gap-6 sm:grid-cols-2">
-          {distances.map((distance, index) => (
-            <Reveal key={distance.km} delay={index * 70}>
-              <article className="h-full bg-background p-5 sm:p-6">
-                <div className="flex items-baseline gap-3">
-                  <p className="font-display text-4xl uppercase leading-none text-primary sm:text-5xl">{distance.km}</p>
-                  <h3 className="font-display text-xl uppercase leading-none sm:text-2xl">{distance.name}</h3>
-                </div>
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">{distance.note}</p>
-                <a href={asset(distance.map)} target="_blank" rel="noreferrer" className="mt-4 block" aria-label={`Open the ${distance.km} ${distance.name} route map`}>
-                  <img
-                    src={asset(distance.map)}
-                    alt={`Route map for the ${distance.km} ${distance.name}, starting and finishing at Freedom Square, Makerere University`}
-                    loading="lazy"
-                    className="w-full border border-border bg-white"
-                  />
-                </a>
-                <p className="mt-2 text-xs font-bold uppercase tracking-[0.12em] text-foreground/55">Tap the map to open it full size</p>
-              </article>
-            </Reveal>
-          ))}
-        </div>
-        <div className="mt-8">
-          <MetricGrid items={routeFacts} />
+        <div className="grid gap-8 lg:grid-cols-[0.8fr_1fr] lg:items-start lg:gap-16">
+          <Reveal>
+            <p className="eyebrow">Sunday 29 November 2026</p>
+            <h1 className="page-title mt-4">Makerere Club route</h1>
+            <p className="section-copy mt-6">The Harambe Run follows one course at Makerere University, Kampala.</p>
+            <ul className="mt-7 space-y-3 text-sm font-semibold text-foreground">
+              <li className="flex items-center gap-3">
+                <span className="h-3 w-3 rounded-full bg-green-600" aria-hidden="true" />
+                Start at the green marker
+              </li>
+              <li className="flex items-center gap-3">
+                <span className="h-1 w-3 rounded-full bg-blue-600" aria-hidden="true" />
+                Follow the arrows along the blue line
+              </li>
+              <li className="flex items-center gap-3">
+                <span className="h-3 w-3 rounded-full bg-red-600" aria-hidden="true" />
+                Finish at the red marker
+              </li>
+            </ul>
+          </Reveal>
+
+          <Reveal>
+            <figure className="mx-auto w-full max-w-xl">
+              <a href={routeMap} target="_blank" rel="noreferrer" className="block border border-border bg-white">
+                <img
+                  src={routeMap}
+                  alt="Makerere Club route map with a green start marker, blue course arrows, and a red finish marker"
+                  width={766}
+                  height={994}
+                  className="h-auto w-full"
+                />
+                <span className="flex items-center justify-center gap-2 border-t border-border px-4 py-3 text-sm font-bold text-primary">
+                  Open full-size map
+                  <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                </span>
+              </a>
+            </figure>
+          </Reveal>
         </div>
       </PageSection>
 
@@ -85,8 +75,8 @@ export default function RoutePage() {
       </PageSection>
 
       <CtaBand
-        title="Pick your distance and register."
-        copy="Registration takes a few minutes: your details, your category and distance, and payment by mobile money or Visa card."
+        title="Register to run."
+        copy="Choose your runner category and pay by mobile money or Visa card."
         primaryLabel="Register to run"
         primaryPage="register"
         secondaryLabel="Runner guide"

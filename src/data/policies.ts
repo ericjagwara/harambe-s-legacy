@@ -183,7 +183,7 @@ export const policies: Record<Policy['slug'], Policy> = {
       {
         heading: 'The Run',
         paragraphs: [
-          'The Run takes place on Sunday, 29 November 2026. Every distance (21 km half marathon, 10 km road race, 5 km fun run and the 3 km inclusive run for persons with disabilities) starts and finishes at Makerere University Freedom Square, Kampala. Times, routes and arrangements may change for safety, weather or official instructions, and we will tell registered runners when they do.',
+          'The Run takes place on Sunday, 29 November 2026. Runners follow the published Makerere Club route at Makerere University, Kampala. Times, routes and arrangements may change for safety, weather or official instructions, and we will tell registered runners when they do.',
         ],
       },
       {
@@ -192,7 +192,6 @@ export const policies: Record<Policy['slug'], Policy> = {
           'You must give correct and complete details, and you must be the person taking part or have their permission to register them.',
           'Runners under 18 must have the consent of a parent or guardian.',
           'A place is confirmed only once payment is received. You then get a receipt on screen, by SMS and by email.',
-          'The 3 km inclusive run is for persons with disabilities. Please choose the distance that suits you.',
           'Registrations are personal to the named runner. If you cannot run, write to us before kit pickup to ask for a name change, and see the Refund Policy.',
         ],
       },

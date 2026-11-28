@@ -53,8 +53,8 @@ export default function Home() {
             <div className="mt-14 grid gap-4 border-t border-white/20 pt-5 sm:grid-cols-3 sm:gap-8">
               {[
                 ['Race day', 'Sunday 29 November 2026'],
-                ['Finish line', 'Makerere University, Freedom Square'],
-                ['Distances', '21 km, 10 km, 5 km and 3 km'],
+                ['Venue', 'Makerere University'],
+                ['Course', 'Makerere Club route'],
               ].map(([label, value]) => (
                 <div key={label}>
                   <p className="font-ui text-[10px] font-bold uppercase tracking-[0.22em] text-secondary">{label}</p>

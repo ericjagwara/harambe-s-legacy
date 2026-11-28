@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client'
 import { getReferral } from '@/lib/referral'
 import { trackEvent } from '@/lib/analytics'
 import { universityStarts } from '../data'
-import { distances, kitSizes, runnerCategories } from '../sections/Registration'
+import { kitSizes, runnerCategories } from '../sections/Registration'
 
 // Partner hub giving form: your gift, an optional running kit, then one payment for both.
 // Used only on /hubs/<name> pages. The main registration and donation forms are separate and unchanged.
@@ -24,7 +24,6 @@ type Values = {
   category: string
   gender: string
   dob: string
-  distance: string
   kitSize: string
   institution: string
   startupName: string
@@ -37,7 +36,7 @@ type Values = {
 }
 
 const empty: Values = {
-  name: '', email: '', amount: '', display: 'Show my name', category: '', gender: '', dob: '', distance: '', kitSize: '',
+  name: '', email: '', amount: '', display: 'Show my name', category: '', gender: '', dob: '', kitSize: '',
   institution: '', startupName: '', nokName: '', nokRelationship: '', nokPhone: '', medical: '', consent: false, phone: '',
 }
 
@@ -141,7 +140,6 @@ export default function HubGiveForm({ hubSlug, hubName }: { hubSlug: string; hub
         category: kit.label,
         gender: v.gender,
         date_of_birth: v.dob,
-        distance: v.distance,
         kit_size: v.kitSize,
         next_of_kin_name: v.nokName,
         next_of_kin_relationship: v.nokRelationship,
@@ -360,14 +358,6 @@ export default function HubGiveForm({ hubSlug, hubName }: { hubSlug: string; hub
                   </Field>
                   <Field label="Date of birth" id="hub-dob">
                     <input className="field max-w-full appearance-none" id="hub-dob" type="date" min="1930-01-01" max="2014-12-31" required value={v.dob} onChange={(e) => set('dob', e.target.value)} />
-                  </Field>
-                  <Field label="Distance" id="hub-distance">
-                    <select className="field" id="hub-distance" required value={v.distance} onChange={(e) => set('distance', e.target.value)}>
-                      <option value="" disabled>Choose a distance</option>
-                      {distances.map((d) => (
-                        <option key={d}>{d}</option>
-                      ))}
-                    </select>
                   </Field>
                   <Field label="Running kit size" id="hub-size">
                     <select className="field" id="hub-size" required value={v.kitSize} onChange={(e) => set('kitSize', e.target.value)}>

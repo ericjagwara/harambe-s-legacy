@@ -32,8 +32,8 @@ export const partnerLogos = [
 export const heroStats = [
   { value: 'UGX 3.75B', label: 'fundraising target' },
   { value: '5,000+', label: 'expected participants' },
-  { value: '4', label: 'race distances' },
-  { value: '1', label: 'start and finish line' },
+  { value: '1', label: 'official course' },
+  { value: 'Kampala', label: 'race location' },
 ]
 
 export const missionStats = [
@@ -95,21 +95,20 @@ export const universityStarts = [
 
 export const safetyNotes = [
   'Route marshals stationed at key junctions and water points',
-  'Ambulance and first aid cover along the official routes',
+  'Ambulance and first aid cover along the course',
   'Police route clearance and traffic coordination',
-  'Every distance starts and finishes at Makerere University Freedom Square',
 ]
 
 export const ticketTypes = [
   {
     name: 'Student runner',
     price: 'UGX 20,000',
-    detail: 'Valid student ID checked at kit pickup. Choose 21 km, 10 km, 5 km or 3 km.',
+    detail: 'Bring a valid student ID to kit pickup.',
   },
   {
     name: 'General public runner',
     price: 'UGX 30,000',
-    detail: 'Open to everyone. Choose 21 km, 10 km, 5 km or 3 km.',
+    detail: 'Open to the general public.',
   },
   {
     name: 'Featured listing',

@@ -50,7 +50,6 @@ const exhibitOptions = [
 
 export const kitSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 
-export const distances = ['21 km (half marathon)', '10 km (road race)', '5 km (fun run)', '3 km (inclusive run, persons with disabilities)']
 
 // Keep these labels identical to RUNNER_PRICES in blinkpay-deposit, blinkpay-card-start and pickup-desk.
 export const runnerCategories = [
@@ -532,14 +531,6 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
                         ))}
                       </select>
                     </Field>
-                    <Field label="Distance" id="distance">
-                      <select className="field" id="distance" name="distance" required defaultValue="">
-                        <option value="" disabled>Choose a distance</option>
-                        {distances.map((distance) => (
-                          <option key={distance}>{distance}</option>
-                        ))}
-                      </select>
-                    </Field>
                     <Field label="Running kit size" id="kit-size">
                       <select className="field" id="kit-size" name="kit_size" required defaultValue="">
                         <option value="" disabled>Choose a size</option>
@@ -665,14 +656,6 @@ export default function Registration({ initialTab = '', fixed }: RegistrationPro
                         </Field>
                         <Field label="Date of birth" id="featured-dob">
                           <input className="field max-w-full appearance-none" id="featured-dob" type="date" name="date_of_birth" min="1930-01-01" max="2014-12-31" required />
-                        </Field>
-                        <Field label="Distance" id="featured-distance">
-                          <select className="field" id="featured-distance" name="distance" required defaultValue="">
-                            <option value="" disabled>Choose a distance</option>
-                            {distances.map((distance) => (
-                              <option key={distance}>{distance}</option>
-                            ))}
-                          </select>
                         </Field>
                         <Field label="Running kit size" id="featured-kit">
                           <select className="field" id="featured-kit" name="kit_size" required defaultValue="">

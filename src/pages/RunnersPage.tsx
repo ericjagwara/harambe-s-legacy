@@ -5,9 +5,9 @@ import { pageHref } from '../routes'
 
 const runnerSteps = [
   'Choose your category: student or general public. Startups and SMEs can also take a featured listing, with a running ticket if they like.',
-  'Pick your distance: 21 km, 10 km, 5 km or 3 km.',
+  'Review the Makerere Club route and its start and finish markers before race day.',
   'Collect your kit at the kit pickup desk with your receipt or SMS.',
-  'Run on Sunday 29 November and finish at Makerere University.',
+  'Run at Makerere University on Sunday 29 November.',
 ]
 
 export default function RunnersPage() {
@@ -15,7 +15,7 @@ export default function RunnersPage() {
     <>
       <PageHero
         eyebrow="Runner guide"
-        title="Pick your distance. Collect the kit. Fund a founder."
+        title="Register. Collect your kit. Fund a founder."
         copy="Every paid runner receives an official running kit, collected at the kit pickup desk. Students use a valid student ID for the reduced rate."
         image={asset('runner-mockup.webp')}
         imageAlt="Runner wearing the official Harambe Run vest"
@@ -80,7 +80,7 @@ export default function RunnersPage() {
       </PageSection>
 
       <PageSection>
-        <SectionHeader eyebrow="Race-day flow" title="From registration to Freedom Square." />
+        <SectionHeader eyebrow="Race-day flow" title="From registration to race day." />
         <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {runnerSteps.map((step, index) => (
             <Reveal key={step} delay={index * 80}>
@@ -95,7 +95,7 @@ export default function RunnersPage() {
 
       <CtaBand
         title="Reserve your place for 29 November."
-        copy="Choose a category and distance, pay online and get your receipt by SMS and email."
+        copy="Choose your category, pay online and get your receipt by SMS and email."
         primaryLabel="Register as a runner"
         primaryPage="register"
         secondaryLabel="View the route"

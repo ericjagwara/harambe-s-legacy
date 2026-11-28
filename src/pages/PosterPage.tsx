@@ -43,7 +43,7 @@ export default function PosterPage() {
       return ''
     }
   })
-  const [activity, setActivity] = useState('5 km')
+  const [activity, setActivity] = useState(ACTIVITIES[0].value)
   const [tagline, setTagline] = useState(TAGLINES[0])
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [photoError, setPhotoError] = useState('')

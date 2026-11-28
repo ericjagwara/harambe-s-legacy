@@ -14,10 +14,7 @@ export const TEMPLATES: Array<{ key: PosterTemplate; label: string; swatch: stri
 ]
 
 export const ACTIVITIES = [
-  { value: '21 km', big: '21 KM', top: "I'LL BE RUNNING", sub: 'THE HALF MARATHON', label: 'Running the 21 km half marathon' },
-  { value: '10 km', big: '10 KM', top: "I'LL BE RUNNING", sub: 'THE ROAD RACE', label: 'Running the 10 km road race' },
-  { value: '5 km', big: '5 KM', top: "I'LL BE RUNNING", sub: 'THE FUN RUN', label: 'Running the 5 km fun run' },
-  { value: '3 km', big: '3 KM', top: "I'LL BE RUNNING", sub: 'THE INCLUSIVE RUN', label: 'Running the 3 km inclusive run' },
+  { value: 'running', big: 'RUNNING!', top: "I'LL BE", sub: 'THE MAKERERE CLUB ROUTE', label: 'Running the Makerere Club route' },
   { value: 'cheering', big: 'CHEERING!', top: "I'LL BE", sub: 'FROM THE SIDELINES', label: 'Cheering from the sidelines' },
   { value: 'volunteering', big: 'HELPING!', top: "I'LL BE", sub: 'AS A VOLUNTEER', label: 'Volunteering on the day' },
 ]
@@ -90,10 +87,7 @@ function sourceSize(src: CanvasImageSource) {
 }
 
 const BADGES: Record<string, [string, string]> = {
-  '21 km': ['21', 'KM'],
-  '10 km': ['10', 'KM'],
-  '5 km': ['5', 'KM'],
-  '3 km': ['3', 'KM'],
+  running: ['RACE', 'DAY'],
   cheering: ['LOUD', '& PROUD'],
   volunteering: ['HERE TO', 'HELP'],
 }
@@ -187,9 +181,9 @@ export function drawPoster(canvas: HTMLCanvasElement, input: PosterInput) {
   ctx.imageSmoothingEnabled = true
   ctx.imageSmoothingQuality = 'high'
   const L = LOOKS[input.template]
-  const act = ACTIVITIES.find((a) => a.value === input.activity) ?? ACTIVITIES[2]
+  const act = ACTIVITIES.find((a) => a.value === input.activity) ?? ACTIVITIES[0]
   const name = input.name.trim() || 'YOUR NAME'
-  const badge = BADGES[act.value] ?? BADGES['5 km']
+  const badge = BADGES[act.value] ?? BADGES.running
   ctx.textAlign = 'left'
   ctx.textBaseline = 'alphabetic'
 
@@ -235,7 +229,7 @@ export function drawPoster(canvas: HTMLCanvasElement, input: PosterInput) {
   const rows: Array<['calendar' | 'runner' | 'pin', string]> = [
     ['calendar', 'Sun 29 November 2026'],
     ['runner', act.label],
-    ['pin', 'Makerere University,\nFreedom Square'],
+    ['pin', 'Makerere University,\nKampala'],
   ]
   rows.forEach(([kind, label], i) => {
     const y = 600 + i * 78

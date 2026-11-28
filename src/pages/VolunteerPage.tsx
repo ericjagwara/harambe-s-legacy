@@ -143,7 +143,7 @@ export default function VolunteerPage() {
             <span className="hidden whitespace-nowrap sm:inline">#StartupsHarambeRun?</span>
           </>
         }
-        copy="Join the team behind a UGX 3.75 billion fundraising run on Sunday, 29 November 2026, starting and finishing at Makerere University Freedom Square, with 21 km, 10 km, 5 km and 3 km routes, built to turn goodwill into investable local startups."
+        copy="Join the team behind a UGX 3.75 billion fundraising run on Sunday, 29 November 2026, on the Makerere Club route at Makerere University, built to turn goodwill into investable local startups."
       />
 
       <PageSection className="bg-white">
